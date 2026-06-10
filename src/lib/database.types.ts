@@ -112,27 +112,6 @@ export type Database = {
         }
         Relationships: []
       }
-      documents: {
-        Row: {
-          content: string | null
-          embedding: string | null
-          id: number
-          metadata: Json | null
-        }
-        Insert: {
-          content?: string | null
-          embedding?: string | null
-          id?: number
-          metadata?: Json | null
-        }
-        Update: {
-          content?: string | null
-          embedding?: string | null
-          id?: number
-          metadata?: Json | null
-        }
-        Relationships: []
-      }
       estimate_items: {
         Row: {
           created_at: string
@@ -427,24 +406,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      n8n_chat_histories: {
-        Row: {
-          id: number
-          message: Json
-          session_id: string
-        }
-        Insert: {
-          id?: number
-          message: Json
-          session_id: string
-        }
-        Update: {
-          id?: number
-          message?: Json
-          session_id?: string
-        }
-        Relationships: []
       }
       payments: {
         Row: {
