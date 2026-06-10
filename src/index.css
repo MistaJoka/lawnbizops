@@ -1,0 +1,45 @@
+@import 'tailwindcss';
+
+/* Rugged Americana / tactical palette — dark, high-contrast, glove-friendly. */
+@theme {
+  --color-canvas: #1c1f1a; /* near-black olive — app background */
+  --color-panel: #262b22; /* cards and sheets */
+  --color-edge: #3a4234; /* borders, dividers */
+  --color-olive: #5b6648; /* primary brand */
+  --color-khaki: #c3b091; /* secondary accents */
+  --color-sand: #e3dcc8; /* primary text */
+  --color-faded: #8d8a77; /* secondary text */
+  --color-blaze: #e8742c; /* call-to-action orange */
+  --color-go: #7da462; /* success / done */
+  --color-alert: #d9534f; /* errors / overdue */
+
+  --font-display:
+    'Avenir Next Condensed', 'Arial Narrow', ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  background-color: var(--color-canvas);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  color: var(--color-sand);
+  background-color: var(--color-canvas);
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* Standalone PWA: keep content out of the notch/home-indicator zones */
+  padding-top: env(safe-area-inset-top);
+}
+
+/* Stencil-flavored section headers */
+.heading-stencil {
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}

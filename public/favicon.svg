@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#1c1f1a"/>
+  <rect x="24" y="24" width="464" height="464" rx="80" fill="none" stroke="#5b6648" stroke-width="16"/>
+  <!-- grass blades -->
+  <path d="M96 400 C110 330 100 290 84 250 C130 290 134 340 128 400 Z" fill="#7da462"/>
+  <path d="M150 400 C158 310 150 260 132 210 C186 260 188 330 178 400 Z" fill="#7da462"/>
+  <path d="M208 400 C220 300 214 230 196 170 C260 240 256 330 240 400 Z" fill="#7da462"/>
+  <!-- sun -->
+  <circle cx="356" cy="208" r="84" fill="none" stroke="#e8742c" stroke-width="24"/>
+  <circle cx="356" cy="208" r="32" fill="#e8742c"/>
+  <!-- baseline -->
+  <rect x="72" y="400" width="368" height="24" rx="12" fill="#c3b091"/>
+</svg>
