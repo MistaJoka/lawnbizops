@@ -7,6 +7,7 @@ import {
   usePropertyServices,
 } from '@/features/properties/hooks'
 import { useServices, type Service } from '@/features/services/hooks'
+import { cadenceLabel, useSchedulesForProperty } from '@/features/schedules/hooks'
 import { formatCents, parseDollarsToCents } from '@/lib/format'
 
 export const Route = createFileRoute('/_authed/properties/$propertyId/')({
@@ -18,6 +19,7 @@ function PropertyDetailScreen() {
   const { data: property, isLoading } = useProperty(propertyId)
   const { data: services } = useServices()
   const { data: overrides } = usePropertyServices(propertyId)
+  const { data: schedules } = useSchedulesForProperty(propertyId)
 
   if (!property) {
     return (
@@ -90,6 +92,43 @@ function PropertyDetailScreen() {
           <p className="mt-1 whitespace-pre-wrap text-sand">{property.notes}</p>
         </div>
       )}
+
+      <h2 className="heading-stencil mt-8 text-lg text-khaki">Recurring schedule</h2>
+      <ul className="mt-2 flex flex-col gap-2">
+        {(schedules ?? []).map((schedule) => (
+          <li key={schedule.id}>
+            <Link
+              to="/schedules/$scheduleId/edit"
+              params={{ scheduleId: schedule.id }}
+              className="flex items-center justify-between gap-2 rounded-lg border border-edge bg-panel px-4 py-4"
+            >
+              <span className="min-w-0">
+                <span className="block truncate text-lg text-sand">
+                  {cadenceLabel(schedule.cadence, schedule.day_of_month)}
+                </span>
+                {schedule.paused_at && (
+                  <span className="heading-stencil mt-1 inline-block rounded border border-edge px-2 py-1 text-[10px] text-alert">
+                    Paused
+                  </span>
+                )}
+              </span>
+              <span className="heading-stencil shrink-0 text-lg text-sand">
+                {formatCents(schedule.price_cents)}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {(schedules ?? []).length === 0 && (
+        <p className="mt-2 text-sm text-faded">No recurring schedule yet.</p>
+      )}
+      <Link
+        to="/schedules/new"
+        search={{ propertyId }}
+        className="heading-stencil mt-4 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-canvas"
+      >
+        + Add schedule
+      </Link>
 
       <h2 className="heading-stencil mt-8 text-lg text-khaki">Service prices</h2>
       <p className="mt-1 text-sm text-faded">

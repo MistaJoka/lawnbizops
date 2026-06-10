@@ -27,6 +27,7 @@ export interface PropertyDraft {
 export function useProperties(clientId: string) {
   return useQuery({
     queryKey: ['properties', { clientId }],
+    enabled: clientId !== '',
     queryFn: async (): Promise<Property[]> => {
       const { data, error } = await supabase
         .from('properties')
@@ -43,6 +44,7 @@ export function useProperties(clientId: string) {
 export function useProperty(id: string) {
   return useQuery({
     queryKey: ['properties', id],
+    enabled: id !== '',
     queryFn: async (): Promise<Property> => {
       const { data, error } = await supabase
         .from('properties')
@@ -58,6 +60,7 @@ export function useProperty(id: string) {
 export function usePropertyServices(propertyId: string) {
   return useQuery({
     queryKey: ['property_services', { propertyId }],
+    enabled: propertyId !== '',
     queryFn: async (): Promise<PropertyService[]> => {
       const { data, error } = await supabase
         .from('property_services')

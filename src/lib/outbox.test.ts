@@ -2,6 +2,7 @@ import 'fake-indexeddb/auto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const upsertMock = vi.fn()
+const updateEqMock = vi.fn()
 const deleteEqMock = vi.fn()
 const rpcMock = vi.fn()
 
@@ -9,6 +10,9 @@ vi.mock('./supabase', () => ({
   supabase: {
     from: (table: string) => ({
       upsert: (payload: unknown) => upsertMock(table, payload),
+      update: (patch: unknown) => ({
+        eq: (col: string, id: string) => updateEqMock(table, patch, col, id),
+      }),
       delete: () => ({ eq: (col: string, id: string) => deleteEqMock(table, col, id) }),
     }),
     rpc: (fn: string, args: unknown) => rpcMock(fn, args),
@@ -35,6 +39,7 @@ beforeEach(async () => {
   vi.stubGlobal('navigator', network)
   await db.outbox.clear()
   upsertMock.mockReset().mockResolvedValue(ok)
+  updateEqMock.mockReset().mockResolvedValue(ok)
   deleteEqMock.mockReset().mockResolvedValue(ok)
   rpcMock.mockReset().mockResolvedValue({ error: null })
 })
@@ -131,6 +136,23 @@ describe('outbox', () => {
 
     await retryFailed(failed.seq)
     await flush()
+    expect(await db.outbox.count()).toBe(0)
+  })
+
+  it('executes update ops as partial patches by id', async () => {
+    await enqueue({
+      table: 'jobs',
+      kind: 'update',
+      payload: { id: 'j1', patch: { status: 'done', completed_at: '2026-06-10' } },
+    })
+    goOnline()
+    await flush()
+    expect(updateEqMock).toHaveBeenCalledWith(
+      'jobs',
+      { status: 'done', completed_at: '2026-06-10' },
+      'id',
+      'j1',
+    )
     expect(await db.outbox.count()).toBe(0)
   })
 

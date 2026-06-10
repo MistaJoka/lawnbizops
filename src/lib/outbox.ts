@@ -17,6 +17,11 @@ import { queryClient } from './queryClient'
 
 export type EnqueueInput =
   | { table: SyncTable; kind: 'upsert'; payload: Record<string, unknown> }
+  | {
+      table: SyncTable
+      kind: 'update'
+      payload: { id: string; patch: Record<string, unknown> }
+    }
   | { table: SyncTable; kind: 'delete'; payload: { id: string } }
   | {
       table: SyncTable
@@ -63,6 +68,15 @@ async function execute(op: OutboxOp): Promise<OpResult> {
       // rpc names/args are dynamic by design; typed wrappers live at call sites
       const { error } = await supabase.rpc(fn as never, args as never)
       if (error) return failureFrom(error.code, error.message)
+      return { ok: true }
+    }
+    if (op.kind === 'update') {
+      const { id, patch } = op.payload as { id: string; patch: Record<string, unknown> }
+      const { error, status } = await supabase
+        .from(op.table)
+        .update(patch as never)
+        .eq('id', id)
+      if (error) return failureFrom(status, error.message)
       return { ok: true }
     }
     if (op.kind === 'delete') {

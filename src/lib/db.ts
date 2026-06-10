@@ -21,9 +21,10 @@ export interface OutboxOp {
   seq: number
   id: string
   table: SyncTable
-  kind: 'upsert' | 'delete' | 'rpc'
+  kind: 'upsert' | 'update' | 'delete' | 'rpc'
   /**
-   * upsert: the row (client-generated uuid id) — retries are idempotent.
+   * upsert: the full row (client-generated uuid id) — retries are idempotent.
+   * update: { id, patch } — partial column update by id (also idempotent).
    * delete: { id }
    * rpc: { fn, args }
    */

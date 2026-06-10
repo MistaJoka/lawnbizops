@@ -16,10 +16,14 @@ import { Route as AuthedMoneyRouteImport } from './routes/_authed/money'
 import { Route as AuthedSettingsIndexRouteImport } from './routes/_authed/settings/index'
 import { Route as AuthedClientsIndexRouteImport } from './routes/_authed/clients/index'
 import { Route as AuthedSettingsServicesRouteImport } from './routes/_authed/settings/services'
+import { Route as AuthedSchedulesNewRouteImport } from './routes/_authed/schedules/new'
 import { Route as AuthedPropertiesNewRouteImport } from './routes/_authed/properties/new'
+import { Route as AuthedJobsNewRouteImport } from './routes/_authed/jobs/new'
+import { Route as AuthedJobsJobIdRouteImport } from './routes/_authed/jobs/$jobId'
 import { Route as AuthedClientsNewRouteImport } from './routes/_authed/clients/new'
 import { Route as AuthedPropertiesPropertyIdIndexRouteImport } from './routes/_authed/properties/$propertyId.index'
 import { Route as AuthedClientsClientIdIndexRouteImport } from './routes/_authed/clients/$clientId.index'
+import { Route as AuthedSchedulesScheduleIdEditRouteImport } from './routes/_authed/schedules/$scheduleId.edit'
 import { Route as AuthedPropertiesPropertyIdEditRouteImport } from './routes/_authed/properties/$propertyId.edit'
 import { Route as AuthedClientsClientIdEditRouteImport } from './routes/_authed/clients/$clientId.edit'
 
@@ -57,9 +61,24 @@ const AuthedSettingsServicesRoute = AuthedSettingsServicesRouteImport.update({
   path: '/settings/services',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedSchedulesNewRoute = AuthedSchedulesNewRouteImport.update({
+  id: '/schedules/new',
+  path: '/schedules/new',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedPropertiesNewRoute = AuthedPropertiesNewRouteImport.update({
   id: '/properties/new',
   path: '/properties/new',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedJobsNewRoute = AuthedJobsNewRouteImport.update({
+  id: '/jobs/new',
+  path: '/jobs/new',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedJobsJobIdRoute = AuthedJobsJobIdRouteImport.update({
+  id: '/jobs/$jobId',
+  path: '/jobs/$jobId',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedClientsNewRoute = AuthedClientsNewRouteImport.update({
@@ -77,6 +96,12 @@ const AuthedClientsClientIdIndexRoute =
   AuthedClientsClientIdIndexRouteImport.update({
     id: '/clients/$clientId/',
     path: '/clients/$clientId/',
+    getParentRoute: () => AuthedRoute,
+  } as any)
+const AuthedSchedulesScheduleIdEditRoute =
+  AuthedSchedulesScheduleIdEditRouteImport.update({
+    id: '/schedules/$scheduleId/edit',
+    path: '/schedules/$scheduleId/edit',
     getParentRoute: () => AuthedRoute,
   } as any)
 const AuthedPropertiesPropertyIdEditRoute =
@@ -97,12 +122,16 @@ export interface FileRoutesByFullPath {
   '/money': typeof AuthedMoneyRoute
   '/schedule': typeof AuthedScheduleRoute
   '/clients/new': typeof AuthedClientsNewRoute
+  '/jobs/$jobId': typeof AuthedJobsJobIdRoute
+  '/jobs/new': typeof AuthedJobsNewRoute
   '/properties/new': typeof AuthedPropertiesNewRoute
+  '/schedules/new': typeof AuthedSchedulesNewRoute
   '/settings/services': typeof AuthedSettingsServicesRoute
   '/clients/': typeof AuthedClientsIndexRoute
   '/settings/': typeof AuthedSettingsIndexRoute
   '/clients/$clientId/edit': typeof AuthedClientsClientIdEditRoute
   '/properties/$propertyId/edit': typeof AuthedPropertiesPropertyIdEditRoute
+  '/schedules/$scheduleId/edit': typeof AuthedSchedulesScheduleIdEditRoute
   '/clients/$clientId/': typeof AuthedClientsClientIdIndexRoute
   '/properties/$propertyId/': typeof AuthedPropertiesPropertyIdIndexRoute
 }
@@ -111,12 +140,16 @@ export interface FileRoutesByTo {
   '/schedule': typeof AuthedScheduleRoute
   '/': typeof AuthedIndexRoute
   '/clients/new': typeof AuthedClientsNewRoute
+  '/jobs/$jobId': typeof AuthedJobsJobIdRoute
+  '/jobs/new': typeof AuthedJobsNewRoute
   '/properties/new': typeof AuthedPropertiesNewRoute
+  '/schedules/new': typeof AuthedSchedulesNewRoute
   '/settings/services': typeof AuthedSettingsServicesRoute
   '/clients': typeof AuthedClientsIndexRoute
   '/settings': typeof AuthedSettingsIndexRoute
   '/clients/$clientId/edit': typeof AuthedClientsClientIdEditRoute
   '/properties/$propertyId/edit': typeof AuthedPropertiesPropertyIdEditRoute
+  '/schedules/$scheduleId/edit': typeof AuthedSchedulesScheduleIdEditRoute
   '/clients/$clientId': typeof AuthedClientsClientIdIndexRoute
   '/properties/$propertyId': typeof AuthedPropertiesPropertyIdIndexRoute
 }
@@ -127,12 +160,16 @@ export interface FileRoutesById {
   '/_authed/schedule': typeof AuthedScheduleRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/clients/new': typeof AuthedClientsNewRoute
+  '/_authed/jobs/$jobId': typeof AuthedJobsJobIdRoute
+  '/_authed/jobs/new': typeof AuthedJobsNewRoute
   '/_authed/properties/new': typeof AuthedPropertiesNewRoute
+  '/_authed/schedules/new': typeof AuthedSchedulesNewRoute
   '/_authed/settings/services': typeof AuthedSettingsServicesRoute
   '/_authed/clients/': typeof AuthedClientsIndexRoute
   '/_authed/settings/': typeof AuthedSettingsIndexRoute
   '/_authed/clients/$clientId/edit': typeof AuthedClientsClientIdEditRoute
   '/_authed/properties/$propertyId/edit': typeof AuthedPropertiesPropertyIdEditRoute
+  '/_authed/schedules/$scheduleId/edit': typeof AuthedSchedulesScheduleIdEditRoute
   '/_authed/clients/$clientId/': typeof AuthedClientsClientIdIndexRoute
   '/_authed/properties/$propertyId/': typeof AuthedPropertiesPropertyIdIndexRoute
 }
@@ -143,12 +180,16 @@ export interface FileRouteTypes {
     | '/money'
     | '/schedule'
     | '/clients/new'
+    | '/jobs/$jobId'
+    | '/jobs/new'
     | '/properties/new'
+    | '/schedules/new'
     | '/settings/services'
     | '/clients/'
     | '/settings/'
     | '/clients/$clientId/edit'
     | '/properties/$propertyId/edit'
+    | '/schedules/$scheduleId/edit'
     | '/clients/$clientId/'
     | '/properties/$propertyId/'
   fileRoutesByTo: FileRoutesByTo
@@ -157,12 +198,16 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/'
     | '/clients/new'
+    | '/jobs/$jobId'
+    | '/jobs/new'
     | '/properties/new'
+    | '/schedules/new'
     | '/settings/services'
     | '/clients'
     | '/settings'
     | '/clients/$clientId/edit'
     | '/properties/$propertyId/edit'
+    | '/schedules/$scheduleId/edit'
     | '/clients/$clientId'
     | '/properties/$propertyId'
   id:
@@ -172,12 +217,16 @@ export interface FileRouteTypes {
     | '/_authed/schedule'
     | '/_authed/'
     | '/_authed/clients/new'
+    | '/_authed/jobs/$jobId'
+    | '/_authed/jobs/new'
     | '/_authed/properties/new'
+    | '/_authed/schedules/new'
     | '/_authed/settings/services'
     | '/_authed/clients/'
     | '/_authed/settings/'
     | '/_authed/clients/$clientId/edit'
     | '/_authed/properties/$propertyId/edit'
+    | '/_authed/schedules/$scheduleId/edit'
     | '/_authed/clients/$clientId/'
     | '/_authed/properties/$propertyId/'
   fileRoutesById: FileRoutesById
@@ -237,11 +286,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedSettingsServicesRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/schedules/new': {
+      id: '/_authed/schedules/new'
+      path: '/schedules/new'
+      fullPath: '/schedules/new'
+      preLoaderRoute: typeof AuthedSchedulesNewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/properties/new': {
       id: '/_authed/properties/new'
       path: '/properties/new'
       fullPath: '/properties/new'
       preLoaderRoute: typeof AuthedPropertiesNewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/jobs/new': {
+      id: '/_authed/jobs/new'
+      path: '/jobs/new'
+      fullPath: '/jobs/new'
+      preLoaderRoute: typeof AuthedJobsNewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/jobs/$jobId': {
+      id: '/_authed/jobs/$jobId'
+      path: '/jobs/$jobId'
+      fullPath: '/jobs/$jobId'
+      preLoaderRoute: typeof AuthedJobsJobIdRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/clients/new': {
@@ -263,6 +333,13 @@ declare module '@tanstack/react-router' {
       path: '/clients/$clientId'
       fullPath: '/clients/$clientId/'
       preLoaderRoute: typeof AuthedClientsClientIdIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/schedules/$scheduleId/edit': {
+      id: '/_authed/schedules/$scheduleId/edit'
+      path: '/schedules/$scheduleId/edit'
+      fullPath: '/schedules/$scheduleId/edit'
+      preLoaderRoute: typeof AuthedSchedulesScheduleIdEditRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/properties/$propertyId/edit': {
@@ -287,12 +364,16 @@ interface AuthedRouteChildren {
   AuthedScheduleRoute: typeof AuthedScheduleRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
   AuthedClientsNewRoute: typeof AuthedClientsNewRoute
+  AuthedJobsJobIdRoute: typeof AuthedJobsJobIdRoute
+  AuthedJobsNewRoute: typeof AuthedJobsNewRoute
   AuthedPropertiesNewRoute: typeof AuthedPropertiesNewRoute
+  AuthedSchedulesNewRoute: typeof AuthedSchedulesNewRoute
   AuthedSettingsServicesRoute: typeof AuthedSettingsServicesRoute
   AuthedClientsIndexRoute: typeof AuthedClientsIndexRoute
   AuthedSettingsIndexRoute: typeof AuthedSettingsIndexRoute
   AuthedClientsClientIdEditRoute: typeof AuthedClientsClientIdEditRoute
   AuthedPropertiesPropertyIdEditRoute: typeof AuthedPropertiesPropertyIdEditRoute
+  AuthedSchedulesScheduleIdEditRoute: typeof AuthedSchedulesScheduleIdEditRoute
   AuthedClientsClientIdIndexRoute: typeof AuthedClientsClientIdIndexRoute
   AuthedPropertiesPropertyIdIndexRoute: typeof AuthedPropertiesPropertyIdIndexRoute
 }
@@ -302,12 +383,16 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedScheduleRoute: AuthedScheduleRoute,
   AuthedIndexRoute: AuthedIndexRoute,
   AuthedClientsNewRoute: AuthedClientsNewRoute,
+  AuthedJobsJobIdRoute: AuthedJobsJobIdRoute,
+  AuthedJobsNewRoute: AuthedJobsNewRoute,
   AuthedPropertiesNewRoute: AuthedPropertiesNewRoute,
+  AuthedSchedulesNewRoute: AuthedSchedulesNewRoute,
   AuthedSettingsServicesRoute: AuthedSettingsServicesRoute,
   AuthedClientsIndexRoute: AuthedClientsIndexRoute,
   AuthedSettingsIndexRoute: AuthedSettingsIndexRoute,
   AuthedClientsClientIdEditRoute: AuthedClientsClientIdEditRoute,
   AuthedPropertiesPropertyIdEditRoute: AuthedPropertiesPropertyIdEditRoute,
+  AuthedSchedulesScheduleIdEditRoute: AuthedSchedulesScheduleIdEditRoute,
   AuthedClientsClientIdIndexRoute: AuthedClientsClientIdIndexRoute,
   AuthedPropertiesPropertyIdIndexRoute: AuthedPropertiesPropertyIdIndexRoute,
 }

@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 /**
- * Stub for Phase 2+ tables that src/lib/db.ts SyncTable already references
+ * Stub for Phase 3+ tables that src/lib/db.ts SyncTable already references
  * but that don't exist in the database yet. `any` keeps the outbox's dynamic
  * supabase.from(op.table) compiling without loosening the real tables below.
  * Remove these as the real tables land and typegen emits them.
@@ -134,6 +134,79 @@ export type Database = {
         }
         Relationships: []
       }
+      jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          notes: string
+          occurrence_date: string | null
+          price_cents: number
+          property_id: string
+          schedule_id: string | null
+          scheduled_date: string
+          service_id: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string
+          occurrence_date?: string | null
+          price_cents?: number
+          property_id: string
+          schedule_id?: string | null
+          scheduled_date: string
+          service_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string
+          occurrence_date?: string | null
+          price_cents?: number
+          property_id?: string
+          schedule_id?: string | null
+          scheduled_date?: string
+          service_id?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "recurring_schedules"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       n8n_chat_histories: {
         Row: {
           id: number
@@ -259,6 +332,72 @@ export type Database = {
           },
         ]
       }
+      recurring_schedules: {
+        Row: {
+          anchor_date: string
+          cadence: string
+          created_at: string
+          day_of_month: number | null
+          ends_on: string | null
+          id: string
+          last_materialized_through: string | null
+          notes: string
+          paused_at: string | null
+          price_cents: number
+          property_id: string
+          service_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          anchor_date: string
+          cadence: string
+          created_at?: string
+          day_of_month?: number | null
+          ends_on?: string | null
+          id?: string
+          last_materialized_through?: string | null
+          notes?: string
+          paused_at?: string | null
+          price_cents?: number
+          property_id: string
+          service_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          anchor_date?: string
+          cadence?: string
+          created_at?: string
+          day_of_month?: number | null
+          ends_on?: string | null
+          id?: string
+          last_materialized_through?: string | null
+          notes?: string
+          paused_at?: string | null
+          price_cents?: number
+          property_id?: string
+          service_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recurring_schedules_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recurring_schedules_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           archived_at: string | null
@@ -296,8 +435,6 @@ export type Database = {
         Relationships: []
       }
       // Not in the database yet — see FutureTable above.
-      recurring_schedules: FutureTable
-      jobs: FutureTable
       estimates: FutureTable
       estimate_items: FutureTable
       invoices: FutureTable
@@ -309,7 +446,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      materialize_jobs: { Args: { through_date: string }; Returns: number }
+      resync_schedule: {
+        Args: { p_schedule_id: string; through_date: string }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
