@@ -28,7 +28,7 @@ jobs:
         env:
           # Project-page base path. When the custom domain is attached, set
           # this to '/' (and add a CNAME file) — see README "Deployment".
-          VITE_BASE: /LawnBizOps/
+          VITE_BASE: /lawnbizops/
           # Publishable values — public by design (they ship in the JS bundle).
           VITE_SUPABASE_URL: https://kjovmqtcalrfdguccnfm.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_OvnOGkNCeBEHUss8G7VjCA_TvZVCFlw

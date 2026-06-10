@@ -42,7 +42,7 @@ npm run lint && npm run format:check && npm test && npm run build
 
 ## Deployment
 
-Live at **https://mistajoka.github.io/LawnBizOps/** — every push to `main`
+Live at **https://mistajoka.github.io/lawnbizops/** — every push to `main`
 deploys via [.github/workflows/deploy.yml](.github/workflows/deploy.yml)
 (GitHub Pages, SPA fallback through 404.html).
 
