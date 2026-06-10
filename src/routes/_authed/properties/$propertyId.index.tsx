@@ -60,7 +60,7 @@ function PropertyDetailScreen() {
 
       {address && (
         <a
-          href={`https://maps.apple.com/?q=${encodeURIComponent(address)}`}
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
           target="_blank"
           rel="noreferrer"
           className="mt-4 block rounded-lg border border-edge bg-panel px-4 py-4"

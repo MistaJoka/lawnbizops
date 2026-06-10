@@ -3,6 +3,12 @@
 Mobile-first PWA for one solo South FL landscaper. Full plan + phase status:
 `/Users/andraewilliams/.claude/plans/business-system-for-a-witty-milner.md`.
 
+Primary device: **Android Galaxy S26 Ultra (Chrome)** — Google Maps URLs for
+deep links, but keep the cross-platform app-managed outbox (no SW Background
+Sync dependence). **Auth is OFF for now** (migration 0004: anon policies +
+placeholder user_id default; `_authed` layout kept as the re-auth seam). Add
+real auth before sensitive client data (gate codes) ships.
+
 ## Iron rules
 
 - **Every write goes through the outbox** — `enqueue()` in `src/lib/outbox.ts`.
