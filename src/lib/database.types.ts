@@ -6,15 +6,6 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-/**
- * Stub for Phase 4+ tables that src/lib/db.ts SyncTable already references
- * but that don't exist in the database yet. `any` keeps the outbox's dynamic
- * supabase.from(op.table) compiling without loosening the real tables below.
- * Remove these as the real tables land and typegen emits them.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type FutureTable = { Row: any; Insert: any; Update: any; Relationships: [] }
-
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -25,6 +16,14 @@ export type Database = {
     Tables: {
       business_settings: {
         Row: {
+          /**
+           * HAND-EDIT (keep when regenerating): phantom column. The outbox's
+           * dynamic `supabase.from(op.table).…eq('id', …)` types its filter
+           * columns as the intersection across every SyncTable Row, and this
+           * singleton table has no real `id` (keyed by user_id). It never
+           * receives update/delete ops, so the phantom is never queried.
+           */
+          id?: string
           address: string
           business_name: string
           created_at: string
@@ -133,6 +132,107 @@ export type Database = {
           metadata?: Json | null
         }
         Relationships: []
+      }
+      estimate_items: {
+        Row: {
+          created_at: string
+          description: string
+          estimate_id: string
+          id: string
+          quantity: number
+          sort_order: number
+          unit_price_cents: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          estimate_id: string
+          id?: string
+          quantity?: number
+          sort_order?: number
+          unit_price_cents?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          estimate_id?: string
+          id?: string
+          quantity?: number
+          sort_order?: number
+          unit_price_cents?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimate_items_estimate_id_fkey"
+            columns: ["estimate_id"]
+            isOneToOne: false
+            referencedRelation: "estimates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estimates: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          issued_at: string
+          notes: string
+          number: string | null
+          property_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          valid_until: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          issued_at?: string
+          notes?: string
+          number?: string | null
+          property_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          valid_until?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          issued_at?: string
+          notes?: string
+          number?: string | null
+          property_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimates_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estimates_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoice_items: {
         Row: {
@@ -244,6 +344,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_estimate_id_fkey"
+            columns: ["estimate_id"]
+            isOneToOne: false
+            referencedRelation: "estimates"
             referencedColumns: ["id"]
           },
         ]
@@ -390,6 +497,36 @@ export type Database = {
           },
         ]
       }
+      photos: {
+        Row: {
+          created_at: string
+          entity_id: string
+          entity_type: string
+          id: string
+          storage_path: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_id: string
+          entity_type: string
+          id?: string
+          storage_path: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          storage_path?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       properties: {
         Row: {
           address_line1: string
@@ -457,6 +594,11 @@ export type Database = {
       }
       property_services: {
         Row: {
+          /**
+           * HAND-EDIT (keep when regenerating): phantom column — see
+           * business_settings.Row.id. Real key is (property_id, service_id).
+           */
+          id?: string
           created_at: string
           price_cents: number
           property_id: string
@@ -599,10 +741,6 @@ export type Database = {
         }
         Relationships: []
       }
-      // Not in the database yet — see FutureTable above.
-      estimates: FutureTable
-      estimate_items: FutureTable
-      photos: FutureTable
     }
     Views: {
       invoice_balances: {

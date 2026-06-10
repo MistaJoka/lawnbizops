@@ -22,6 +22,8 @@ import { Route as AuthedJobsNewRouteImport } from './routes/_authed/jobs/new'
 import { Route as AuthedJobsJobIdRouteImport } from './routes/_authed/jobs/$jobId'
 import { Route as AuthedInvoicesNewRouteImport } from './routes/_authed/invoices/new'
 import { Route as AuthedInvoicesInvoiceIdRouteImport } from './routes/_authed/invoices/$invoiceId'
+import { Route as AuthedEstimatesNewRouteImport } from './routes/_authed/estimates/new'
+import { Route as AuthedEstimatesEstimateIdRouteImport } from './routes/_authed/estimates/$estimateId'
 import { Route as AuthedClientsNewRouteImport } from './routes/_authed/clients/new'
 import { Route as AuthedPropertiesPropertyIdIndexRouteImport } from './routes/_authed/properties/$propertyId.index'
 import { Route as AuthedClientsClientIdIndexRouteImport } from './routes/_authed/clients/$clientId.index'
@@ -93,6 +95,17 @@ const AuthedInvoicesInvoiceIdRoute = AuthedInvoicesInvoiceIdRouteImport.update({
   path: '/invoices/$invoiceId',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedEstimatesNewRoute = AuthedEstimatesNewRouteImport.update({
+  id: '/estimates/new',
+  path: '/estimates/new',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedEstimatesEstimateIdRoute =
+  AuthedEstimatesEstimateIdRouteImport.update({
+    id: '/estimates/$estimateId',
+    path: '/estimates/$estimateId',
+    getParentRoute: () => AuthedRoute,
+  } as any)
 const AuthedClientsNewRoute = AuthedClientsNewRouteImport.update({
   id: '/clients/new',
   path: '/clients/new',
@@ -133,6 +146,8 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
   '/schedule': typeof AuthedScheduleRoute
   '/clients/new': typeof AuthedClientsNewRoute
+  '/estimates/$estimateId': typeof AuthedEstimatesEstimateIdRoute
+  '/estimates/new': typeof AuthedEstimatesNewRoute
   '/invoices/$invoiceId': typeof AuthedInvoicesInvoiceIdRoute
   '/invoices/new': typeof AuthedInvoicesNewRoute
   '/jobs/$jobId': typeof AuthedJobsJobIdRoute
@@ -153,6 +168,8 @@ export interface FileRoutesByTo {
   '/schedule': typeof AuthedScheduleRoute
   '/': typeof AuthedIndexRoute
   '/clients/new': typeof AuthedClientsNewRoute
+  '/estimates/$estimateId': typeof AuthedEstimatesEstimateIdRoute
+  '/estimates/new': typeof AuthedEstimatesNewRoute
   '/invoices/$invoiceId': typeof AuthedInvoicesInvoiceIdRoute
   '/invoices/new': typeof AuthedInvoicesNewRoute
   '/jobs/$jobId': typeof AuthedJobsJobIdRoute
@@ -175,6 +192,8 @@ export interface FileRoutesById {
   '/_authed/schedule': typeof AuthedScheduleRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/clients/new': typeof AuthedClientsNewRoute
+  '/_authed/estimates/$estimateId': typeof AuthedEstimatesEstimateIdRoute
+  '/_authed/estimates/new': typeof AuthedEstimatesNewRoute
   '/_authed/invoices/$invoiceId': typeof AuthedInvoicesInvoiceIdRoute
   '/_authed/invoices/new': typeof AuthedInvoicesNewRoute
   '/_authed/jobs/$jobId': typeof AuthedJobsJobIdRoute
@@ -197,6 +216,8 @@ export interface FileRouteTypes {
     | '/'
     | '/schedule'
     | '/clients/new'
+    | '/estimates/$estimateId'
+    | '/estimates/new'
     | '/invoices/$invoiceId'
     | '/invoices/new'
     | '/jobs/$jobId'
@@ -217,6 +238,8 @@ export interface FileRouteTypes {
     | '/schedule'
     | '/'
     | '/clients/new'
+    | '/estimates/$estimateId'
+    | '/estimates/new'
     | '/invoices/$invoiceId'
     | '/invoices/new'
     | '/jobs/$jobId'
@@ -238,6 +261,8 @@ export interface FileRouteTypes {
     | '/_authed/schedule'
     | '/_authed/'
     | '/_authed/clients/new'
+    | '/_authed/estimates/$estimateId'
+    | '/_authed/estimates/new'
     | '/_authed/invoices/$invoiceId'
     | '/_authed/invoices/new'
     | '/_authed/jobs/$jobId'
@@ -352,6 +377,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedInvoicesInvoiceIdRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/estimates/new': {
+      id: '/_authed/estimates/new'
+      path: '/estimates/new'
+      fullPath: '/estimates/new'
+      preLoaderRoute: typeof AuthedEstimatesNewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/estimates/$estimateId': {
+      id: '/_authed/estimates/$estimateId'
+      path: '/estimates/$estimateId'
+      fullPath: '/estimates/$estimateId'
+      preLoaderRoute: typeof AuthedEstimatesEstimateIdRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/clients/new': {
       id: '/_authed/clients/new'
       path: '/clients/new'
@@ -401,6 +440,8 @@ interface AuthedRouteChildren {
   AuthedScheduleRoute: typeof AuthedScheduleRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
   AuthedClientsNewRoute: typeof AuthedClientsNewRoute
+  AuthedEstimatesEstimateIdRoute: typeof AuthedEstimatesEstimateIdRoute
+  AuthedEstimatesNewRoute: typeof AuthedEstimatesNewRoute
   AuthedInvoicesInvoiceIdRoute: typeof AuthedInvoicesInvoiceIdRoute
   AuthedInvoicesNewRoute: typeof AuthedInvoicesNewRoute
   AuthedJobsJobIdRoute: typeof AuthedJobsJobIdRoute
@@ -422,6 +463,8 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedScheduleRoute: AuthedScheduleRoute,
   AuthedIndexRoute: AuthedIndexRoute,
   AuthedClientsNewRoute: AuthedClientsNewRoute,
+  AuthedEstimatesEstimateIdRoute: AuthedEstimatesEstimateIdRoute,
+  AuthedEstimatesNewRoute: AuthedEstimatesNewRoute,
   AuthedInvoicesInvoiceIdRoute: AuthedInvoicesInvoiceIdRoute,
   AuthedInvoicesNewRoute: AuthedInvoicesNewRoute,
   AuthedJobsJobIdRoute: AuthedJobsJobIdRoute,

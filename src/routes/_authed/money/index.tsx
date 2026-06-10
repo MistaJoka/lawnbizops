@@ -9,6 +9,8 @@ import {
   type InvoiceBalance,
 } from '@/features/invoices/hooks'
 import { InvoiceStatusChip } from '@/features/invoices/InvoiceStatusChip'
+import { useEstimates, type EstimateListRow } from '@/features/estimates/hooks'
+import { EstimateStatusChip } from '@/features/estimates/EstimateStatusChip'
 import { formatCents, localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
@@ -61,11 +63,7 @@ function MoneyScreen() {
         ))}
       </div>
 
-      {tab === 'estimates' ? (
-        <p className="mt-16 text-center text-faded">Coming in Phase 4.</p>
-      ) : (
-        <InvoicesTab />
-      )}
+      {tab === 'estimates' ? <EstimatesTab /> : <InvoicesTab />}
     </div>
   )
 }
@@ -123,6 +121,63 @@ function InvoicesTab() {
         </p>
       )}
     </>
+  )
+}
+
+function EstimatesTab() {
+  const { data: estimates, isLoading } = useEstimates()
+
+  return (
+    <>
+      <Link
+        to="/estimates/new"
+        className="heading-stencil mt-4 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-canvas"
+      >
+        + New estimate
+      </Link>
+
+      <ul className="mt-4 flex flex-col gap-2 pb-8">
+        {(estimates ?? []).map((est) => (
+          <li key={est.id}>
+            <EstimateRow estimate={est} />
+          </li>
+        ))}
+      </ul>
+      {(estimates ?? []).length === 0 && (
+        <p className="mt-8 text-center text-faded">
+          {isLoading ? 'Loading…' : 'No estimates yet.'}
+        </p>
+      )}
+    </>
+  )
+}
+
+function EstimateRow({ estimate }: { estimate: EstimateListRow }) {
+  return (
+    <Link
+      to="/estimates/$estimateId"
+      params={{ estimateId: estimate.id }}
+      className="block rounded-lg border border-edge bg-panel px-4 py-4"
+    >
+      <span className="flex items-center justify-between gap-2">
+        <span className="heading-stencil min-w-0 truncate text-sand">
+          {estimate.number ?? 'pending #'}
+        </span>
+        <EstimateStatusChip status={estimate.status} />
+      </span>
+      <span className="mt-1 flex items-center justify-between gap-2">
+        <span className="min-w-0 truncate text-lg text-sand">
+          {estimate.client?.name ?? 'Client'}
+        </span>
+        <span className="shrink-0 text-lg text-sand">
+          {formatCents(estimate.total_cents)}
+        </span>
+      </span>
+      <span className="mt-1 block text-sm text-faded">
+        {formatShortDate(estimate.issued_at)}
+        {estimate.valid_until && ` · valid thru ${formatShortDate(estimate.valid_until)}`}
+      </span>
+    </Link>
   )
 }
 
