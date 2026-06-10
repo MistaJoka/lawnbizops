@@ -40,6 +40,23 @@ npm run lint && npm run format:check && npm test && npm run build
 - Every table is scoped by `user_id` with RLS — single-tenant today,
   multi-tenant-ready by design.
 
+## Deployment
+
+Live at **https://mistajoka.github.io/LawnBizOps/** — every push to `main`
+deploys via [.github/workflows/deploy.yml](.github/workflows/deploy.yml)
+(GitHub Pages, SPA fallback through 404.html).
+
+To move to **lawnbiz.andraewilliams.com** (or any subdomain):
+
+1. DNS: add `CNAME lawnbiz → mistajoka.github.io` (same as the existing www
+   record).
+2. Repo → Settings → Pages → Custom domain: `lawnbiz.andraewilliams.com`
+   (+ Enforce HTTPS once the cert issues).
+3. In `deploy.yml`: change `VITE_BASE` to `/` and add a step before the
+   artifact upload: `echo lawnbiz.andraewilliams.com > dist/CNAME`.
+4. Anyone who installed the PWA from the old URL should reinstall from the
+   new one (scope changes with the domain).
+
 ## Database
 
 Migrations live in `supabase/migrations/` and are applied to the hosted
