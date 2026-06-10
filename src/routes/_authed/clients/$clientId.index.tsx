@@ -1,6 +1,8 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { archiveClient, useClient } from '@/features/clients/hooks'
 import { formatAddress, useProperties } from '@/features/properties/hooks'
+import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
+import { formatCents } from '@/lib/format'
 
 export const Route = createFileRoute('/_authed/clients/$clientId/')({
   component: ClientDetailScreen,
@@ -11,6 +13,10 @@ function ClientDetailScreen() {
   const navigate = useNavigate()
   const { data: client, isLoading } = useClient(clientId)
   const { data: properties } = useProperties(clientId)
+  const { data: invoices } = useInvoiceBalances()
+  const openBalance = (invoices ?? [])
+    .filter((inv) => inv.client_id === clientId && isOpen(inv))
+    .reduce((sum, inv) => sum + inv.balance_cents, 0)
 
   if (!client) {
     return (
@@ -78,6 +84,18 @@ function ClientDetailScreen() {
           <p className="heading-stencil text-xs text-faded">Notes</p>
           <p className="mt-1 whitespace-pre-wrap text-sand">{client.notes}</p>
         </div>
+      )}
+
+      {openBalance > 0 && (
+        <Link
+          to="/money"
+          className="mt-4 flex items-center justify-between rounded-lg border border-edge bg-panel px-4 py-4"
+        >
+          <span className="heading-stencil text-xs text-faded">Open balance</span>
+          <span className="heading-stencil text-xl text-blaze">
+            {formatCents(openBalance)} →
+          </span>
+        </Link>
       )}
 
       <h2 className="heading-stencil mt-8 text-lg text-khaki">Properties</h2>

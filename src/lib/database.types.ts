@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 /**
- * Stub for Phase 3+ tables that src/lib/db.ts SyncTable already references
+ * Stub for Phase 4+ tables that src/lib/db.ts SyncTable already references
  * but that don't exist in the database yet. `any` keeps the outbox's dynamic
  * supabase.from(op.table) compiling without loosening the real tables below.
  * Remove these as the real tables land and typegen emits them.
@@ -134,6 +134,120 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_items: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          invoice_id: string
+          job_id: string | null
+          quantity: number
+          sort_order: number
+          unit_price_cents: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          invoice_id: string
+          job_id?: string | null
+          quantity?: number
+          sort_order?: number
+          unit_price_cents?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          invoice_id?: string
+          job_id?: string | null
+          quantity?: number
+          sort_order?: number
+          unit_price_cents?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_balances"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          client_id: string
+          created_at: string
+          due_at: string | null
+          estimate_id: string | null
+          id: string
+          issued_at: string
+          last_reminded_at: string | null
+          notes: string
+          number: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          due_at?: string | null
+          estimate_id?: string | null
+          id?: string
+          issued_at?: string
+          last_reminded_at?: string | null
+          notes?: string
+          number?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          due_at?: string | null
+          estimate_id?: string | null
+          id?: string
+          issued_at?: string
+          last_reminded_at?: string | null
+          notes?: string
+          number?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           completed_at: string | null
@@ -224,6 +338,57 @@ export type Database = {
           session_id?: string
         }
         Relationships: []
+      }
+      payments: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          id: string
+          invoice_id: string
+          method: string
+          note: string
+          paid_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          id?: string
+          invoice_id: string
+          method: string
+          note?: string
+          paid_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          method?: string
+          note?: string
+          paid_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_balances"
+            referencedColumns: ["invoice_id"]
+          },
+          {
+            foreignKeyName: "payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       properties: {
         Row: {
@@ -437,15 +602,46 @@ export type Database = {
       // Not in the database yet — see FutureTable above.
       estimates: FutureTable
       estimate_items: FutureTable
-      invoices: FutureTable
-      invoice_items: FutureTable
-      payments: FutureTable
       photos: FutureTable
     }
     Views: {
-      [_ in never]: never
+      invoice_balances: {
+        Row: {
+          balance_cents: number | null
+          client_id: string | null
+          due_at: string | null
+          invoice_id: string | null
+          issued_at: string | null
+          last_reminded_at: string | null
+          number: string | null
+          paid_cents: number | null
+          status: string | null
+          total_cents: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      apply_payment: {
+        Args: {
+          p_amount_cents: number
+          p_id: string
+          p_invoice_id: string
+          p_method: string
+          p_note?: string
+          p_paid_at?: string
+        }
+        Returns: undefined
+      }
       materialize_jobs: { Args: { through_date: string }; Returns: number }
       resync_schedule: {
         Args: { p_schedule_id: string; through_date: string }
