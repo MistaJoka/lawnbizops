@@ -9,6 +9,18 @@ export type Service = Tables<'services'>
 export type ServiceUnit = 'flat' | 'hour' | 'sqft' | 'yard'
 export const SERVICE_UNITS: ServiceUnit[] = ['flat', 'hour', 'sqft', 'yard']
 
+/** Human captions for units — "per flat" reads awkward, "flat rate" doesn't. */
+export const UNIT_LABELS: Record<ServiceUnit, string> = {
+  flat: 'flat rate',
+  hour: 'per hour',
+  sqft: 'per sq ft',
+  yard: 'per yard',
+}
+
+export function unitLabel(unit: string): string {
+  return UNIT_LABELS[unit as ServiceUnit] ?? unit
+}
+
 export interface ServiceDraft {
   id: string
   name: string

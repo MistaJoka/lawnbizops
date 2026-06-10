@@ -6,7 +6,7 @@ import {
   useProperty,
   usePropertyServices,
 } from '@/features/properties/hooks'
-import { useServices, type Service } from '@/features/services/hooks'
+import { unitLabel, useServices, type Service } from '@/features/services/hooks'
 import { cadenceLabel, useSchedulesForProperty } from '@/features/schedules/hooks'
 import { formatCents, parseDollarsToCents } from '@/lib/format'
 
@@ -210,7 +210,7 @@ function ServicePriceRow({
             <span className="block text-xs text-faded">
               {overrideCents !== undefined
                 ? 'this property'
-                : `default / ${service.unit}`}
+                : `default · ${unitLabel(service.unit)}`}
             </span>
           </span>
         </span>

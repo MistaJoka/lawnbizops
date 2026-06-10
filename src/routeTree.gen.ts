@@ -15,7 +15,11 @@ import { Route as AuthedScheduleRouteImport } from './routes/_authed/schedule'
 import { Route as AuthedSettingsIndexRouteImport } from './routes/_authed/settings/index'
 import { Route as AuthedMoneyIndexRouteImport } from './routes/_authed/money/index'
 import { Route as AuthedClientsIndexRouteImport } from './routes/_authed/clients/index'
+import { Route as AuthedSettingsSyncRouteImport } from './routes/_authed/settings/sync'
 import { Route as AuthedSettingsServicesRouteImport } from './routes/_authed/settings/services'
+import { Route as AuthedSettingsProfileRouteImport } from './routes/_authed/settings/profile'
+import { Route as AuthedSettingsPaymentsRouteImport } from './routes/_authed/settings/payments'
+import { Route as AuthedSettingsExportRouteImport } from './routes/_authed/settings/export'
 import { Route as AuthedSchedulesNewRouteImport } from './routes/_authed/schedules/new'
 import { Route as AuthedPropertiesNewRouteImport } from './routes/_authed/properties/new'
 import { Route as AuthedJobsNewRouteImport } from './routes/_authed/jobs/new'
@@ -60,9 +64,29 @@ const AuthedClientsIndexRoute = AuthedClientsIndexRouteImport.update({
   path: '/clients/',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedSettingsSyncRoute = AuthedSettingsSyncRouteImport.update({
+  id: '/settings/sync',
+  path: '/settings/sync',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedSettingsServicesRoute = AuthedSettingsServicesRouteImport.update({
   id: '/settings/services',
   path: '/settings/services',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedSettingsProfileRoute = AuthedSettingsProfileRouteImport.update({
+  id: '/settings/profile',
+  path: '/settings/profile',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedSettingsPaymentsRoute = AuthedSettingsPaymentsRouteImport.update({
+  id: '/settings/payments',
+  path: '/settings/payments',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedSettingsExportRoute = AuthedSettingsExportRouteImport.update({
+  id: '/settings/export',
+  path: '/settings/export',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedSchedulesNewRoute = AuthedSchedulesNewRouteImport.update({
@@ -154,7 +178,11 @@ export interface FileRoutesByFullPath {
   '/jobs/new': typeof AuthedJobsNewRoute
   '/properties/new': typeof AuthedPropertiesNewRoute
   '/schedules/new': typeof AuthedSchedulesNewRoute
+  '/settings/export': typeof AuthedSettingsExportRoute
+  '/settings/payments': typeof AuthedSettingsPaymentsRoute
+  '/settings/profile': typeof AuthedSettingsProfileRoute
   '/settings/services': typeof AuthedSettingsServicesRoute
+  '/settings/sync': typeof AuthedSettingsSyncRoute
   '/clients/': typeof AuthedClientsIndexRoute
   '/money/': typeof AuthedMoneyIndexRoute
   '/settings/': typeof AuthedSettingsIndexRoute
@@ -176,7 +204,11 @@ export interface FileRoutesByTo {
   '/jobs/new': typeof AuthedJobsNewRoute
   '/properties/new': typeof AuthedPropertiesNewRoute
   '/schedules/new': typeof AuthedSchedulesNewRoute
+  '/settings/export': typeof AuthedSettingsExportRoute
+  '/settings/payments': typeof AuthedSettingsPaymentsRoute
+  '/settings/profile': typeof AuthedSettingsProfileRoute
   '/settings/services': typeof AuthedSettingsServicesRoute
+  '/settings/sync': typeof AuthedSettingsSyncRoute
   '/clients': typeof AuthedClientsIndexRoute
   '/money': typeof AuthedMoneyIndexRoute
   '/settings': typeof AuthedSettingsIndexRoute
@@ -200,7 +232,11 @@ export interface FileRoutesById {
   '/_authed/jobs/new': typeof AuthedJobsNewRoute
   '/_authed/properties/new': typeof AuthedPropertiesNewRoute
   '/_authed/schedules/new': typeof AuthedSchedulesNewRoute
+  '/_authed/settings/export': typeof AuthedSettingsExportRoute
+  '/_authed/settings/payments': typeof AuthedSettingsPaymentsRoute
+  '/_authed/settings/profile': typeof AuthedSettingsProfileRoute
   '/_authed/settings/services': typeof AuthedSettingsServicesRoute
+  '/_authed/settings/sync': typeof AuthedSettingsSyncRoute
   '/_authed/clients/': typeof AuthedClientsIndexRoute
   '/_authed/money/': typeof AuthedMoneyIndexRoute
   '/_authed/settings/': typeof AuthedSettingsIndexRoute
@@ -224,7 +260,11 @@ export interface FileRouteTypes {
     | '/jobs/new'
     | '/properties/new'
     | '/schedules/new'
+    | '/settings/export'
+    | '/settings/payments'
+    | '/settings/profile'
     | '/settings/services'
+    | '/settings/sync'
     | '/clients/'
     | '/money/'
     | '/settings/'
@@ -246,7 +286,11 @@ export interface FileRouteTypes {
     | '/jobs/new'
     | '/properties/new'
     | '/schedules/new'
+    | '/settings/export'
+    | '/settings/payments'
+    | '/settings/profile'
     | '/settings/services'
+    | '/settings/sync'
     | '/clients'
     | '/money'
     | '/settings'
@@ -269,7 +313,11 @@ export interface FileRouteTypes {
     | '/_authed/jobs/new'
     | '/_authed/properties/new'
     | '/_authed/schedules/new'
+    | '/_authed/settings/export'
+    | '/_authed/settings/payments'
+    | '/_authed/settings/profile'
     | '/_authed/settings/services'
+    | '/_authed/settings/sync'
     | '/_authed/clients/'
     | '/_authed/money/'
     | '/_authed/settings/'
@@ -328,11 +376,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedClientsIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/settings/sync': {
+      id: '/_authed/settings/sync'
+      path: '/settings/sync'
+      fullPath: '/settings/sync'
+      preLoaderRoute: typeof AuthedSettingsSyncRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/settings/services': {
       id: '/_authed/settings/services'
       path: '/settings/services'
       fullPath: '/settings/services'
       preLoaderRoute: typeof AuthedSettingsServicesRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/settings/profile': {
+      id: '/_authed/settings/profile'
+      path: '/settings/profile'
+      fullPath: '/settings/profile'
+      preLoaderRoute: typeof AuthedSettingsProfileRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/settings/payments': {
+      id: '/_authed/settings/payments'
+      path: '/settings/payments'
+      fullPath: '/settings/payments'
+      preLoaderRoute: typeof AuthedSettingsPaymentsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/settings/export': {
+      id: '/_authed/settings/export'
+      path: '/settings/export'
+      fullPath: '/settings/export'
+      preLoaderRoute: typeof AuthedSettingsExportRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/schedules/new': {
@@ -448,7 +524,11 @@ interface AuthedRouteChildren {
   AuthedJobsNewRoute: typeof AuthedJobsNewRoute
   AuthedPropertiesNewRoute: typeof AuthedPropertiesNewRoute
   AuthedSchedulesNewRoute: typeof AuthedSchedulesNewRoute
+  AuthedSettingsExportRoute: typeof AuthedSettingsExportRoute
+  AuthedSettingsPaymentsRoute: typeof AuthedSettingsPaymentsRoute
+  AuthedSettingsProfileRoute: typeof AuthedSettingsProfileRoute
   AuthedSettingsServicesRoute: typeof AuthedSettingsServicesRoute
+  AuthedSettingsSyncRoute: typeof AuthedSettingsSyncRoute
   AuthedClientsIndexRoute: typeof AuthedClientsIndexRoute
   AuthedMoneyIndexRoute: typeof AuthedMoneyIndexRoute
   AuthedSettingsIndexRoute: typeof AuthedSettingsIndexRoute
@@ -471,7 +551,11 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedJobsNewRoute: AuthedJobsNewRoute,
   AuthedPropertiesNewRoute: AuthedPropertiesNewRoute,
   AuthedSchedulesNewRoute: AuthedSchedulesNewRoute,
+  AuthedSettingsExportRoute: AuthedSettingsExportRoute,
+  AuthedSettingsPaymentsRoute: AuthedSettingsPaymentsRoute,
+  AuthedSettingsProfileRoute: AuthedSettingsProfileRoute,
   AuthedSettingsServicesRoute: AuthedSettingsServicesRoute,
+  AuthedSettingsSyncRoute: AuthedSettingsSyncRoute,
   AuthedClientsIndexRoute: AuthedClientsIndexRoute,
   AuthedMoneyIndexRoute: AuthedMoneyIndexRoute,
   AuthedSettingsIndexRoute: AuthedSettingsIndexRoute,

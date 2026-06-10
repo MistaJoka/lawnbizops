@@ -6,6 +6,7 @@ import {
   archiveService,
   loadStarterCatalog,
   saveService,
+  unitLabel,
   useServices,
   type Service,
 } from '@/features/services/hooks'
@@ -98,7 +99,9 @@ function ServicesScreen() {
                   <span className="block text-lg text-go">
                     {formatCents(service.default_price_cents)}
                   </span>
-                  <span className="block text-xs text-faded">per {service.unit}</span>
+                  <span className="block text-xs text-faded">
+                    {unitLabel(service.unit)}
+                  </span>
                 </span>
               </button>
             </li>
@@ -184,7 +187,7 @@ function ServiceForm({ initial, onDone }: { initial?: Service; onDone: () => voi
           <Select value={unit} onChange={(e) => setUnit(e.target.value)}>
             {SERVICE_UNITS.map((u) => (
               <option key={u} value={u}>
-                {u}
+                {unitLabel(u)}
               </option>
             ))}
           </Select>

@@ -63,12 +63,19 @@ function InvoiceDetailScreen() {
     if (!detail || !detail.invoice.number || sharing) return
     setSharing(true)
     try {
-      const [{ pdf }, { InvoicePdf }] = await Promise.all([
+      const [{ pdf }, { InvoicePdf }, { fetchLogoDataUrl }] = await Promise.all([
         import('@react-pdf/renderer'),
         import('@/features/invoices/InvoicePdf'),
+        import('@/features/settings/hooks'),
       ])
+      // Resolves to undefined on failure/offline — PDF renders without a logo.
+      const logoDataUrl = await fetchLogoDataUrl(settings?.logo_path)
       const blob = await pdf(
-        <InvoicePdf detail={detail} settings={settings ?? null} />,
+        <InvoicePdf
+          detail={detail}
+          settings={settings ?? null}
+          logoDataUrl={logoDataUrl}
+        />,
       ).toBlob()
       const shared = await shareInvoicePdf(
         blob,

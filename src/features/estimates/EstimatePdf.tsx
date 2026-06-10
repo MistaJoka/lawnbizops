@@ -1,4 +1,4 @@
-import { Document, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
+import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import { formatCents } from '@/lib/format'
 import {
   invoiceTotalCents,
@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginBottom: 32,
   },
+  logo: { width: 64, height: 64, objectFit: 'contain', marginBottom: 8 },
   businessName: { fontSize: 18, fontFamily: 'Helvetica-Bold', marginBottom: 4 },
   businessLine: { color: '#555555', marginBottom: 2 },
   estimateTitle: {
@@ -104,9 +105,12 @@ function formatLongDate(date: string): string {
 export function EstimatePdf({
   detail,
   settings,
+  logoDataUrl,
 }: {
   detail: EstimateDetail
   settings: BusinessSettings | null
+  /** Pre-fetched data URL — share flows skip the logo silently when offline. */
+  logoDataUrl?: string
 }) {
   const { estimate, items, client, property } = detail
   const total = invoiceTotalCents(items)
@@ -117,6 +121,7 @@ export function EstimatePdf({
       <Page size="LETTER" style={styles.page}>
         <View style={styles.headerRow}>
           <View>
+            {logoDataUrl ? <Image src={logoDataUrl} style={styles.logo} /> : null}
             <Text style={styles.businessName}>{businessName}</Text>
             {settings?.address ? (
               <Text style={styles.businessLine}>{settings.address}</Text>

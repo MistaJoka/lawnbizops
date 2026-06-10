@@ -56,12 +56,19 @@ function EstimateDetailScreen() {
     if (!detail || !detail.estimate.number || sharing) return
     setSharing(true)
     try {
-      const [{ pdf }, { EstimatePdf }] = await Promise.all([
+      const [{ pdf }, { EstimatePdf }, { fetchLogoDataUrl }] = await Promise.all([
         import('@react-pdf/renderer'),
         import('@/features/estimates/EstimatePdf'),
+        import('@/features/settings/hooks'),
       ])
+      // Resolves to undefined on failure/offline — PDF renders without a logo.
+      const logoDataUrl = await fetchLogoDataUrl(settings?.logo_path)
       const blob = await pdf(
-        <EstimatePdf detail={detail} settings={settings ?? null} />,
+        <EstimatePdf
+          detail={detail}
+          settings={settings ?? null}
+          logoDataUrl={logoDataUrl}
+        />,
       ).toBlob()
       const shared = await sharePdf(
         blob,

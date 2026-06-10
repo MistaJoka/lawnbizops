@@ -37,3 +37,7 @@ createRoot(document.getElementById('root')!).render(
     </PersistQueryClientProvider>
   </StrictMode>,
 )
+
+// Ask the browser to protect IndexedDB (outbox + cache) from storage-pressure
+// eviction. Fire-and-forget — denial just means default eviction rules apply.
+void navigator.storage?.persist?.()
