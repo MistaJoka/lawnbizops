@@ -6,6 +6,15 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+/**
+ * Stub for Phase 2+ tables that src/lib/db.ts SyncTable already references
+ * but that don't exist in the database yet. `any` keeps the outbox's dynamic
+ * supabase.from(op.table) compiling without loosening the real tables below.
+ * Remove these as the real tables land and typegen emits them.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type FutureTable = { Row: any; Insert: any; Update: any; Relationships: [] }
+
 export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
@@ -68,6 +77,42 @@ export type Database = {
         }
         Relationships: []
       }
+      clients: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          notes: string
+          phone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name: string
+          notes?: string
+          phone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          notes?: string
+          phone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           content: string | null
@@ -107,6 +152,158 @@ export type Database = {
         }
         Relationships: []
       }
+      properties: {
+        Row: {
+          address_line1: string
+          address_line2: string
+          archived_at: string | null
+          city: string
+          client_id: string
+          created_at: string
+          gate_code: string
+          id: string
+          label: string
+          lat: number | null
+          lng: number | null
+          notes: string
+          state: string
+          updated_at: string
+          user_id: string
+          zip: string
+        }
+        Insert: {
+          address_line1?: string
+          address_line2?: string
+          archived_at?: string | null
+          city?: string
+          client_id: string
+          created_at?: string
+          gate_code?: string
+          id?: string
+          label?: string
+          lat?: number | null
+          lng?: number | null
+          notes?: string
+          state?: string
+          updated_at?: string
+          user_id?: string
+          zip?: string
+        }
+        Update: {
+          address_line1?: string
+          address_line2?: string
+          archived_at?: string | null
+          city?: string
+          client_id?: string
+          created_at?: string
+          gate_code?: string
+          id?: string
+          label?: string
+          lat?: number | null
+          lng?: number | null
+          notes?: string
+          state?: string
+          updated_at?: string
+          user_id?: string
+          zip?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "properties_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_services: {
+        Row: {
+          created_at: string
+          price_cents: number
+          property_id: string
+          service_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          price_cents: number
+          property_id: string
+          service_id: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          price_cents?: number
+          property_id?: string
+          service_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_services_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_services_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          archived_at: string | null
+          created_at: string
+          default_price_cents: number
+          description: string
+          id: string
+          name: string
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          created_at?: string
+          default_price_cents?: number
+          description?: string
+          id?: string
+          name: string
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          archived_at?: string | null
+          created_at?: string
+          default_price_cents?: number
+          description?: string
+          id?: string
+          name?: string
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      // Not in the database yet — see FutureTable above.
+      recurring_schedules: FutureTable
+      jobs: FutureTable
+      estimates: FutureTable
+      estimate_items: FutureTable
+      invoices: FutureTable
+      invoice_items: FutureTable
+      payments: FutureTable
+      photos: FutureTable
     }
     Views: {
       [_ in never]: never

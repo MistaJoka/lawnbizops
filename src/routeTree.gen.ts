@@ -12,10 +12,17 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
-import { Route as AuthedSettingsRouteImport } from './routes/_authed/settings'
 import { Route as AuthedScheduleRouteImport } from './routes/_authed/schedule'
 import { Route as AuthedMoneyRouteImport } from './routes/_authed/money'
-import { Route as AuthedClientsRouteImport } from './routes/_authed/clients'
+import { Route as AuthedSettingsIndexRouteImport } from './routes/_authed/settings/index'
+import { Route as AuthedClientsIndexRouteImport } from './routes/_authed/clients/index'
+import { Route as AuthedSettingsServicesRouteImport } from './routes/_authed/settings/services'
+import { Route as AuthedPropertiesNewRouteImport } from './routes/_authed/properties/new'
+import { Route as AuthedClientsNewRouteImport } from './routes/_authed/clients/new'
+import { Route as AuthedPropertiesPropertyIdIndexRouteImport } from './routes/_authed/properties/$propertyId.index'
+import { Route as AuthedClientsClientIdIndexRouteImport } from './routes/_authed/clients/$clientId.index'
+import { Route as AuthedPropertiesPropertyIdEditRouteImport } from './routes/_authed/properties/$propertyId.edit'
+import { Route as AuthedClientsClientIdEditRouteImport } from './routes/_authed/clients/$clientId.edit'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -31,11 +38,6 @@ const AuthedIndexRoute = AuthedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthedRoute,
 } as any)
-const AuthedSettingsRoute = AuthedSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AuthedRoute,
-} as any)
 const AuthedScheduleRoute = AuthedScheduleRouteImport.update({
   id: '/schedule',
   path: '/schedule',
@@ -46,52 +48,150 @@ const AuthedMoneyRoute = AuthedMoneyRouteImport.update({
   path: '/money',
   getParentRoute: () => AuthedRoute,
 } as any)
-const AuthedClientsRoute = AuthedClientsRouteImport.update({
-  id: '/clients',
-  path: '/clients',
+const AuthedSettingsIndexRoute = AuthedSettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedClientsIndexRoute = AuthedClientsIndexRouteImport.update({
+  id: '/clients/',
+  path: '/clients/',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedSettingsServicesRoute = AuthedSettingsServicesRouteImport.update({
+  id: '/settings/services',
+  path: '/settings/services',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedPropertiesNewRoute = AuthedPropertiesNewRouteImport.update({
+  id: '/properties/new',
+  path: '/properties/new',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedClientsNewRoute = AuthedClientsNewRouteImport.update({
+  id: '/clients/new',
+  path: '/clients/new',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedPropertiesPropertyIdIndexRoute =
+  AuthedPropertiesPropertyIdIndexRouteImport.update({
+    id: '/properties/$propertyId/',
+    path: '/properties/$propertyId/',
+    getParentRoute: () => AuthedRoute,
+  } as any)
+const AuthedClientsClientIdIndexRoute =
+  AuthedClientsClientIdIndexRouteImport.update({
+    id: '/clients/$clientId/',
+    path: '/clients/$clientId/',
+    getParentRoute: () => AuthedRoute,
+  } as any)
+const AuthedPropertiesPropertyIdEditRoute =
+  AuthedPropertiesPropertyIdEditRouteImport.update({
+    id: '/properties/$propertyId/edit',
+    path: '/properties/$propertyId/edit',
+    getParentRoute: () => AuthedRoute,
+  } as any)
+const AuthedClientsClientIdEditRoute =
+  AuthedClientsClientIdEditRouteImport.update({
+    id: '/clients/$clientId/edit',
+    path: '/clients/$clientId/edit',
+    getParentRoute: () => AuthedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
   '/login': typeof LoginRoute
-  '/clients': typeof AuthedClientsRoute
   '/money': typeof AuthedMoneyRoute
   '/schedule': typeof AuthedScheduleRoute
-  '/settings': typeof AuthedSettingsRoute
+  '/clients/new': typeof AuthedClientsNewRoute
+  '/properties/new': typeof AuthedPropertiesNewRoute
+  '/settings/services': typeof AuthedSettingsServicesRoute
+  '/clients/': typeof AuthedClientsIndexRoute
+  '/settings/': typeof AuthedSettingsIndexRoute
+  '/clients/$clientId/edit': typeof AuthedClientsClientIdEditRoute
+  '/properties/$propertyId/edit': typeof AuthedPropertiesPropertyIdEditRoute
+  '/clients/$clientId/': typeof AuthedClientsClientIdIndexRoute
+  '/properties/$propertyId/': typeof AuthedPropertiesPropertyIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
-  '/clients': typeof AuthedClientsRoute
   '/money': typeof AuthedMoneyRoute
   '/schedule': typeof AuthedScheduleRoute
-  '/settings': typeof AuthedSettingsRoute
   '/': typeof AuthedIndexRoute
+  '/clients/new': typeof AuthedClientsNewRoute
+  '/properties/new': typeof AuthedPropertiesNewRoute
+  '/settings/services': typeof AuthedSettingsServicesRoute
+  '/clients': typeof AuthedClientsIndexRoute
+  '/settings': typeof AuthedSettingsIndexRoute
+  '/clients/$clientId/edit': typeof AuthedClientsClientIdEditRoute
+  '/properties/$propertyId/edit': typeof AuthedPropertiesPropertyIdEditRoute
+  '/clients/$clientId': typeof AuthedClientsClientIdIndexRoute
+  '/properties/$propertyId': typeof AuthedPropertiesPropertyIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authed/clients': typeof AuthedClientsRoute
   '/_authed/money': typeof AuthedMoneyRoute
   '/_authed/schedule': typeof AuthedScheduleRoute
-  '/_authed/settings': typeof AuthedSettingsRoute
   '/_authed/': typeof AuthedIndexRoute
+  '/_authed/clients/new': typeof AuthedClientsNewRoute
+  '/_authed/properties/new': typeof AuthedPropertiesNewRoute
+  '/_authed/settings/services': typeof AuthedSettingsServicesRoute
+  '/_authed/clients/': typeof AuthedClientsIndexRoute
+  '/_authed/settings/': typeof AuthedSettingsIndexRoute
+  '/_authed/clients/$clientId/edit': typeof AuthedClientsClientIdEditRoute
+  '/_authed/properties/$propertyId/edit': typeof AuthedPropertiesPropertyIdEditRoute
+  '/_authed/clients/$clientId/': typeof AuthedClientsClientIdIndexRoute
+  '/_authed/properties/$propertyId/': typeof AuthedPropertiesPropertyIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/clients' | '/money' | '/schedule' | '/settings'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/money'
+    | '/schedule'
+    | '/clients/new'
+    | '/properties/new'
+    | '/settings/services'
+    | '/clients/'
+    | '/settings/'
+    | '/clients/$clientId/edit'
+    | '/properties/$propertyId/edit'
+    | '/clients/$clientId/'
+    | '/properties/$propertyId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/clients' | '/money' | '/schedule' | '/settings' | '/'
+  to:
+    | '/login'
+    | '/money'
+    | '/schedule'
+    | '/'
+    | '/clients/new'
+    | '/properties/new'
+    | '/settings/services'
+    | '/clients'
+    | '/settings'
+    | '/clients/$clientId/edit'
+    | '/properties/$propertyId/edit'
+    | '/clients/$clientId'
+    | '/properties/$propertyId'
   id:
     | '__root__'
     | '/_authed'
     | '/login'
-    | '/_authed/clients'
     | '/_authed/money'
     | '/_authed/schedule'
-    | '/_authed/settings'
     | '/_authed/'
+    | '/_authed/clients/new'
+    | '/_authed/properties/new'
+    | '/_authed/settings/services'
+    | '/_authed/clients/'
+    | '/_authed/settings/'
+    | '/_authed/clients/$clientId/edit'
+    | '/_authed/properties/$propertyId/edit'
+    | '/_authed/clients/$clientId/'
+    | '/_authed/properties/$propertyId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -122,13 +222,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/settings': {
-      id: '/_authed/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AuthedSettingsRouteImport
-      parentRoute: typeof AuthedRoute
-    }
     '/_authed/schedule': {
       id: '/_authed/schedule'
       path: '/schedule'
@@ -143,30 +236,100 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedMoneyRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/clients': {
-      id: '/_authed/clients'
+    '/_authed/settings/': {
+      id: '/_authed/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof AuthedSettingsIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/clients/': {
+      id: '/_authed/clients/'
       path: '/clients'
-      fullPath: '/clients'
-      preLoaderRoute: typeof AuthedClientsRouteImport
+      fullPath: '/clients/'
+      preLoaderRoute: typeof AuthedClientsIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/settings/services': {
+      id: '/_authed/settings/services'
+      path: '/settings/services'
+      fullPath: '/settings/services'
+      preLoaderRoute: typeof AuthedSettingsServicesRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/properties/new': {
+      id: '/_authed/properties/new'
+      path: '/properties/new'
+      fullPath: '/properties/new'
+      preLoaderRoute: typeof AuthedPropertiesNewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/clients/new': {
+      id: '/_authed/clients/new'
+      path: '/clients/new'
+      fullPath: '/clients/new'
+      preLoaderRoute: typeof AuthedClientsNewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/properties/$propertyId/': {
+      id: '/_authed/properties/$propertyId/'
+      path: '/properties/$propertyId'
+      fullPath: '/properties/$propertyId/'
+      preLoaderRoute: typeof AuthedPropertiesPropertyIdIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/clients/$clientId/': {
+      id: '/_authed/clients/$clientId/'
+      path: '/clients/$clientId'
+      fullPath: '/clients/$clientId/'
+      preLoaderRoute: typeof AuthedClientsClientIdIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/properties/$propertyId/edit': {
+      id: '/_authed/properties/$propertyId/edit'
+      path: '/properties/$propertyId/edit'
+      fullPath: '/properties/$propertyId/edit'
+      preLoaderRoute: typeof AuthedPropertiesPropertyIdEditRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/clients/$clientId/edit': {
+      id: '/_authed/clients/$clientId/edit'
+      path: '/clients/$clientId/edit'
+      fullPath: '/clients/$clientId/edit'
+      preLoaderRoute: typeof AuthedClientsClientIdEditRouteImport
       parentRoute: typeof AuthedRoute
     }
   }
 }
 
 interface AuthedRouteChildren {
-  AuthedClientsRoute: typeof AuthedClientsRoute
   AuthedMoneyRoute: typeof AuthedMoneyRoute
   AuthedScheduleRoute: typeof AuthedScheduleRoute
-  AuthedSettingsRoute: typeof AuthedSettingsRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
+  AuthedClientsNewRoute: typeof AuthedClientsNewRoute
+  AuthedPropertiesNewRoute: typeof AuthedPropertiesNewRoute
+  AuthedSettingsServicesRoute: typeof AuthedSettingsServicesRoute
+  AuthedClientsIndexRoute: typeof AuthedClientsIndexRoute
+  AuthedSettingsIndexRoute: typeof AuthedSettingsIndexRoute
+  AuthedClientsClientIdEditRoute: typeof AuthedClientsClientIdEditRoute
+  AuthedPropertiesPropertyIdEditRoute: typeof AuthedPropertiesPropertyIdEditRoute
+  AuthedClientsClientIdIndexRoute: typeof AuthedClientsClientIdIndexRoute
+  AuthedPropertiesPropertyIdIndexRoute: typeof AuthedPropertiesPropertyIdIndexRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedClientsRoute: AuthedClientsRoute,
   AuthedMoneyRoute: AuthedMoneyRoute,
   AuthedScheduleRoute: AuthedScheduleRoute,
-  AuthedSettingsRoute: AuthedSettingsRoute,
   AuthedIndexRoute: AuthedIndexRoute,
+  AuthedClientsNewRoute: AuthedClientsNewRoute,
+  AuthedPropertiesNewRoute: AuthedPropertiesNewRoute,
+  AuthedSettingsServicesRoute: AuthedSettingsServicesRoute,
+  AuthedClientsIndexRoute: AuthedClientsIndexRoute,
+  AuthedSettingsIndexRoute: AuthedSettingsIndexRoute,
+  AuthedClientsClientIdEditRoute: AuthedClientsClientIdEditRoute,
+  AuthedPropertiesPropertyIdEditRoute: AuthedPropertiesPropertyIdEditRoute,
+  AuthedClientsClientIdIndexRoute: AuthedClientsClientIdIndexRoute,
+  AuthedPropertiesPropertyIdIndexRoute: AuthedPropertiesPropertyIdIndexRoute,
 }
 
 const AuthedRouteWithChildren =
