@@ -334,8 +334,54 @@ export type Database = {
           },
         ]
       }
+      inventory_items: {
+        Row: {
+          archived_at: string | null
+          category: string
+          created_at: string
+          id: string
+          location: string
+          name: string
+          notes: string
+          quantity: number
+          reorder_level: number
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          location?: string
+          name: string
+          notes?: string
+          quantity?: number
+          reorder_level?: number
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          archived_at?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          location?: string
+          name?: string
+          notes?: string
+          quantity?: number
+          reorder_level?: number
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       jobs: {
         Row: {
+          checklist: Json
           completed_at: string | null
           created_at: string
           id: string
@@ -346,12 +392,14 @@ export type Database = {
           schedule_id: string | null
           scheduled_date: string
           service_id: string | null
+          start_time: string
           status: string
           title: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          checklist?: Json
           completed_at?: string | null
           created_at?: string
           id?: string
@@ -362,12 +410,14 @@ export type Database = {
           schedule_id?: string | null
           scheduled_date: string
           service_id?: string | null
+          start_time?: string
           status?: string
           title?: string
           updated_at?: string
           user_id?: string
         }
         Update: {
+          checklist?: Json
           completed_at?: string | null
           created_at?: string
           id?: string
@@ -378,6 +428,7 @@ export type Database = {
           schedule_id?: string | null
           scheduled_date?: string
           service_id?: string | null
+          start_time?: string
           status?: string
           title?: string
           updated_at?: string
@@ -502,6 +553,7 @@ export type Database = {
           lat: number | null
           lng: number | null
           notes: string
+          property_type: string
           state: string
           updated_at: string
           user_id: string
@@ -520,6 +572,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           notes?: string
+          property_type?: string
           state?: string
           updated_at?: string
           user_id?: string
@@ -534,6 +587,7 @@ export type Database = {
           created_at?: string
           gate_code?: string
           id?: string
+          property_type?: string
           label?: string
           lat?: number | null
           lng?: number | null

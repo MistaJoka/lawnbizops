@@ -13,6 +13,9 @@ import { formatCents, parseDollarsToCents } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
 export const Route = createFileRoute('/_authed/invoices/new')({
+  validateSearch: (search: Record<string, unknown>): { clientId?: string } => ({
+    clientId: typeof search.clientId === 'string' ? search.clientId : undefined,
+  }),
   component: NewInvoiceScreen,
 })
 
@@ -24,8 +27,9 @@ interface LineDraft {
 }
 
 function NewInvoiceScreen() {
+  const search = Route.useSearch()
   const navigate = useNavigate()
-  const [clientId, setClientId] = useState('')
+  const [clientId, setClientId] = useState(search.clientId ?? '')
   // null = untouched → everything checked by default once jobs load.
   const [excluded, setExcluded] = useState<Set<string>>(new Set())
   const [lines, setLines] = useState<LineDraft[]>([])

@@ -8,10 +8,13 @@ import type { Tables } from '@/lib/database.types'
 export type Property = Tables<'properties'>
 export type PropertyService = Tables<'property_services'>
 
+export type PropertyType = 'residential' | 'commercial'
+
 export interface PropertyDraft {
   id: string
   client_id: string
   label: string
+  property_type: PropertyType
   address_line1: string
   address_line2: string
   city: string
@@ -79,6 +82,7 @@ function asProperty(draft: PropertyDraft, existing?: Property): Property {
     id: draft.id,
     client_id: draft.client_id,
     label: draft.label,
+    property_type: draft.property_type,
     address_line1: draft.address_line1,
     address_line2: draft.address_line2,
     city: draft.city,

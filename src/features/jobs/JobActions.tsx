@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { rescheduleJob, setJobStatus, type JobWithContext } from '@/features/jobs/hooks'
 
 const STATUS_LABEL: Record<string, string> = {
-  scheduled: 'Scheduled',
+  scheduled: 'To do',
   in_progress: 'In progress',
   done: 'Done',
   skipped: 'Skipped',
@@ -11,19 +11,19 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 const STATUS_COLOR: Record<string, string> = {
-  scheduled: 'text-khaki border-khaki',
-  in_progress: 'text-blaze border-blaze',
-  done: 'text-go border-go',
-  skipped: 'text-faded border-edge',
-  canceled: 'text-faded border-edge',
-  invoiced: 'text-go border-go',
+  scheduled: 'bg-olive text-sand',
+  in_progress: 'bg-blaze text-on-cta',
+  done: 'bg-go text-canvas',
+  skipped: 'bg-surface-highest text-faded',
+  canceled: 'bg-surface-highest text-faded',
+  invoiced: 'bg-go text-canvas',
 }
 
 export function StatusChip({ status }: { status: string }) {
   return (
     <span
-      className={`heading-stencil shrink-0 rounded border px-2 py-1 text-[10px] ${
-        STATUS_COLOR[status] ?? 'text-faded border-edge'
+      className={`status-badge shrink-0 rounded px-2 py-0.5 ${
+        STATUS_COLOR[status] ?? 'bg-surface-highest text-faded'
       }`}
     >
       {STATUS_LABEL[status] ?? status}
@@ -47,26 +47,26 @@ export function JobActions({ job }: { job: JobWithContext }) {
         {job.status === 'scheduled' && (
           <button
             onClick={() => void setJobStatus(job, 'in_progress')}
-            className="heading-stencil flex-1 rounded-lg bg-blaze px-2 py-3 text-sm text-canvas"
+            className="heading-stencil tap-active min-h-12 flex-1 rounded-lg bg-blaze px-2 py-3 text-sm text-on-cta"
           >
             ▶ Start
           </button>
         )}
         <button
           onClick={() => void setJobStatus(job, 'done')}
-          className="heading-stencil flex-1 rounded-lg border border-go px-2 py-3 text-sm text-go"
+          className="heading-stencil tap-active min-h-12 flex-1 rounded-lg border-2 border-go px-2 py-3 text-sm text-go"
         >
           ✓ Done
         </button>
         <button
           onClick={() => void setJobStatus(job, 'skipped')}
-          className="heading-stencil flex-1 rounded-lg border border-edge px-2 py-3 text-sm text-faded"
+          className="heading-stencil tap-active min-h-12 flex-1 rounded-lg border-2 border-edge px-2 py-3 text-sm text-faded"
         >
           Skip
         </button>
         <button
           onClick={() => setMoving((m) => !m)}
-          className="heading-stencil flex-1 rounded-lg border border-edge px-2 py-3 text-sm text-sand"
+          className="heading-stencil tap-active min-h-12 flex-1 rounded-lg border-2 border-edge px-2 py-3 text-sm text-sand"
         >
           Move
         </button>
@@ -78,7 +78,7 @@ export function JobActions({ job }: { job: JobWithContext }) {
             value={moveDate}
             onChange={(e) => setMoveDate(e.target.value)}
             aria-label="New date"
-            className="w-full rounded-lg border border-edge bg-canvas px-4 py-3 text-lg text-sand focus:border-blaze focus:outline-none"
+            className="w-full rounded-lg border-2 border-edge bg-canvas px-4 py-3 text-lg text-sand focus:border-blaze focus:outline-none focus:ring-2 focus:ring-blaze/20"
           />
           <button
             onClick={() => {
@@ -86,7 +86,7 @@ export function JobActions({ job }: { job: JobWithContext }) {
               void rescheduleJob(job, moveDate)
               setMoving(false)
             }}
-            className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-canvas"
+            className="heading-stencil tap-active shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta"
           >
             Go
           </button>

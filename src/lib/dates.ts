@@ -31,3 +31,13 @@ export function formatShortDate(date: string): string {
     .toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
     .replace(/,/g, '')
 }
+
+/** "2:30 PM" from an HH:MM input-time string; empty/invalid passes through as ''. */
+export function formatClockTime(t: string): string {
+  const match = /^(\d{1,2}):(\d{2})$/.exec(t)
+  if (!match) return ''
+  const h = Number(match[1])
+  const suffix = h >= 12 ? 'PM' : 'AM'
+  const hour12 = h % 12 === 0 ? 12 : h % 12
+  return `${hour12}:${match[2]} ${suffix}`
+}

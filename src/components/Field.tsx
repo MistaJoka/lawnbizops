@@ -1,10 +1,10 @@
 const inputClass =
-  'w-full rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none'
+  'w-full min-h-touch rounded-lg border-2 border-edge bg-surface-highest px-4 py-3 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none focus:ring-2 focus:ring-blaze/20'
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="flex flex-col gap-1">
-      <span className="heading-stencil text-xs text-faded">{label}</span>
+    <label className="flex flex-col gap-2">
+      <span className="label-caps text-khaki">{label}</span>
       {children}
     </label>
   )
@@ -26,7 +26,7 @@ export function PrimaryButton(props: React.ButtonHTMLAttributes<HTMLButtonElemen
   return (
     <button
       {...props}
-      className="heading-stencil w-full rounded-lg bg-blaze px-4 py-4 text-lg text-canvas disabled:opacity-50"
+      className="heading-stencil tap-active min-h-touch w-full rounded-lg bg-blaze px-4 py-4 text-lg text-on-cta disabled:opacity-50"
     />
   )
 }

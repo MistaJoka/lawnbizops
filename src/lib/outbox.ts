@@ -44,6 +44,7 @@ const INVALIDATE: Record<SyncTable, string[][]> = {
   invoice_items: [['invoices']],
   payments: [['payments'], ['invoices']],
   photos: [['photos']],
+  inventory_items: [['inventory_items']],
 }
 
 export async function enqueue(input: EnqueueInput): Promise<void> {

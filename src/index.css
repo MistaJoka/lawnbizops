@@ -1,24 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;600;700&family=Atkinson+Hyperlegible+Next:wght@400;700&family=JetBrains+Mono:wght@700&display=swap');
 @import 'tailwindcss';
 
-/* Rugged Americana / tactical palette — dark, high-contrast, glove-friendly. */
+/* Field Hardened — high-contrast industrial palette for outdoor / glove use.
+   Legacy token names (canvas, panel, blaze, …) are preserved so existing
+   routes keep working; values match the stitch Field Hardened design system. */
 @theme {
-  --color-canvas: #1c1f1a; /* near-black olive — app background */
-  --color-panel: #262b22; /* cards and sheets */
-  --color-edge: #3a4234; /* borders, dividers */
-  --color-olive: #5b6648; /* primary brand */
-  --color-khaki: #c3b091; /* secondary accents */
-  --color-sand: #e3dcc8; /* primary text */
-  --color-faded: #8d8a77; /* secondary text */
-  --color-blaze: #e8742c; /* call-to-action orange */
-  --color-go: #7da462; /* success / done */
-  --color-alert: #d9534f; /* errors / overdue */
+  --color-canvas: #111316;
+  --color-panel: #1e2023;
+  --color-edge: #5a4136;
+  --color-outline: #a98a7d;
+  --color-olive: #41474f;
+  --color-khaki: #ffb693;
+  --color-sand: #e2e2e6;
+  --color-faded: #b0b5be;
+  --color-muted: #e2bfb0;
+  --color-blaze: #ff6b00;
+  --color-on-cta: #572000;
+  --color-go: #00e475;
+  --color-alert: #ffb4ab;
+  --color-surface-high: #282a2d;
+  --color-surface-highest: #333538;
+  --color-surface-low: #1a1c1f;
 
-  --font-display:
-    'Avenir Next Condensed', 'Arial Narrow', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Archivo Narrow', 'Arial Narrow', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Atkinson Hyperlegible Next', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --spacing-touch: 3rem;
+  --spacing-edge: 1rem;
+  --spacing-gutter: 0.75rem;
 }
 
 html {
   background-color: var(--color-canvas);
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -26,20 +41,58 @@ body {
   min-height: 100dvh;
   color: var(--color-sand);
   background-color: var(--color-canvas);
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  /* Standalone PWA: keep content out of the notch/home-indicator zones */
   padding-top: env(safe-area-inset-top);
 }
 
-/* Stencil-flavored section headers */
+/* Condensed headlines — Archivo Narrow */
 .heading-stencil {
   font-family: var(--font-display);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
+}
+
+/* Technical metadata — JetBrains Mono caps */
+.label-caps {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Solid status blocks */
+.status-badge {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Rugged card shell — tonal layering, no soft shadows */
+.card-surface {
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--color-edge);
+  border-radius: 0.5rem;
+  background-color: var(--color-panel);
+}
+
+/* Mechanical press feedback */
+.tap-active:active {
+  transform: translateY(2px);
+}
+
+.scroll-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scroll-hide::-webkit-scrollbar {
+  display: none;
 }

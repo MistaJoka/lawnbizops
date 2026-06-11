@@ -12,12 +12,18 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as AuthedScheduleRouteImport } from './routes/_authed/schedule'
+import { Route as AuthedBoardRouteImport } from './routes/_authed/board'
+import { Route as AuthedToolsIndexRouteImport } from './routes/_authed/tools/index'
 import { Route as AuthedSettingsIndexRouteImport } from './routes/_authed/settings/index'
 import { Route as AuthedMoneyIndexRouteImport } from './routes/_authed/money/index'
+import { Route as AuthedInventoryIndexRouteImport } from './routes/_authed/inventory/index'
 import { Route as AuthedClientsIndexRouteImport } from './routes/_authed/clients/index'
+import { Route as AuthedToolsMulchRouteImport } from './routes/_authed/tools/mulch'
+import { Route as AuthedToolsGradeRouteImport } from './routes/_authed/tools/grade'
 import { Route as AuthedSettingsSyncRouteImport } from './routes/_authed/settings/sync'
 import { Route as AuthedSettingsServicesRouteImport } from './routes/_authed/settings/services'
 import { Route as AuthedSettingsProfileRouteImport } from './routes/_authed/settings/profile'
+import { Route as AuthedSettingsPreferencesRouteImport } from './routes/_authed/settings/preferences'
 import { Route as AuthedSettingsPaymentsRouteImport } from './routes/_authed/settings/payments'
 import { Route as AuthedSettingsExportRouteImport } from './routes/_authed/settings/export'
 import { Route as AuthedSchedulesNewRouteImport } from './routes/_authed/schedules/new'
@@ -49,6 +55,16 @@ const AuthedScheduleRoute = AuthedScheduleRouteImport.update({
   path: '/schedule',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedBoardRoute = AuthedBoardRouteImport.update({
+  id: '/board',
+  path: '/board',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedToolsIndexRoute = AuthedToolsIndexRouteImport.update({
+  id: '/tools/',
+  path: '/tools/',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedSettingsIndexRoute = AuthedSettingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
@@ -59,9 +75,24 @@ const AuthedMoneyIndexRoute = AuthedMoneyIndexRouteImport.update({
   path: '/money/',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedInventoryIndexRoute = AuthedInventoryIndexRouteImport.update({
+  id: '/inventory/',
+  path: '/inventory/',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedClientsIndexRoute = AuthedClientsIndexRouteImport.update({
   id: '/clients/',
   path: '/clients/',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedToolsMulchRoute = AuthedToolsMulchRouteImport.update({
+  id: '/tools/mulch',
+  path: '/tools/mulch',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedToolsGradeRoute = AuthedToolsGradeRouteImport.update({
+  id: '/tools/grade',
+  path: '/tools/grade',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedSettingsSyncRoute = AuthedSettingsSyncRouteImport.update({
@@ -79,6 +110,12 @@ const AuthedSettingsProfileRoute = AuthedSettingsProfileRouteImport.update({
   path: '/settings/profile',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedSettingsPreferencesRoute =
+  AuthedSettingsPreferencesRouteImport.update({
+    id: '/settings/preferences',
+    path: '/settings/preferences',
+    getParentRoute: () => AuthedRoute,
+  } as any)
 const AuthedSettingsPaymentsRoute = AuthedSettingsPaymentsRouteImport.update({
   id: '/settings/payments',
   path: '/settings/payments',
@@ -168,6 +205,7 @@ const AuthedClientsClientIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
+  '/board': typeof AuthedBoardRoute
   '/schedule': typeof AuthedScheduleRoute
   '/clients/new': typeof AuthedClientsNewRoute
   '/estimates/$estimateId': typeof AuthedEstimatesEstimateIdRoute
@@ -180,12 +218,17 @@ export interface FileRoutesByFullPath {
   '/schedules/new': typeof AuthedSchedulesNewRoute
   '/settings/export': typeof AuthedSettingsExportRoute
   '/settings/payments': typeof AuthedSettingsPaymentsRoute
+  '/settings/preferences': typeof AuthedSettingsPreferencesRoute
   '/settings/profile': typeof AuthedSettingsProfileRoute
   '/settings/services': typeof AuthedSettingsServicesRoute
   '/settings/sync': typeof AuthedSettingsSyncRoute
+  '/tools/grade': typeof AuthedToolsGradeRoute
+  '/tools/mulch': typeof AuthedToolsMulchRoute
   '/clients/': typeof AuthedClientsIndexRoute
+  '/inventory/': typeof AuthedInventoryIndexRoute
   '/money/': typeof AuthedMoneyIndexRoute
   '/settings/': typeof AuthedSettingsIndexRoute
+  '/tools/': typeof AuthedToolsIndexRoute
   '/clients/$clientId/edit': typeof AuthedClientsClientIdEditRoute
   '/properties/$propertyId/edit': typeof AuthedPropertiesPropertyIdEditRoute
   '/schedules/$scheduleId/edit': typeof AuthedSchedulesScheduleIdEditRoute
@@ -193,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/properties/$propertyId/': typeof AuthedPropertiesPropertyIdIndexRoute
 }
 export interface FileRoutesByTo {
+  '/board': typeof AuthedBoardRoute
   '/schedule': typeof AuthedScheduleRoute
   '/': typeof AuthedIndexRoute
   '/clients/new': typeof AuthedClientsNewRoute
@@ -206,12 +250,17 @@ export interface FileRoutesByTo {
   '/schedules/new': typeof AuthedSchedulesNewRoute
   '/settings/export': typeof AuthedSettingsExportRoute
   '/settings/payments': typeof AuthedSettingsPaymentsRoute
+  '/settings/preferences': typeof AuthedSettingsPreferencesRoute
   '/settings/profile': typeof AuthedSettingsProfileRoute
   '/settings/services': typeof AuthedSettingsServicesRoute
   '/settings/sync': typeof AuthedSettingsSyncRoute
+  '/tools/grade': typeof AuthedToolsGradeRoute
+  '/tools/mulch': typeof AuthedToolsMulchRoute
   '/clients': typeof AuthedClientsIndexRoute
+  '/inventory': typeof AuthedInventoryIndexRoute
   '/money': typeof AuthedMoneyIndexRoute
   '/settings': typeof AuthedSettingsIndexRoute
+  '/tools': typeof AuthedToolsIndexRoute
   '/clients/$clientId/edit': typeof AuthedClientsClientIdEditRoute
   '/properties/$propertyId/edit': typeof AuthedPropertiesPropertyIdEditRoute
   '/schedules/$scheduleId/edit': typeof AuthedSchedulesScheduleIdEditRoute
@@ -221,6 +270,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
+  '/_authed/board': typeof AuthedBoardRoute
   '/_authed/schedule': typeof AuthedScheduleRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/clients/new': typeof AuthedClientsNewRoute
@@ -234,12 +284,17 @@ export interface FileRoutesById {
   '/_authed/schedules/new': typeof AuthedSchedulesNewRoute
   '/_authed/settings/export': typeof AuthedSettingsExportRoute
   '/_authed/settings/payments': typeof AuthedSettingsPaymentsRoute
+  '/_authed/settings/preferences': typeof AuthedSettingsPreferencesRoute
   '/_authed/settings/profile': typeof AuthedSettingsProfileRoute
   '/_authed/settings/services': typeof AuthedSettingsServicesRoute
   '/_authed/settings/sync': typeof AuthedSettingsSyncRoute
+  '/_authed/tools/grade': typeof AuthedToolsGradeRoute
+  '/_authed/tools/mulch': typeof AuthedToolsMulchRoute
   '/_authed/clients/': typeof AuthedClientsIndexRoute
+  '/_authed/inventory/': typeof AuthedInventoryIndexRoute
   '/_authed/money/': typeof AuthedMoneyIndexRoute
   '/_authed/settings/': typeof AuthedSettingsIndexRoute
+  '/_authed/tools/': typeof AuthedToolsIndexRoute
   '/_authed/clients/$clientId/edit': typeof AuthedClientsClientIdEditRoute
   '/_authed/properties/$propertyId/edit': typeof AuthedPropertiesPropertyIdEditRoute
   '/_authed/schedules/$scheduleId/edit': typeof AuthedSchedulesScheduleIdEditRoute
@@ -250,6 +305,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/board'
     | '/schedule'
     | '/clients/new'
     | '/estimates/$estimateId'
@@ -262,12 +318,17 @@ export interface FileRouteTypes {
     | '/schedules/new'
     | '/settings/export'
     | '/settings/payments'
+    | '/settings/preferences'
     | '/settings/profile'
     | '/settings/services'
     | '/settings/sync'
+    | '/tools/grade'
+    | '/tools/mulch'
     | '/clients/'
+    | '/inventory/'
     | '/money/'
     | '/settings/'
+    | '/tools/'
     | '/clients/$clientId/edit'
     | '/properties/$propertyId/edit'
     | '/schedules/$scheduleId/edit'
@@ -275,6 +336,7 @@ export interface FileRouteTypes {
     | '/properties/$propertyId/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/board'
     | '/schedule'
     | '/'
     | '/clients/new'
@@ -288,12 +350,17 @@ export interface FileRouteTypes {
     | '/schedules/new'
     | '/settings/export'
     | '/settings/payments'
+    | '/settings/preferences'
     | '/settings/profile'
     | '/settings/services'
     | '/settings/sync'
+    | '/tools/grade'
+    | '/tools/mulch'
     | '/clients'
+    | '/inventory'
     | '/money'
     | '/settings'
+    | '/tools'
     | '/clients/$clientId/edit'
     | '/properties/$propertyId/edit'
     | '/schedules/$scheduleId/edit'
@@ -302,6 +369,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authed'
+    | '/_authed/board'
     | '/_authed/schedule'
     | '/_authed/'
     | '/_authed/clients/new'
@@ -315,12 +383,17 @@ export interface FileRouteTypes {
     | '/_authed/schedules/new'
     | '/_authed/settings/export'
     | '/_authed/settings/payments'
+    | '/_authed/settings/preferences'
     | '/_authed/settings/profile'
     | '/_authed/settings/services'
     | '/_authed/settings/sync'
+    | '/_authed/tools/grade'
+    | '/_authed/tools/mulch'
     | '/_authed/clients/'
+    | '/_authed/inventory/'
     | '/_authed/money/'
     | '/_authed/settings/'
+    | '/_authed/tools/'
     | '/_authed/clients/$clientId/edit'
     | '/_authed/properties/$propertyId/edit'
     | '/_authed/schedules/$scheduleId/edit'
@@ -355,6 +428,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedScheduleRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/board': {
+      id: '/_authed/board'
+      path: '/board'
+      fullPath: '/board'
+      preLoaderRoute: typeof AuthedBoardRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tools/': {
+      id: '/_authed/tools/'
+      path: '/tools'
+      fullPath: '/tools/'
+      preLoaderRoute: typeof AuthedToolsIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/settings/': {
       id: '/_authed/settings/'
       path: '/settings'
@@ -369,11 +456,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedMoneyIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/inventory/': {
+      id: '/_authed/inventory/'
+      path: '/inventory'
+      fullPath: '/inventory/'
+      preLoaderRoute: typeof AuthedInventoryIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/clients/': {
       id: '/_authed/clients/'
       path: '/clients'
       fullPath: '/clients/'
       preLoaderRoute: typeof AuthedClientsIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tools/mulch': {
+      id: '/_authed/tools/mulch'
+      path: '/tools/mulch'
+      fullPath: '/tools/mulch'
+      preLoaderRoute: typeof AuthedToolsMulchRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tools/grade': {
+      id: '/_authed/tools/grade'
+      path: '/tools/grade'
+      fullPath: '/tools/grade'
+      preLoaderRoute: typeof AuthedToolsGradeRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/settings/sync': {
@@ -395,6 +503,13 @@ declare module '@tanstack/react-router' {
       path: '/settings/profile'
       fullPath: '/settings/profile'
       preLoaderRoute: typeof AuthedSettingsProfileRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/settings/preferences': {
+      id: '/_authed/settings/preferences'
+      path: '/settings/preferences'
+      fullPath: '/settings/preferences'
+      preLoaderRoute: typeof AuthedSettingsPreferencesRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/settings/payments': {
@@ -513,6 +628,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthedRouteChildren {
+  AuthedBoardRoute: typeof AuthedBoardRoute
   AuthedScheduleRoute: typeof AuthedScheduleRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
   AuthedClientsNewRoute: typeof AuthedClientsNewRoute
@@ -526,12 +642,17 @@ interface AuthedRouteChildren {
   AuthedSchedulesNewRoute: typeof AuthedSchedulesNewRoute
   AuthedSettingsExportRoute: typeof AuthedSettingsExportRoute
   AuthedSettingsPaymentsRoute: typeof AuthedSettingsPaymentsRoute
+  AuthedSettingsPreferencesRoute: typeof AuthedSettingsPreferencesRoute
   AuthedSettingsProfileRoute: typeof AuthedSettingsProfileRoute
   AuthedSettingsServicesRoute: typeof AuthedSettingsServicesRoute
   AuthedSettingsSyncRoute: typeof AuthedSettingsSyncRoute
+  AuthedToolsGradeRoute: typeof AuthedToolsGradeRoute
+  AuthedToolsMulchRoute: typeof AuthedToolsMulchRoute
   AuthedClientsIndexRoute: typeof AuthedClientsIndexRoute
+  AuthedInventoryIndexRoute: typeof AuthedInventoryIndexRoute
   AuthedMoneyIndexRoute: typeof AuthedMoneyIndexRoute
   AuthedSettingsIndexRoute: typeof AuthedSettingsIndexRoute
+  AuthedToolsIndexRoute: typeof AuthedToolsIndexRoute
   AuthedClientsClientIdEditRoute: typeof AuthedClientsClientIdEditRoute
   AuthedPropertiesPropertyIdEditRoute: typeof AuthedPropertiesPropertyIdEditRoute
   AuthedSchedulesScheduleIdEditRoute: typeof AuthedSchedulesScheduleIdEditRoute
@@ -540,6 +661,7 @@ interface AuthedRouteChildren {
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedBoardRoute: AuthedBoardRoute,
   AuthedScheduleRoute: AuthedScheduleRoute,
   AuthedIndexRoute: AuthedIndexRoute,
   AuthedClientsNewRoute: AuthedClientsNewRoute,
@@ -553,12 +675,17 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedSchedulesNewRoute: AuthedSchedulesNewRoute,
   AuthedSettingsExportRoute: AuthedSettingsExportRoute,
   AuthedSettingsPaymentsRoute: AuthedSettingsPaymentsRoute,
+  AuthedSettingsPreferencesRoute: AuthedSettingsPreferencesRoute,
   AuthedSettingsProfileRoute: AuthedSettingsProfileRoute,
   AuthedSettingsServicesRoute: AuthedSettingsServicesRoute,
   AuthedSettingsSyncRoute: AuthedSettingsSyncRoute,
+  AuthedToolsGradeRoute: AuthedToolsGradeRoute,
+  AuthedToolsMulchRoute: AuthedToolsMulchRoute,
   AuthedClientsIndexRoute: AuthedClientsIndexRoute,
+  AuthedInventoryIndexRoute: AuthedInventoryIndexRoute,
   AuthedMoneyIndexRoute: AuthedMoneyIndexRoute,
   AuthedSettingsIndexRoute: AuthedSettingsIndexRoute,
+  AuthedToolsIndexRoute: AuthedToolsIndexRoute,
   AuthedClientsClientIdEditRoute: AuthedClientsClientIdEditRoute,
   AuthedPropertiesPropertyIdEditRoute: AuthedPropertiesPropertyIdEditRoute,
   AuthedSchedulesScheduleIdEditRoute: AuthedSchedulesScheduleIdEditRoute,

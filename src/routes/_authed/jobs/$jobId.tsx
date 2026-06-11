@@ -1,8 +1,11 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { JobChecklist } from '@/features/jobs/JobChecklist'
 import { setJobStatus, useJob } from '@/features/jobs/hooks'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
+import { JobStepper } from '@/components/JobStepper'
+import { jobPipelineStage } from '@/lib/jobPipeline'
 import { formatCents } from '@/lib/format'
-import { formatShortDate } from '@/lib/dates'
+import { formatClockTime, formatShortDate } from '@/lib/dates'
 
 export const Route = createFileRoute('/_authed/jobs/$jobId')({
   component: JobDetailScreen,
@@ -15,7 +18,7 @@ function JobDetailScreen() {
 
   if (!job) {
     return (
-      <div className="px-4 pt-6">
+      <div className="px-edge pt-6">
         <Link to="/" className="text-sm text-faded">
           ← Today
         </Link>
@@ -29,6 +32,7 @@ function JobDetailScreen() {
   const p = job.property
   const client = p?.client
   const address = p ? [p.address_line1, p.city].filter(Boolean).join(', ') : ''
+  const canInvoice = job.status === 'done'
 
   async function handleCancel() {
     if (!job) return
@@ -38,12 +42,16 @@ function JobDetailScreen() {
   }
 
   return (
-    <div className="px-4 pt-6">
+    <div className="px-edge pt-6 pb-24">
       <Link to="/" className="text-sm text-faded">
         ← Today
       </Link>
 
-      <div className="mt-2 flex items-start justify-between gap-3">
+      <div className="mt-4">
+        <JobStepper stage={jobPipelineStage(job.status)} />
+      </div>
+
+      <div className="mt-4 flex items-start justify-between gap-3">
         <h1 className="heading-stencil min-w-0 text-2xl text-khaki">
           {job.title || 'Job'}
         </h1>
@@ -51,11 +59,12 @@ function JobDetailScreen() {
       </div>
       <p className="mt-1 text-faded">
         {formatShortDate(job.scheduled_date)}
+        {job.start_time && ` · ${formatClockTime(job.start_time)}`}
         {job.schedule_id && ' · recurring'}
       </p>
 
-      <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">
-        <p className="heading-stencil text-xs text-faded">Price</p>
+      <div className="card-surface mt-4 p-4">
+        <p className="label-caps text-faded">Price</p>
         <p className="heading-stencil mt-1 text-3xl text-sand">
           {formatCents(job.price_cents)}
         </p>
@@ -63,10 +72,20 @@ function JobDetailScreen() {
 
       <JobActions job={job} />
 
+      {canInvoice && client && (
+        <Link
+          to="/invoices/new"
+          search={{ clientId: client.id }}
+          className="heading-stencil tap-active mt-4 block rounded-lg bg-go py-4 text-center text-lg text-canvas"
+        >
+          Create invoice
+        </Link>
+      )}
+
       {client && (
-        <div className="mt-4 flex items-center justify-between gap-3 rounded-lg border border-edge bg-panel px-4 py-4">
+        <div className="card-surface mt-4 flex items-center justify-between gap-3 p-4">
           <span className="min-w-0">
-            <span className="heading-stencil block text-xs text-faded">Client</span>
+            <span className="label-caps text-faded">Client</span>
             <Link
               to="/clients/$clientId"
               params={{ clientId: client.id }}
@@ -78,17 +97,17 @@ function JobDetailScreen() {
           {client.phone && (
             <a
               href={`tel:${client.phone}`}
-              className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-canvas"
+              className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta"
             >
-              📞 Call
+              Call
             </a>
           )}
         </div>
       )}
 
       {p && (
-        <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">
-          <p className="heading-stencil text-xs text-faded">Property</p>
+        <div className="card-surface mt-4 p-4">
+          <p className="label-caps text-faded">Property</p>
           <Link
             to="/properties/$propertyId"
             params={{ propertyId: p.id }}
@@ -101,39 +120,43 @@ function JobDetailScreen() {
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 block text-faded underline decoration-edge"
+              className="heading-stencil tap-active mt-3 inline-block rounded-lg border-2 border-edge px-4 py-2 text-sm text-sand"
             >
-              {address}
+              Open maps
             </a>
           )}
         </div>
       )}
 
       {p?.gate_code && (
-        <div className="mt-4 rounded-lg border border-blaze bg-panel px-4 py-4">
-          <p className="heading-stencil text-xs text-faded">Gate code</p>
+        <div className="mt-4 rounded-lg border-2 border-blaze bg-panel px-4 py-4">
+          <p className="label-caps text-faded">Gate code</p>
           <p className="heading-stencil mt-1 text-3xl text-blaze">{p.gate_code}</p>
         </div>
       )}
 
       {p?.notes && (
-        <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">
-          <p className="heading-stencil text-xs text-faded">Property notes</p>
+        <div className="card-surface mt-4 p-4">
+          <p className="label-caps text-faded">Property notes</p>
           <p className="mt-1 whitespace-pre-wrap text-sand">{p.notes}</p>
         </div>
       )}
 
       {job.notes && (
-        <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">
-          <p className="heading-stencil text-xs text-faded">Job notes</p>
+        <div className="card-surface mt-4 p-4">
+          <p className="label-caps text-faded">Scope & materials</p>
           <p className="mt-1 whitespace-pre-wrap text-sand">{job.notes}</p>
         </div>
       )}
 
       {(job.status === 'scheduled' || job.status === 'in_progress') && (
+        <JobChecklist job={job} />
+      )}
+
+      {(job.status === 'scheduled' || job.status === 'in_progress') && (
         <button
           onClick={() => void handleCancel()}
-          className="heading-stencil mx-auto mt-12 block rounded-lg border border-edge px-6 py-3 text-alert"
+          className="heading-stencil mx-auto mt-12 block rounded-lg border-2 border-edge px-6 py-3 text-alert"
         >
           Cancel job
         </button>

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
-import type { Tables } from '@/lib/database.types'
+import type { Json, Tables } from '@/lib/database.types'
 
 export type Job = Tables<'jobs'>
 
@@ -126,14 +126,22 @@ export async function rescheduleJob(job: Job, scheduledDate: string): Promise<vo
   await enqueue({ table: 'jobs', kind: 'update', payload: { id: job.id, patch } })
 }
 
+export interface ChecklistItem {
+  id: string
+  text: string
+  done: boolean
+}
+
 export interface OneOffJobDraft {
   id: string
   property_id: string
   service_id: string | null
   scheduled_date: string
+  start_time?: string
   price_cents: number
   title: string
   notes: string
+  checklist?: ChecklistItem[]
 }
 
 /**
@@ -147,6 +155,8 @@ export async function createOneOffJob(
   const now = new Date().toISOString()
   const row = {
     ...draft,
+    start_time: draft.start_time ?? '',
+    checklist: (draft.checklist ?? []) as unknown as Json,
     schedule_id: null,
     occurrence_date: null,
     status: 'scheduled' as const,
@@ -165,4 +175,30 @@ export async function createOneOffJob(
     (old) => (old ? [...old.filter((j) => j.id !== draft.id), cached] : old),
   )
   await enqueue({ table: 'jobs', kind: 'upsert', payload: { ...row } })
+}
+
+/** Toggle or replace the on-site task checklist. */
+export async function updateJobChecklist(
+  job: Job,
+  checklist: ChecklistItem[],
+): Promise<void> {
+  const patch = { checklist: checklist as unknown as Json }
+  patchJobCaches(job, patch)
+  await enqueue({ table: 'jobs', kind: 'update', payload: { id: job.id, patch } })
+}
+
+/** Active pipeline jobs for the kanban board. */
+export function useKanbanJobs() {
+  return useQuery({
+    queryKey: ['jobs', 'kanban'],
+    queryFn: async (): Promise<JobWithContext[]> => {
+      const { data, error } = await supabase
+        .from('jobs')
+        .select(JOB_SELECT)
+        .in('status', ['scheduled', 'in_progress', 'done', 'invoiced'])
+        .order('scheduled_date', { ascending: true })
+      if (error) throw error
+      return data as unknown as JobWithContext[]
+    },
+  })
 }

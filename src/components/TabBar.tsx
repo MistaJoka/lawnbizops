@@ -11,20 +11,23 @@ const tabs = [
 export function TabBar() {
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 border-t border-edge bg-panel"
+      className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-edge bg-surface-low"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="flex">
+      <div className="flex h-[72px] items-center justify-around px-2">
         {tabs.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}
             to={to}
-            className="flex flex-1 flex-col items-center gap-1 py-3 text-faded"
-            activeProps={{ className: 'text-blaze' }}
+            className="tap-active flex flex-col items-center justify-center rounded-xl px-3 py-1 text-faded transition-transform duration-75 active:scale-95"
+            activeProps={{
+              className:
+                'tap-active flex flex-col items-center justify-center rounded-xl bg-blaze px-4 py-1 text-on-cta transition-transform duration-75 active:scale-95',
+            }}
             activeOptions={{ exact: to === '/' }}
           >
             <Icon />
-            <span className="heading-stencil text-[10px]">{label}</span>
+            <span className="label-caps mt-0.5">{label}</span>
           </Link>
         ))}
       </div>

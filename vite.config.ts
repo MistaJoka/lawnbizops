@@ -25,8 +25,8 @@ export default defineConfig({
         // start_url/scope omitted — vite-plugin-pwa derives them from `base`.
         display: 'standalone',
         orientation: 'portrait',
-        background_color: '#1c1f1a',
-        theme_color: '#1c1f1a',
+        background_color: '#111316',
+        theme_color: '#111316',
         icons: [
           // relative srcs resolve against the manifest URL → correct under any base
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },

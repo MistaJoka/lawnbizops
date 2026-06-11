@@ -46,7 +46,9 @@ function NewJobScreen() {
   const [priceError, setPriceError] = useState(false)
   const [title, setTitle] = useState('')
   const [date, setDate] = useState(search.date ?? today)
+  const [startTime, setStartTime] = useState('')
   const [notes, setNotes] = useState('')
+  const [saving, setSaving] = useState(false)
 
   const { data: clients } = useClients()
   const { data: paramProperty } = useProperty(search.propertyId ?? '')
@@ -92,6 +94,7 @@ function NewJobScreen() {
       return
     }
     if (!propertyId || !date) return
+    setSaving(true)
     const context: JobPropertyContext | null = property
       ? {
           id: property.id,
@@ -107,19 +110,24 @@ function NewJobScreen() {
             : null,
         }
       : null
-    await createOneOffJob(
-      {
-        id: crypto.randomUUID(),
-        property_id: propertyId,
-        service_id: serviceId || null,
-        scheduled_date: date,
-        price_cents: cents,
-        title,
-        notes,
-      },
-      context,
-    )
-    void navigate({ to: '/schedule', search: { date } })
+    try {
+      await createOneOffJob(
+        {
+          id: crypto.randomUUID(),
+          property_id: propertyId,
+          service_id: serviceId || null,
+          scheduled_date: date,
+          start_time: startTime,
+          price_cents: cents,
+          title,
+          notes,
+        },
+        context,
+      )
+      void navigate({ to: '/schedule', search: { date } })
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -127,7 +135,10 @@ function NewJobScreen() {
       <Link to="/" className="text-sm text-faded">
         ← Back
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">New job</h1>
+      <div className="mt-2 border-b-4 border-blaze bg-surface-low py-4">
+        <h1 className="heading-stencil text-2xl text-sand">New job</h1>
+        <p className="label-caps mt-1 text-muted">One-off site work</p>
+      </div>
 
       <div className="mt-4 flex flex-col gap-4">
         <Field label="Client">
@@ -192,9 +203,22 @@ function NewJobScreen() {
           />
         </Field>
 
-        <Field label="Date">
-          <TextInput type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-        </Field>
+        <div className="grid grid-cols-2 gap-4">
+          <Field label="Date">
+            <TextInput
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+            />
+          </Field>
+          <Field label="Start time">
+            <TextInput
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+            />
+          </Field>
+        </div>
 
         {property && property.lat !== null && property.lng !== null && (
           <BestDayHelper
@@ -204,12 +228,19 @@ function NewJobScreen() {
           />
         )}
 
-        <Field label="Notes">
-          <TextArea value={notes} onChange={(e) => setNotes(e.target.value)} />
+        <Field label="Job scope & materials">
+          <TextArea
+            placeholder="• Edge beds&#10;• 3 cu yd hardwood mulch&#10;• Haul debris"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
         </Field>
 
-        <PrimaryButton disabled={!propertyId || !date} onClick={() => void handleSave()}>
-          Save job
+        <PrimaryButton
+          disabled={!propertyId || !date || saving}
+          onClick={() => void handleSave()}
+        >
+          {saving ? 'Saving…' : 'Create job'}
         </PrimaryButton>
       </div>
     </div>

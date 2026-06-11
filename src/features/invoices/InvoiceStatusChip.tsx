@@ -1,9 +1,9 @@
 const STATUS_COLOR: Record<string, string> = {
-  draft: 'text-faded border-edge',
-  sent: 'text-khaki border-edge',
-  partially_paid: 'text-blaze border-blaze',
-  paid: 'text-go border-edge',
-  void: 'text-faded border-edge line-through',
+  draft: 'bg-surface-highest text-faded',
+  sent: 'bg-olive text-sand',
+  partially_paid: 'bg-blaze text-on-cta',
+  paid: 'bg-go text-canvas',
+  void: 'bg-surface-highest text-faded line-through',
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -17,8 +17,8 @@ const STATUS_LABEL: Record<string, string> = {
 export function InvoiceStatusChip({ status }: { status: string }) {
   return (
     <span
-      className={`heading-stencil shrink-0 rounded border px-2 py-1 text-[10px] ${
-        STATUS_COLOR[status] ?? 'text-faded border-edge'
+      className={`status-badge shrink-0 rounded px-2 py-0.5 ${
+        STATUS_COLOR[status] ?? 'bg-surface-highest text-faded'
       }`}
     >
       {STATUS_LABEL[status] ?? status}

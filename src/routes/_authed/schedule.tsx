@@ -2,7 +2,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useJobsForDate, useJobsForRange } from '@/features/jobs/hooks'
 import { StatusChip } from '@/features/jobs/JobActions'
 import { formatCents, localToday } from '@/lib/format'
-import { addDaysISO, formatShortDate, parseLocalDate } from '@/lib/dates'
+import { addDaysISO, formatClockTime, formatShortDate, parseLocalDate } from '@/lib/dates'
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -31,81 +31,98 @@ function ScheduleScreen() {
   }
 
   return (
-    <div className="px-4 pt-6">
-      <h1 className="heading-stencil text-2xl text-khaki">Schedule</h1>
+    <div>
+      <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center border-b-2 border-edge bg-canvas px-edge">
+        <h1 className="heading-stencil text-2xl text-khaki">Schedule</h1>
+      </header>
 
-      <div className="mt-4 flex gap-1 overflow-x-auto pb-1">
+      <section className="scroll-hide flex snap-x gap-3 overflow-x-auto bg-surface-low px-edge py-4">
         {days.map((d) => {
           const isSelected = d === selected
+          const hasJobs = (countByDate.get(d) ?? 0) > 0
+          const weekday = parseLocalDate(d).toLocaleDateString('en-US', {
+            weekday: 'short',
+          })
+          const dayNum = parseLocalDate(d).getDate()
+
           return (
             <Link
               key={d}
               to="/schedule"
               search={{ date: d }}
-              className={`flex min-w-12 flex-1 flex-col items-center gap-1 rounded-lg border px-1 py-3 ${
+              className={`tap-active flex shrink-0 snap-center flex-col items-center justify-center rounded-xl border-2 transition-transform ${
                 isSelected
-                  ? 'border-blaze bg-panel text-blaze'
-                  : 'border-edge bg-panel text-sand'
+                  ? 'h-24 w-20 scale-105 border-khaki bg-blaze text-on-cta shadow-lg'
+                  : 'h-20 w-16 border-edge bg-surface-high text-sand hover:bg-surface-highest'
               }`}
             >
-              <span className="heading-stencil text-[10px] text-faded">
-                {parseLocalDate(d).toLocaleDateString('en-US', { weekday: 'narrow' })}
-              </span>
-              <span className="heading-stencil text-lg">
-                {parseLocalDate(d).getDate()}
-              </span>
+              <span className="label-caps">{weekday}</span>
               <span
-                className={`h-1.5 w-1.5 rounded-full ${
-                  (countByDate.get(d) ?? 0) > 0 ? 'bg-blaze' : 'bg-transparent'
+                className={`font-display font-bold ${
+                  isSelected ? 'text-3xl' : 'text-2xl'
                 }`}
-              />
+              >
+                {dayNum}
+              </span>
+              {hasJobs && (
+                <span
+                  className={`mt-1 h-1.5 w-1.5 rounded-full ${
+                    isSelected ? 'bg-on-cta' : 'bg-blaze'
+                  }`}
+                />
+              )}
             </Link>
           )
         })}
-      </div>
+      </section>
 
-      <div className="mt-4 flex items-center justify-between gap-3">
-        <h2 className="heading-stencil text-lg text-sand">{formatShortDate(selected)}</h2>
-        <Link
-          to="/jobs/new"
-          search={{ date: selected }}
-          className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-sm text-canvas"
-        >
-          + Add job
-        </Link>
-      </div>
+      <section className="px-edge py-6">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="heading-stencil text-lg text-sand">
+            {formatShortDate(selected)}
+          </h2>
+          <Link
+            to="/jobs/new"
+            search={{ date: selected }}
+            className="heading-stencil tap-active shrink-0 rounded-lg bg-blaze px-4 py-3 text-sm text-on-cta"
+          >
+            + Add job
+          </Link>
+        </div>
 
-      <ul className="mt-3 flex flex-col gap-2">
-        {(dayJobs ?? []).map((job) => (
-          <li key={job.id}>
-            <Link
-              to="/jobs/$jobId"
-              params={{ jobId: job.id }}
-              className="flex items-center justify-between gap-2 rounded-lg border border-edge bg-panel px-4 py-4"
-            >
-              <span className="min-w-0">
-                <span className="block truncate text-lg text-sand">
-                  {job.property?.client?.name ?? 'Job'}
+        <ul className="mt-4 flex flex-col gap-3">
+          {(dayJobs ?? []).map((job) => (
+            <li key={job.id}>
+              <Link
+                to="/jobs/$jobId"
+                params={{ jobId: job.id }}
+                className="card-surface tap-active flex items-center justify-between gap-2 p-4"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate font-display text-lg font-semibold text-sand">
+                    {job.property?.client?.name ?? 'Job'}
+                  </span>
+                  <span className="block truncate text-sm text-muted">
+                    {job.start_time && `${formatClockTime(job.start_time)} · `}
+                    {job.property?.label}
+                    {job.title && ` — ${job.title}`}
+                  </span>
                 </span>
-                <span className="block truncate text-sm text-faded">
-                  {job.property?.label}
-                  {job.title && ` — ${job.title}`}
+                <span className="flex shrink-0 items-center gap-2">
+                  <StatusChip status={job.status} />
+                  <span className="heading-stencil text-sand">
+                    {formatCents(job.price_cents)}
+                  </span>
                 </span>
-              </span>
-              <span className="flex shrink-0 items-center gap-2">
-                <StatusChip status={job.status} />
-                <span className="heading-stencil text-sand">
-                  {formatCents(job.price_cents)}
-                </span>
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+              </Link>
+            </li>
+          ))}
+        </ul>
 
-      {!isLoading && (dayJobs ?? []).length === 0 && (
-        <p className="mt-12 text-center text-faded">Nothing scheduled this day.</p>
-      )}
+        {!isLoading && (dayJobs ?? []).length === 0 && (
+          <p className="mt-12 text-center text-faded">Nothing scheduled this day.</p>
+        )}
+      </section>
     </div>
   )
 }

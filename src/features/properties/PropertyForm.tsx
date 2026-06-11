@@ -2,8 +2,11 @@ import { useState } from 'react'
 import { Field, PrimaryButton, TextArea, TextInput } from '@/components/Field'
 import type { Property } from './hooks'
 
+import type { PropertyType } from './hooks'
+
 export interface PropertyFormValues {
   label: string
+  property_type: PropertyType
   address_line1: string
   address_line2: string
   city: string
@@ -21,6 +24,9 @@ export function PropertyForm({
   onSubmit: (values: PropertyFormValues) => Promise<void>
 }) {
   const [label, setLabel] = useState(initial?.label ?? '')
+  const [propertyType, setPropertyType] = useState<PropertyType>(
+    (initial?.property_type as PropertyType) ?? 'residential',
+  )
   const [addressLine1, setAddressLine1] = useState(initial?.address_line1 ?? '')
   const [addressLine2, setAddressLine2] = useState(initial?.address_line2 ?? '')
   const [city, setCity] = useState(initial?.city ?? '')
@@ -36,6 +42,7 @@ export function PropertyForm({
     try {
       await onSubmit({
         label: label.trim(),
+        property_type: propertyType,
         address_line1: addressLine1.trim(),
         address_line2: addressLine2.trim(),
         city: city.trim(),
@@ -51,6 +58,24 @@ export function PropertyForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <Field label="Property type">
+        <div className="grid grid-cols-2 gap-0 border-2 border-edge bg-surface-low p-1">
+          {(['residential', 'commercial'] as const).map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => setPropertyType(type)}
+              className={`label-caps min-h-12 ${
+                propertyType === type
+                  ? 'bg-blaze text-on-cta'
+                  : 'text-muted hover:bg-surface-highest'
+              }`}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+      </Field>
       <Field label="Label">
         <TextInput
           autoFocus

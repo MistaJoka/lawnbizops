@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_authed/settings/')({
 })
 
 const rowClass =
-  'flex items-center justify-between rounded-lg border border-edge bg-panel px-4 py-4'
+  'tap-active flex items-center justify-between rounded-lg border-2 border-edge bg-panel px-4 py-4'
 
 function SettingsScreen() {
   const failedCount = useLiveQuery(
@@ -22,8 +22,24 @@ function SettingsScreen() {
       <h1 className="heading-stencil text-2xl text-khaki">Settings</h1>
 
       <div className="mt-6 flex flex-col gap-2">
+        <Link to="/board" className={rowClass}>
+          <span className="text-lg text-sand">Jobs board</span>
+          <span className="text-faded">→</span>
+        </Link>
+        <Link to="/tools" className={rowClass}>
+          <span className="text-lg text-sand">Field tools</span>
+          <span className="text-faded">→</span>
+        </Link>
+        <Link to="/inventory" className={rowClass}>
+          <span className="text-lg text-sand">Inventory</span>
+          <span className="text-faded">→</span>
+        </Link>
         <Link to="/settings/profile" className={rowClass}>
           <span className="text-lg text-sand">Business profile</span>
+          <span className="text-faded">→</span>
+        </Link>
+        <Link to="/settings/preferences" className={rowClass}>
+          <span className="text-lg text-sand">App preferences</span>
           <span className="text-faded">→</span>
         </Link>
         <Link to="/settings/services" className={rowClass}>
