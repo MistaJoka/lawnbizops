@@ -6,6 +6,12 @@ import * as Sentry from '@sentry/react'
 import { routeTree } from './routeTree.gen'
 import { CACHE_MAX_AGE_MS, dexiePersister, queryClient } from './lib/queryClient'
 import { initOutbox } from './lib/outbox'
+import '@fontsource/archivo-narrow/latin-400.css'
+import '@fontsource/archivo-narrow/latin-600.css'
+import '@fontsource/archivo-narrow/latin-700.css'
+import '@fontsource/atkinson-hyperlegible-next/latin-400.css'
+import '@fontsource/atkinson-hyperlegible-next/latin-700.css'
+import '@fontsource/jetbrains-mono/latin-700.css'
 import './index.css'
 
 const sentryDsn = import.meta.env.VITE_SENTRY_DSN as string | undefined

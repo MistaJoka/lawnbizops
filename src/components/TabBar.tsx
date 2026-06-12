@@ -14,7 +14,7 @@ export function TabBar() {
       className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-edge bg-surface-low"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="flex h-[72px] items-center justify-around px-2">
+      <div className="mx-auto flex h-[72px] w-full max-w-md items-center justify-around px-2">
         {tabs.map(({ to, label, icon: Icon }) => (
           <Link
             key={to}

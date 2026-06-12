@@ -88,7 +88,7 @@ function InventoryScreen() {
       <button
         type="button"
         onClick={() => setShowAdd((s) => !s)}
-        className="tap-active fixed right-6 bottom-28 z-40 flex h-14 items-center justify-center gap-2 rounded-full bg-blaze px-6 text-on-cta shadow-2xl ring-4 ring-canvas active:scale-90"
+        className="tap-active fixed right-6 bottom-28 z-40 flex h-14 items-center justify-center gap-2 rounded-full bg-blaze px-6 text-on-cta shadow-2xl ring-4 ring-canvas active:scale-90 sm:right-[calc(50%-14rem+1.5rem)]"
         aria-label="Add inventory"
       >
         <span className="text-3xl leading-none font-bold">+</span>

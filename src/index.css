@@ -1,4 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;600;700&family=Atkinson+Hyperlegible+Next:wght@400;700&family=JetBrains+Mono:wght@700&display=swap');
+/* Fonts are self-hosted via @fontsource (imported in main.tsx) so they are
+   bundled, precached by the service worker, and render offline — no
+   render-blocking Google Fonts request. */
 @import 'tailwindcss';
 
 /* Field Hardened — high-contrast industrial palette for outdoor / glove use.

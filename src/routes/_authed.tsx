@@ -11,7 +11,9 @@ export const Route = createFileRoute('/_authed')({
 function AppLayout() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <main className="flex-1 pb-24">
+      {/* Phone-first: one centered column on tablet/desktop instead of an
+          edge-to-edge stretch. 28rem matches the FAB offset in Fab.tsx. */}
+      <main className="mx-auto w-full max-w-md flex-1 pb-24">
         <Outlet />
       </main>
       <TabBar />
