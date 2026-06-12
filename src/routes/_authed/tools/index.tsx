@@ -29,7 +29,7 @@ function ToolsScreen() {
   return (
     <div>
       <header className="sticky top-0 z-40 border-b-2 border-edge bg-canvas px-edge py-4">
-        <Link to="/settings" className="text-sm text-faded">
+        <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
           ← Settings
         </Link>
         <div className="mt-3 border-l-4 border-blaze pl-4">

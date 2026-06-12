@@ -48,13 +48,13 @@ function SyncScreen() {
 
   return (
     <div className="px-4 pt-6">
-      <Link to="/settings" className="text-sm text-faded">
+      <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Settings
       </Link>
       <h1 className="heading-stencil mt-2 text-2xl text-khaki">Sync issues</h1>
 
-      <div className="mt-4 flex items-center justify-between gap-3 rounded-lg border border-edge bg-panel px-4 py-4">
-        <span className="text-sand">
+      <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">
+        <span className="block text-sand">
           {pendingCount === 0
             ? 'Nothing waiting to sync'
             : `${pendingCount} ${pendingCount === 1 ? 'change' : 'changes'} waiting to sync`}
@@ -63,7 +63,7 @@ function SyncScreen() {
           type="button"
           disabled={syncing}
           onClick={() => void handleSyncNow()}
-          className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-canvas disabled:opacity-50"
+          className="heading-stencil tap-active mt-3 block w-full rounded-lg bg-blaze px-4 py-3 text-canvas disabled:opacity-50"
         >
           {syncing ? 'Syncing…' : 'Sync now'}
         </button>

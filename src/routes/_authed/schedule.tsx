@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { Fab } from '@/components/Fab'
 import { useJobsForDate, useJobsForRange } from '@/features/jobs/hooks'
 import { StatusChip } from '@/features/jobs/JobActions'
 import { formatCents, localToday } from '@/lib/format'
@@ -77,18 +78,7 @@ function ScheduleScreen() {
       </section>
 
       <section className="px-edge py-6">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="heading-stencil text-lg text-sand">
-            {formatShortDate(selected)}
-          </h2>
-          <Link
-            to="/jobs/new"
-            search={{ date: selected }}
-            className="heading-stencil tap-active shrink-0 rounded-lg bg-blaze px-4 py-3 text-sm text-on-cta"
-          >
-            + Add job
-          </Link>
-        </div>
+        <h2 className="heading-stencil text-lg text-sand">{formatShortDate(selected)}</h2>
 
         <ul className="mt-4 flex flex-col gap-3">
           {(dayJobs ?? []).map((job) => (
@@ -123,6 +113,8 @@ function ScheduleScreen() {
           <p className="mt-12 text-center text-faded">Nothing scheduled this day.</p>
         )}
       </section>
+
+      <Fab to="/jobs/new" search={{ date: selected }} label="Job" />
     </div>
   )
 }

@@ -21,7 +21,7 @@ function MulchCalculatorScreen() {
 
   return (
     <div className="px-edge pt-6 pb-24">
-      <Link to="/tools" className="text-sm text-faded">
+      <Link to="/tools" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Field tools
       </Link>
       <h1 className="heading-stencil mt-2 text-2xl text-khaki">Mulch & stone</h1>

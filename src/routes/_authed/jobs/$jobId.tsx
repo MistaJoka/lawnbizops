@@ -19,7 +19,7 @@ function JobDetailScreen() {
   if (!job) {
     return (
       <div className="px-edge pt-6">
-        <Link to="/" className="text-sm text-faded">
+        <Link to="/" className="inline-block py-2 pr-4 text-sm text-faded">
           ← Today
         </Link>
         <p className="mt-16 text-center text-faded">
@@ -43,7 +43,7 @@ function JobDetailScreen() {
 
   return (
     <div className="px-edge pt-6 pb-24">
-      <Link to="/" className="text-sm text-faded">
+      <Link to="/" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Today
       </Link>
 

@@ -13,7 +13,11 @@ function EditClientScreen() {
 
   return (
     <div className="px-4 pt-6">
-      <Link to="/clients/$clientId" params={{ clientId }} className="text-sm text-faded">
+      <Link
+        to="/clients/$clientId"
+        params={{ clientId }}
+        className="inline-block py-2 pr-4 text-sm text-faded"
+      >
         ← Back
       </Link>
       <h1 className="heading-stencil mt-2 text-2xl text-khaki">Edit client</h1>

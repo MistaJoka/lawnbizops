@@ -43,7 +43,7 @@ function PaymentsScreen() {
 
   return (
     <div className="px-4 pt-6">
-      <Link to="/settings" className="text-sm text-faded">
+      <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Settings
       </Link>
       <h1 className="heading-stencil mt-2 text-2xl text-khaki">Payments</h1>
@@ -62,32 +62,28 @@ function PaymentsScreen() {
                 isSelected ? 'border-blaze' : 'border-edge'
               }`}
             >
-              <div className="flex items-center justify-between gap-3">
-                <span>
-                  <span className="block text-lg text-sand">{provider.label}</span>
-                  <span className="block text-sm text-faded">{provider.blurb}</span>
-                </span>
-                {!isSelected && (
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void setProvider(provider.value)}
-                    className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-canvas disabled:opacity-50"
-                  >
-                    Set up
-                  </button>
-                )}
-              </div>
+              <span className="block text-lg text-sand">{provider.label}</span>
+              <span className="block text-sm text-faded">{provider.blurb}</span>
+              {!isSelected && (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void setProvider(provider.value)}
+                  className="heading-stencil tap-active mt-3 block w-full rounded-lg bg-blaze px-4 py-3 text-canvas disabled:opacity-50"
+                >
+                  Set up
+                </button>
+              )}
               {isSelected && (
-                <div className="mt-3 flex items-center justify-between gap-3 border-t border-edge pt-3">
-                  <span className="text-sm text-go">
+                <div className="mt-3 border-t border-edge pt-3">
+                  <span className="block text-sm text-go">
                     Selected — connection coming in a future update
                   </span>
                   <button
                     type="button"
                     disabled={busy}
                     onClick={() => void setProvider(null)}
-                    className="heading-stencil shrink-0 px-2 py-2 text-faded"
+                    className="heading-stencil tap-active mt-3 block w-full rounded-lg border border-edge px-4 py-3 text-faded disabled:opacity-50"
                   >
                     Clear
                   </button>

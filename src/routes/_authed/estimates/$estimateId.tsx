@@ -39,7 +39,7 @@ function EstimateDetailScreen() {
   if (!detail) {
     return (
       <div className="px-4 pt-6">
-        <Link to="/money" className="text-sm text-faded">
+        <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
           ← Money
         </Link>
         <p className="mt-16 text-center text-faded">
@@ -95,7 +95,7 @@ function EstimateDetailScreen() {
 
   return (
     <div className="px-4 pt-6">
-      <Link to="/money" className="text-sm text-faded">
+      <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Money
       </Link>
 

@@ -132,7 +132,7 @@ function NewJobScreen() {
 
   return (
     <div className="px-4 pt-6">
-      <Link to="/" className="text-sm text-faded">
+      <Link to="/" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Back
       </Link>
       <div className="mt-2 border-b-4 border-blaze bg-surface-low py-4">
@@ -235,7 +235,9 @@ function NewJobScreen() {
             onChange={(e) => setNotes(e.target.value)}
           />
         </Field>
+      </div>
 
+      <div className="sticky bottom-[72px] z-30 -mx-edge mt-4 border-t-2 border-edge bg-canvas px-edge py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <PrimaryButton
           disabled={!propertyId || !date || saving}
           onClick={() => void handleSave()}

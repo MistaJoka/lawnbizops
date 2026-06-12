@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Fab } from '@/components/Fab'
 import { useClients } from '@/features/clients/hooks'
 
 export const Route = createFileRoute('/_authed/clients/')({
@@ -16,7 +17,7 @@ function ClientsScreen() {
   )
 
   return (
-    <div className="px-4 pt-6">
+    <div className="px-4 pt-6 pb-8">
       <h1 className="heading-stencil text-2xl text-khaki">Clients</h1>
 
       <input
@@ -26,13 +27,6 @@ function ClientsScreen() {
         onChange={(e) => setSearch(e.target.value)}
         className="mt-4 w-full rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
       />
-
-      <Link
-        to="/clients/new"
-        className="heading-stencil mt-4 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-canvas"
-      >
-        + Add client
-      </Link>
 
       <ul className="mt-4 flex flex-col gap-2">
         {filtered.map((client) => (
@@ -89,6 +83,8 @@ function ClientsScreen() {
             : 'No clients yet. Add your first one.'}
         </p>
       )}
+
+      <Fab to="/clients/new" label="Client" />
     </div>
   )
 }

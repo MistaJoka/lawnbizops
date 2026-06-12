@@ -95,7 +95,7 @@ function ExportScreen() {
 
   return (
     <div className="px-4 pt-6">
-      <Link to="/settings" className="text-sm text-faded">
+      <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Settings
       </Link>
       <h1 className="heading-stencil mt-2 text-2xl text-khaki">Export data</h1>

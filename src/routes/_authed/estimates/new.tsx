@@ -95,7 +95,7 @@ function NewEstimateScreen() {
 
   return (
     <div className="px-4 pt-6">
-      <Link to="/money" className="text-sm text-faded">
+      <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Money
       </Link>
       <h1 className="heading-stencil mt-2 text-2xl text-khaki">New estimate</h1>
@@ -223,7 +223,9 @@ function NewEstimateScreen() {
           <span className="heading-stencil text-xs text-faded">Total</span>
           <span className="heading-stencil text-2xl text-sand">{formatCents(total)}</span>
         </div>
+      </div>
 
+      <div className="sticky bottom-[72px] z-30 -mx-edge border-t-2 border-edge bg-canvas px-edge py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <PrimaryButton disabled={!canCreate} onClick={() => void handleCreate()}>
           Create estimate
         </PrimaryButton>

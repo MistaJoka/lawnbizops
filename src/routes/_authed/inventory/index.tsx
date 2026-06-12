@@ -47,7 +47,7 @@ function InventoryScreen() {
   return (
     <div>
       <header className="sticky top-0 z-40 border-b-2 border-edge bg-canvas px-edge py-4">
-        <Link to="/settings" className="text-sm text-faded">
+        <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
           ← Settings
         </Link>
         <h1 className="heading-stencil mt-2 text-2xl text-khaki">Inventory</h1>
@@ -88,10 +88,11 @@ function InventoryScreen() {
       <button
         type="button"
         onClick={() => setShowAdd((s) => !s)}
-        className="tap-active fixed right-6 bottom-28 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-blaze text-2xl text-on-cta ring-4 ring-canvas"
+        className="tap-active fixed right-6 bottom-28 z-40 flex h-14 items-center justify-center gap-2 rounded-full bg-blaze px-6 text-on-cta shadow-2xl ring-4 ring-canvas active:scale-90"
         aria-label="Add inventory"
       >
-        +
+        <span className="text-3xl leading-none font-bold">+</span>
+        <span className="label-caps text-sm">Item</span>
       </button>
 
       {showAdd && <QuickAddSheet onClose={() => setShowAdd(false)} />}

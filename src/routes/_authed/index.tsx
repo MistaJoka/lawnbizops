@@ -330,7 +330,9 @@ function TodayJobCard({
             </span>
           )}
           {miles !== null && !isFirst && (
-            <span className="text-sm text-faded">{miles.toFixed(1)} mi</span>
+            <span className="inline-block py-2 pr-4 text-sm text-faded">
+              {miles.toFixed(1)} mi
+            </span>
           )}
         </div>
 

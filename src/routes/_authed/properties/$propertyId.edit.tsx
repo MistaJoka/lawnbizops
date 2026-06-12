@@ -16,7 +16,7 @@ function EditPropertyScreen() {
       <Link
         to="/properties/$propertyId"
         params={{ propertyId }}
-        className="text-sm text-faded"
+        className="inline-block py-2 pr-4 text-sm text-faded"
       >
         ← Back
       </Link>

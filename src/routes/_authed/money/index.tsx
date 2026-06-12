@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { Fab } from '@/components/Fab'
 import {
   AGING_BUCKETS,
   agingBucket,
@@ -64,6 +65,12 @@ function MoneyScreen() {
       </div>
 
       {tab === 'estimates' ? <EstimatesTab /> : <InvoicesTab />}
+
+      {tab === 'estimates' ? (
+        <Fab to="/estimates/new" label="Estimate" />
+      ) : (
+        <Fab to="/invoices/new" label="Invoice" />
+      )}
     </div>
   )
 }
@@ -101,13 +108,6 @@ function InvoicesTab() {
         )}
       </div>
 
-      <Link
-        to="/invoices/new"
-        className="heading-stencil mt-4 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-canvas"
-      >
-        + New invoice
-      </Link>
-
       <ul className="mt-4 flex flex-col gap-2 pb-8">
         {(invoices ?? []).map((inv) => (
           <li key={inv.invoice_id}>
@@ -129,13 +129,6 @@ function EstimatesTab() {
 
   return (
     <>
-      <Link
-        to="/estimates/new"
-        className="heading-stencil mt-4 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-canvas"
-      >
-        + New estimate
-      </Link>
-
       <ul className="mt-4 flex flex-col gap-2 pb-8">
         {(estimates ?? []).map((est) => (
           <li key={est.id}>
