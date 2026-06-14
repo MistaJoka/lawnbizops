@@ -1,10 +1,15 @@
-import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 import { TabBar } from '@/components/TabBar'
+import { supabase } from '@/lib/supabase'
 
-// Auth is intentionally off for now (single-user tool; login screen comes
-// later — see migration 0004). This layout route keeps the seam: when auth
-// returns, restore a beforeLoad session check + redirect here.
+// Auth gate. getSession reads the persisted session from localStorage, so this
+// is fast and works offline (a cached session lets the field tech keep working
+// in a dead zone). No session → bounce to /login.
 export const Route = createFileRoute('/_authed')({
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession()
+    if (!data.session) throw redirect({ to: '/login' })
+  },
   component: AppLayout,
 })
 

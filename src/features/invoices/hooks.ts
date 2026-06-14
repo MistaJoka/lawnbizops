@@ -253,6 +253,7 @@ export async function createInvoiceFromJobs(input: CreateInvoiceInput): Promise<
     created_at: now,
     updated_at: now,
     user_id: '',
+    org_id: '',
   }
   const cachedItems: InvoiceItem[] = itemRows.map((item) => ({
     ...item,
@@ -260,6 +261,7 @@ export async function createInvoiceFromJobs(input: CreateInvoiceInput): Promise<
     created_at: now,
     updated_at: now,
     user_id: '',
+    org_id: '',
   }))
   queryClient.setQueryData<InvoiceDetail>(['invoices', id], {
     invoice: cachedInvoice,
@@ -343,6 +345,7 @@ export async function recordPayment(input: RecordPaymentInput): Promise<void> {
       created_at: now,
       updated_at: now,
       user_id: '',
+      org_id: '',
     }
     const payments = [...old.payments, payment]
     const total = invoiceTotalCents(old.items)

@@ -61,6 +61,7 @@ function asClient(draft: ClientDraft, existing?: Client): Client {
     created_at: existing?.created_at ?? now,
     updated_at: now,
     user_id: existing?.user_id ?? '',
+    org_id: existing?.org_id ?? '',
   }
 }
 

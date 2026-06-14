@@ -60,7 +60,9 @@ export async function enqueue(input: EnqueueInput): Promise<void> {
   void flush()
 }
 
-type OpResult = { ok: true } | { ok: false; retryable: boolean; message: string }
+type OpResult =
+  | { ok: true }
+  | { ok: false; retryable: boolean; message: string; auth?: boolean }
 
 async function execute(op: OutboxOp): Promise<OpResult> {
   try {
@@ -73,10 +75,13 @@ async function execute(op: OutboxOp): Promise<OpResult> {
     }
     if (op.kind === 'update') {
       const { id, patch } = op.payload as { id: string; patch: Record<string, unknown> }
+      // `id` column cast: business_settings/property_services have no `id`, so
+      // the cross-table column union excludes it. Only id-keyed tables ever
+      // receive update/delete ops, so the runtime value is always valid.
       const { error, status } = await supabase
         .from(op.table)
         .update(patch as never)
-        .eq('id', id)
+        .eq('id' as 'org_id', id)
       if (error) return failureFrom(status, error.message)
       return { ok: true }
     }
@@ -84,7 +89,7 @@ async function execute(op: OutboxOp): Promise<OpResult> {
       const { error, status } = await supabase
         .from(op.table)
         .delete()
-        .eq('id', (op.payload as { id: string }).id)
+        .eq('id' as 'org_id', (op.payload as { id: string }).id)
       if (error) return failureFrom(status, error.message)
       return { ok: true }
     }
@@ -103,9 +108,13 @@ async function execute(op: OutboxOp): Promise<OpResult> {
 
 function failureFrom(status: number | string | undefined, message: string): OpResult {
   const code = typeof status === 'string' ? parseInt(status, 10) : status
+  // 401 = expired/invalid session. NOT a poison op — the write is fine, the
+  // token isn't. Refresh and retry instead of quarantining (which would lose
+  // an offline write made just before the token lapsed).
+  const isAuth = code === 401
   const retryable =
-    code === undefined || Number.isNaN(code) || code >= 500 || code === 429
-  return { ok: false, retryable, message }
+    isAuth || code === undefined || Number.isNaN(code) || code >= 500 || code === 429
+  return { ok: false, retryable, message, auth: isAuth }
 }
 
 let inFlight: Promise<void> | null = null
@@ -142,6 +151,8 @@ async function drain(): Promise<void> {
           attempts: op.attempts + 1,
           error: result.message,
         })
+        // Expired session → refresh now so the scheduled retry has a live token.
+        if (result.auth) await supabase.auth.refreshSession()
         scheduleRetry(op.attempts + 1)
         break outer
       }

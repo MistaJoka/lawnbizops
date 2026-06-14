@@ -1,6 +1,7 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/lib/db'
+import { signOut } from '@/features/auth/hooks'
 
 export const Route = createFileRoute('/_authed/settings/')({
   component: SettingsScreen,
@@ -10,12 +11,18 @@ const rowClass =
   'tap-active flex items-center justify-between rounded-lg border-2 border-edge bg-panel px-4 py-4'
 
 function SettingsScreen() {
+  const navigate = useNavigate()
   const failedCount = useLiveQuery(
     () => db.outbox.where('status').equals('failed').count(),
     [],
     0,
   )
   const standalone = window.matchMedia('(display-mode: standalone)').matches
+
+  async function handleSignOut() {
+    await signOut()
+    void navigate({ to: '/login' })
+  }
 
   return (
     <div className="px-4 pt-6">
@@ -73,6 +80,13 @@ function SettingsScreen() {
           </p>
         </div>
       )}
+
+      <button
+        onClick={() => void handleSignOut()}
+        className="heading-stencil tap-active mt-6 w-full rounded-lg border-2 border-edge py-4 text-faded"
+      >
+        Sign out
+      </button>
     </div>
   )
 }

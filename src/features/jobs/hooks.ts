@@ -168,6 +168,7 @@ export async function createOneOffJob(
     created_at: now,
     updated_at: now,
     user_id: '',
+    org_id: '',
   }
   queryClient.setQueryData<JobWithContext>(['jobs', draft.id], cached)
   queryClient.setQueryData<JobWithContext[]>(

@@ -7,23 +7,35 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.1"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
       business_settings: {
         Row: {
-          /**
-           * HAND-EDIT (keep when regenerating): phantom column. The outbox's
-           * dynamic `supabase.from(op.table).…eq('id', …)` types its filter
-           * columns as the intersection across every SyncTable Row, and this
-           * singleton table has no real `id` (keyed by user_id). It never
-           * receives update/delete ops, so the phantom is never queried.
-           */
-          id?: string
           address: string
           business_name: string
           created_at: string
@@ -34,11 +46,12 @@ export type Database = {
           logo_path: string | null
           next_estimate_number: number
           next_invoice_number: number
+          org_id: string
           payment_provider: string | null
           payment_provider_config: Json
           phone: string
           updated_at: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           address?: string
@@ -51,11 +64,12 @@ export type Database = {
           logo_path?: string | null
           next_estimate_number?: number
           next_invoice_number?: number
+          org_id?: string
           payment_provider?: string | null
           payment_provider_config?: Json
           phone?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
         Update: {
           address?: string
@@ -68,13 +82,22 @@ export type Database = {
           logo_path?: string | null
           next_estimate_number?: number
           next_invoice_number?: number
+          org_id?: string
           payment_provider?: string | null
           payment_provider_config?: Json
           phone?: string
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "business_settings_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       clients: {
         Row: {
@@ -84,6 +107,7 @@ export type Database = {
           id: string
           name: string
           notes: string
+          org_id: string
           phone: string
           updated_at: string
           user_id: string
@@ -95,6 +119,7 @@ export type Database = {
           id?: string
           name: string
           notes?: string
+          org_id?: string
           phone?: string
           updated_at?: string
           user_id?: string
@@ -106,11 +131,20 @@ export type Database = {
           id?: string
           name?: string
           notes?: string
+          org_id?: string
           phone?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "clients_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       estimate_items: {
         Row: {
@@ -118,6 +152,7 @@ export type Database = {
           description: string
           estimate_id: string
           id: string
+          org_id: string
           quantity: number
           sort_order: number
           unit_price_cents: number
@@ -129,6 +164,7 @@ export type Database = {
           description: string
           estimate_id: string
           id?: string
+          org_id?: string
           quantity?: number
           sort_order?: number
           unit_price_cents?: number
@@ -140,6 +176,7 @@ export type Database = {
           description?: string
           estimate_id?: string
           id?: string
+          org_id?: string
           quantity?: number
           sort_order?: number
           unit_price_cents?: number
@@ -154,6 +191,13 @@ export type Database = {
             referencedRelation: "estimates"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "estimate_items_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       estimates: {
@@ -164,6 +208,7 @@ export type Database = {
           issued_at: string
           notes: string
           number: string | null
+          org_id: string
           property_id: string | null
           status: string
           updated_at: string
@@ -177,6 +222,7 @@ export type Database = {
           issued_at?: string
           notes?: string
           number?: string | null
+          org_id?: string
           property_id?: string | null
           status?: string
           updated_at?: string
@@ -190,6 +236,7 @@ export type Database = {
           issued_at?: string
           notes?: string
           number?: string | null
+          org_id?: string
           property_id?: string | null
           status?: string
           updated_at?: string
@@ -205,10 +252,73 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "estimates_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "estimates_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_items: {
+        Row: {
+          archived_at: string | null
+          category: string
+          created_at: string
+          id: string
+          location: string
+          name: string
+          notes: string
+          org_id: string
+          quantity: number
+          reorder_level: number
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          location?: string
+          name: string
+          notes?: string
+          org_id?: string
+          quantity?: number
+          reorder_level?: number
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          archived_at?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          location?: string
+          name?: string
+          notes?: string
+          org_id?: string
+          quantity?: number
+          reorder_level?: number
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -220,6 +330,7 @@ export type Database = {
           id: string
           invoice_id: string
           job_id: string | null
+          org_id: string
           quantity: number
           sort_order: number
           unit_price_cents: number
@@ -232,6 +343,7 @@ export type Database = {
           id?: string
           invoice_id: string
           job_id?: string | null
+          org_id?: string
           quantity?: number
           sort_order?: number
           unit_price_cents?: number
@@ -244,6 +356,7 @@ export type Database = {
           id?: string
           invoice_id?: string
           job_id?: string | null
+          org_id?: string
           quantity?: number
           sort_order?: number
           unit_price_cents?: number
@@ -272,6 +385,13 @@ export type Database = {
             referencedRelation: "jobs"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "invoice_items_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       invoices: {
@@ -285,6 +405,7 @@ export type Database = {
           last_reminded_at: string | null
           notes: string
           number: string | null
+          org_id: string
           status: string
           updated_at: string
           user_id: string
@@ -299,6 +420,7 @@ export type Database = {
           last_reminded_at?: string | null
           notes?: string
           number?: string | null
+          org_id?: string
           status?: string
           updated_at?: string
           user_id?: string
@@ -313,6 +435,7 @@ export type Database = {
           last_reminded_at?: string | null
           notes?: string
           number?: string | null
+          org_id?: string
           status?: string
           updated_at?: string
           user_id?: string
@@ -332,52 +455,14 @@ export type Database = {
             referencedRelation: "estimates"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "invoices_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
-      }
-      inventory_items: {
-        Row: {
-          archived_at: string | null
-          category: string
-          created_at: string
-          id: string
-          location: string
-          name: string
-          notes: string
-          quantity: number
-          reorder_level: number
-          unit: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          archived_at?: string | null
-          category?: string
-          created_at?: string
-          id?: string
-          location?: string
-          name: string
-          notes?: string
-          quantity?: number
-          reorder_level?: number
-          unit?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Update: {
-          archived_at?: string | null
-          category?: string
-          created_at?: string
-          id?: string
-          location?: string
-          name?: string
-          notes?: string
-          quantity?: number
-          reorder_level?: number
-          unit?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
       }
       jobs: {
         Row: {
@@ -387,6 +472,7 @@ export type Database = {
           id: string
           notes: string
           occurrence_date: string | null
+          org_id: string
           price_cents: number
           property_id: string
           schedule_id: string | null
@@ -405,6 +491,7 @@ export type Database = {
           id?: string
           notes?: string
           occurrence_date?: string | null
+          org_id?: string
           price_cents?: number
           property_id: string
           schedule_id?: string | null
@@ -423,6 +510,7 @@ export type Database = {
           id?: string
           notes?: string
           occurrence_date?: string | null
+          org_id?: string
           price_cents?: number
           property_id?: string
           schedule_id?: string | null
@@ -435,6 +523,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "jobs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "jobs_property_id_fkey"
             columns: ["property_id"]
@@ -458,6 +553,62 @@ export type Database = {
           },
         ]
       }
+      memberships: {
+        Row: {
+          created_at: string
+          id: string
+          org_id: string
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          org_id: string
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          org_id?: string
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "memberships_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount_cents: number
@@ -466,6 +617,7 @@ export type Database = {
           invoice_id: string
           method: string
           note: string
+          org_id: string
           paid_at: string
           updated_at: string
           user_id: string
@@ -477,6 +629,7 @@ export type Database = {
           invoice_id: string
           method: string
           note?: string
+          org_id?: string
           paid_at?: string
           updated_at?: string
           user_id?: string
@@ -488,6 +641,7 @@ export type Database = {
           invoice_id?: string
           method?: string
           note?: string
+          org_id?: string
           paid_at?: string
           updated_at?: string
           user_id?: string
@@ -507,6 +661,13 @@ export type Database = {
             referencedRelation: "invoices"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       photos: {
@@ -515,6 +676,7 @@ export type Database = {
           entity_id: string
           entity_type: string
           id: string
+          org_id: string
           storage_path: string
           updated_at: string
           user_id: string
@@ -524,6 +686,7 @@ export type Database = {
           entity_id: string
           entity_type: string
           id?: string
+          org_id?: string
           storage_path: string
           updated_at?: string
           user_id?: string
@@ -533,11 +696,20 @@ export type Database = {
           entity_id?: string
           entity_type?: string
           id?: string
+          org_id?: string
           storage_path?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "photos_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       properties: {
         Row: {
@@ -553,6 +725,7 @@ export type Database = {
           lat: number | null
           lng: number | null
           notes: string
+          org_id: string
           property_type: string
           state: string
           updated_at: string
@@ -572,6 +745,7 @@ export type Database = {
           lat?: number | null
           lng?: number | null
           notes?: string
+          org_id?: string
           property_type?: string
           state?: string
           updated_at?: string
@@ -587,11 +761,12 @@ export type Database = {
           created_at?: string
           gate_code?: string
           id?: string
-          property_type?: string
           label?: string
           lat?: number | null
           lng?: number | null
           notes?: string
+          org_id?: string
+          property_type?: string
           state?: string
           updated_at?: string
           user_id?: string
@@ -605,16 +780,19 @@ export type Database = {
             referencedRelation: "clients"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "properties_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       property_services: {
         Row: {
-          /**
-           * HAND-EDIT (keep when regenerating): phantom column — see
-           * business_settings.Row.id. Real key is (property_id, service_id).
-           */
-          id?: string
           created_at: string
+          org_id: string
           price_cents: number
           property_id: string
           service_id: string
@@ -623,6 +801,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          org_id?: string
           price_cents: number
           property_id: string
           service_id: string
@@ -631,6 +810,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          org_id?: string
           price_cents?: number
           property_id?: string
           service_id?: string
@@ -638,6 +818,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "property_services_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "property_services_property_id_fkey"
             columns: ["property_id"]
@@ -664,6 +851,7 @@ export type Database = {
           id: string
           last_materialized_through: string | null
           notes: string
+          org_id: string
           paused_at: string | null
           price_cents: number
           property_id: string
@@ -680,6 +868,7 @@ export type Database = {
           id?: string
           last_materialized_through?: string | null
           notes?: string
+          org_id?: string
           paused_at?: string | null
           price_cents?: number
           property_id: string
@@ -696,6 +885,7 @@ export type Database = {
           id?: string
           last_materialized_through?: string | null
           notes?: string
+          org_id?: string
           paused_at?: string | null
           price_cents?: number
           property_id?: string
@@ -704,6 +894,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "recurring_schedules_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "recurring_schedules_property_id_fkey"
             columns: ["property_id"]
@@ -728,6 +925,7 @@ export type Database = {
           description: string
           id: string
           name: string
+          org_id: string
           unit: string
           updated_at: string
           user_id: string
@@ -739,6 +937,7 @@ export type Database = {
           description?: string
           id?: string
           name: string
+          org_id?: string
           unit?: string
           updated_at?: string
           user_id?: string
@@ -750,11 +949,20 @@ export type Database = {
           description?: string
           id?: string
           name?: string
+          org_id?: string
           unit?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "services_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -795,6 +1003,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      current_org: { Args: never; Returns: string }
       materialize_jobs: { Args: { through_date: string }; Returns: number }
       resync_schedule: {
         Args: { p_schedule_id: string; through_date: string }
@@ -928,7 +1137,11 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
 } as const
+

@@ -1,29 +1,36 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
+import { getCurrentOrgId } from '@/features/auth/hooks'
 import type { TablesInsert } from '@/lib/database.types'
 
 export type BusinessSettingsPatch = Omit<
   TablesInsert<'business_settings'>,
-  'user_id' | 'created_at' | 'updated_at' | 'next_invoice_number' | 'next_estimate_number'
+  | 'user_id'
+  | 'org_id'
+  | 'created_at'
+  | 'updated_at'
+  | 'next_invoice_number'
+  | 'next_estimate_number'
 >
 
 /**
  * SANCTIONED OUTBOX EXCEPTION — business_settings only.
  *
  * Every other write goes through the outbox, but business_settings is a
- * singleton keyed by user_id (no client-generated `id`), so neither outbox
- * 'upsert' (can't conflict-match without sending user_id, which we never
- * include) nor 'update' (targets an `id` column this table doesn't have) can
- * represent it. Instead we upsert directly with onConflict: 'user_id' — the
- * DB default fills user_id on insert, and the conflict target matches the
- * existing row on subsequent saves. This requires being online; callers show
- * "Saved" / "Couldn't save — check connection" accordingly.
+ * singleton keyed by org_id (no client-generated `id`), so neither outbox
+ * 'upsert' nor 'update' can represent it. We upsert directly with
+ * onConflict: 'org_id' — the row already exists (the signup trigger seeds one
+ * per org), so this is always an update in practice. We send org_id explicitly
+ * because the conflict target must carry a value to match on. Requires being
+ * online; callers show "Saved" / "Couldn't save — check connection".
  */
 export async function saveBusinessSettings(patch: BusinessSettingsPatch): Promise<void> {
+  const orgId = await getCurrentOrgId()
+  if (!orgId) throw new Error('No active organization — please sign in again.')
   const { error } = await supabase
     .from('business_settings')
-    .upsert(patch, { onConflict: 'user_id' })
+    .upsert({ ...patch, org_id: orgId }, { onConflict: 'org_id' })
   if (error) throw new Error(error.message)
   await queryClient.invalidateQueries({ queryKey: ['business_settings'] })
 }
@@ -61,8 +68,11 @@ export async function uploadLogo(
   if (!navigator.onLine) {
     throw new Error('Logo upload needs a connection — try again when you have signal.')
   }
+  const orgId = await getCurrentOrgId()
+  if (!orgId) throw new Error('No active organization — please sign in again.')
   const ext = (file.name.split('.').pop() || 'png').toLowerCase()
-  const path = `logo.${ext}`
+  // Org-prefixed path — Storage RLS only lets a member touch their org's folder.
+  const path = `${orgId}/logo.${ext}`
   const { error } = await supabase.storage.from(LOGO_BUCKET).upload(path, file, {
     upsert: true,
     contentType: file.type || undefined,

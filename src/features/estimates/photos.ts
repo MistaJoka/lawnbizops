@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
+import { getCurrentOrgId } from '@/features/auth/hooks'
 import type { Tables } from '@/lib/database.types'
 
 export type Photo = Tables<'photos'>
@@ -56,7 +57,10 @@ export async function uploadPhoto(
   if (!navigator.onLine) {
     throw new Error('Photos need a connection — try again when you have signal.')
   }
-  const path = `${entityType}/${entityId}/${crypto.randomUUID()}.jpg`
+  const orgId = await getCurrentOrgId()
+  if (!orgId) throw new Error('No active organization — please sign in again.')
+  // Org-prefixed path — Storage RLS only lets a member touch their org's folder.
+  const path = `${orgId}/${entityType}/${entityId}/${crypto.randomUUID()}.jpg`
   const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
     contentType: file.type || 'image/jpeg',
   })
@@ -77,6 +81,7 @@ export async function uploadPhoto(
     created_at: now,
     updated_at: now,
     user_id: '',
+    org_id: orgId,
   }
   queryClient.setQueryData<PhotoWithUrl[]>(['photos', { entityType, entityId }], (old) =>
     old ? [...old, cached] : [cached],

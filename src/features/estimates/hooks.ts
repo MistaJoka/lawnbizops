@@ -184,12 +184,14 @@ export async function createEstimate(input: CreateEstimateInput): Promise<string
     created_at: now,
     updated_at: now,
     user_id: '',
+    org_id: '',
   }
   const cachedItems: EstimateItem[] = itemRows.map((item) => ({
     ...item,
     created_at: now,
     updated_at: now,
     user_id: '',
+    org_id: '',
   }))
   queryClient.setQueryData<EstimateDetail>(['estimates', id], {
     estimate: cachedEstimate,
@@ -269,12 +271,14 @@ export async function convertToInvoice(
     created_at: now,
     updated_at: now,
     user_id: '',
+    org_id: '',
   }
   const cachedItems: InvoiceItem[] = itemRows.map((item) => ({
     ...item,
     created_at: now,
     updated_at: now,
     user_id: '',
+    org_id: '',
   }))
   queryClient.setQueryData<InvoiceDetail>(['invoices', id], {
     invoice: cachedInvoice,

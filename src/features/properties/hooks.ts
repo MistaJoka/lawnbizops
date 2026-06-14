@@ -99,6 +99,7 @@ function asProperty(draft: PropertyDraft, existing?: Property): Property {
     created_at: existing?.created_at ?? now,
     updated_at: now,
     user_id: existing?.user_id ?? '',
+    org_id: existing?.org_id ?? '',
   }
 }
 
@@ -157,6 +158,7 @@ export async function savePropertyServicePrice(input: {
           created_at: existing?.created_at ?? now,
           updated_at: now,
           user_id: existing?.user_id ?? '',
+          org_id: existing?.org_id ?? '',
         },
       ]
     },
