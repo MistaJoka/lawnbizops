@@ -4,3 +4,4 @@ src/routeTree.gen.ts
 src/lib/database.types.ts
 package-lock.json
 supabase/.temp
+supabase/functions

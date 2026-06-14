@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as BillingRouteImport } from './routes/billing'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as AuthedScheduleRouteImport } from './routes/_authed/schedule'
@@ -52,6 +53,11 @@ const OnboardingRoute = OnboardingRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BillingRoute = BillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedRoute = AuthedRouteImport.update({
@@ -223,6 +229,7 @@ const AuthedClientsClientIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthedIndexRoute
+  '/billing': typeof BillingRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/board': typeof AuthedBoardRoute
@@ -257,6 +264,7 @@ export interface FileRoutesByFullPath {
   '/properties/$propertyId/': typeof AuthedPropertiesPropertyIdIndexRoute
 }
 export interface FileRoutesByTo {
+  '/billing': typeof BillingRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/board': typeof AuthedBoardRoute
@@ -294,6 +302,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
+  '/billing': typeof BillingRoute
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/_authed/board': typeof AuthedBoardRoute
@@ -332,6 +341,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/billing'
     | '/login'
     | '/onboarding'
     | '/board'
@@ -366,6 +376,7 @@ export interface FileRouteTypes {
     | '/properties/$propertyId/'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/billing'
     | '/login'
     | '/onboarding'
     | '/board'
@@ -402,6 +413,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authed'
+    | '/billing'
     | '/login'
     | '/onboarding'
     | '/_authed/board'
@@ -439,6 +451,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthedRoute: typeof AuthedRouteWithChildren
+  BillingRoute: typeof BillingRoute
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
 }
@@ -457,6 +470,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/billing': {
+      id: '/billing'
+      path: '/billing'
+      fullPath: '/billing'
+      preLoaderRoute: typeof BillingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed': {
@@ -759,6 +779,7 @@ const AuthedRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
+  BillingRoute: BillingRoute,
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
 }

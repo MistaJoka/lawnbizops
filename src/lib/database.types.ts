@@ -772,6 +772,30 @@ export type Database = {
           },
         ]
       }
+      plans: {
+        Row: {
+          active: boolean
+          id: string
+          interval: string
+          name: string
+          price_cents: number
+        }
+        Insert: {
+          active?: boolean
+          id: string
+          interval?: string
+          name: string
+          price_cents?: number
+        }
+        Update: {
+          active?: boolean
+          id?: string
+          interval?: string
+          name?: string
+          price_cents?: number
+        }
+        Relationships: []
+      }
       properties: {
         Row: {
           address_line1: string
@@ -1025,6 +1049,57 @@ export type Database = {
           },
         ]
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          org_id: string
+          plan_id: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          trial_ends_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          org_id: string
+          plan_id?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          org_id?: string
+          plan_id?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_ends_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           client_id: string | null
@@ -1104,6 +1179,15 @@ export type Database = {
       }
     }
     Functions: {
+      app_state: {
+        Args: never
+        Returns: {
+          access: boolean
+          onboarded: boolean
+          status: string
+          trial_ends_at: string
+        }[]
+      }
       apply_payment: {
         Args: {
           p_amount_cents: number

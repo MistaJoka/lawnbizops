@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useJobsForDate, type JobWithContext } from '@/features/jobs/hooks'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { supabase } from '@/lib/supabase'
@@ -18,15 +18,6 @@ import { stockLevel, useInventory } from '@/features/inventory/hooks'
 import { TasksSection } from '@/features/tasks/TaskUI'
 
 export const Route = createFileRoute('/_authed/')({
-  // First-run gate: a brand-new org goes through /onboarding before Today.
-  // (Session is already guaranteed by the _authed guard.)
-  beforeLoad: async () => {
-    const { data } = await supabase
-      .from('business_settings')
-      .select('onboarded_at')
-      .maybeSingle()
-    if (data && !data.onboarded_at) throw redirect({ to: '/onboarding' })
-  },
   component: TodayScreen,
 })
 
