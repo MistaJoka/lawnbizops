@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Field, PrimaryButton, TextArea, TextInput } from '@/components/Field'
-import type { Client } from './hooks'
+import type { Client, ClientStage } from './hooks'
 
 export interface ClientFormValues {
   name: string
   phone: string
   email: string
   notes: string
+  stage: ClientStage
 }
 
 export function ClientForm({
@@ -20,6 +21,7 @@ export function ClientForm({
   const [phone, setPhone] = useState(initial?.phone ?? '')
   const [email, setEmail] = useState(initial?.email ?? '')
   const [notes, setNotes] = useState(initial?.notes ?? '')
+  const [isLead, setIsLead] = useState((initial?.stage ?? 'active') === 'lead')
   const [busy, setBusy] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -31,6 +33,7 @@ export function ClientForm({
         phone: phone.trim(),
         email: email.trim(),
         notes,
+        stage: isLead ? 'lead' : ((initial?.stage as ClientStage) ?? 'active'),
       })
     } finally {
       setBusy(false)
@@ -75,6 +78,31 @@ export function ClientForm({
           onChange={(e) => setNotes(e.target.value)}
         />
       </Field>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={isLead}
+        onClick={() => setIsLead((v) => !v)}
+        className="tap-active flex min-h-touch items-center justify-between rounded-lg border-2 border-edge bg-surface-highest px-4 py-3"
+      >
+        <span className="flex flex-col items-start">
+          <span className="text-lg text-sand">This is a lead / prospect</span>
+          <span className="text-sm text-faded">
+            {isLead ? 'Starts in the pipeline' : 'Active client'}
+          </span>
+        </span>
+        <span
+          className={`relative h-7 w-12 shrink-0 rounded-full border-2 transition-colors ${
+            isLead ? 'border-blaze bg-blaze' : 'border-edge bg-panel'
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 h-5 w-5 rounded-full transition-all ${
+              isLead ? 'left-[22px] bg-on-cta' : 'left-0.5 bg-faded'
+            }`}
+          />
+        </span>
+      </button>
       <PrimaryButton type="submit" disabled={busy}>
         {busy ? 'Saving…' : 'Save client'}
       </PrimaryButton>

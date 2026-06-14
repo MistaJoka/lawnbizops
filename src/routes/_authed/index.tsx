@@ -15,6 +15,7 @@ import {
 import { Fab } from '@/components/Fab'
 import { loadPreferences } from '@/lib/preferences'
 import { stockLevel, useInventory } from '@/features/inventory/hooks'
+import { TasksSection } from '@/features/tasks/TaskUI'
 
 export const Route = createFileRoute('/_authed/')({
   component: TodayScreen,
@@ -141,6 +142,8 @@ function TodayScreen() {
           <span className="label-caps text-blaze">Restock →</span>
         </Link>
       )}
+
+      <TasksSection />
 
       <section className="space-y-0 px-edge py-6">
         {ordered.map((job, i) => (

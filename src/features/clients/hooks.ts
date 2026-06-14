@@ -2,9 +2,31 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
+import { logActivity } from '@/features/activities/hooks'
 import type { Tables } from '@/lib/database.types'
 
 export type Client = Tables<'clients'>
+
+export type ClientStage = 'lead' | 'quoted' | 'active' | 'dormant'
+
+export const CLIENT_STAGES: { value: ClientStage; label: string }[] = [
+  { value: 'lead', label: 'Lead' },
+  { value: 'quoted', label: 'Quoted' },
+  { value: 'active', label: 'Active' },
+  { value: 'dormant', label: 'Dormant' },
+]
+
+/** Stage to advance to from a given stage (last stage has no next). */
+export function nextStage(stage: string): ClientStage | null {
+  const order: ClientStage[] = ['lead', 'quoted', 'active', 'dormant']
+  const i = order.indexOf(stage as ClientStage)
+  if (i === -1 || i === order.length - 1) return null
+  return order[i + 1]
+}
+
+function stageLabel(stage: string): string {
+  return CLIENT_STAGES.find((s) => s.value === stage)?.label ?? stage
+}
 
 export interface ClientDraft {
   id: string
@@ -12,6 +34,7 @@ export interface ClientDraft {
   phone: string
   email: string
   notes: string
+  stage?: ClientStage
   archived_at?: string | null
 }
 
@@ -54,6 +77,7 @@ function asClient(draft: ClientDraft, existing?: Client): Client {
     phone: draft.phone,
     email: draft.email,
     notes: draft.notes,
+    stage: draft.stage ?? existing?.stage ?? 'active',
     archived_at:
       draft.archived_at !== undefined
         ? draft.archived_at
@@ -78,6 +102,32 @@ export async function saveClient(draft: ClientDraft): Promise<void> {
   queryClient.setQueryData<Client>(['clients', draft.id], merged)
 
   await enqueue({ table: 'clients', kind: 'upsert', payload: { ...draft } })
+}
+
+/**
+ * Move a client to a new pipeline stage: patch both caches, enqueue the
+ * clients update, and log a stage_change activity for the timeline.
+ */
+export async function setClientStage(client: Client, stage: ClientStage): Promise<void> {
+  if (client.stage === stage) return
+
+  queryClient.setQueryData<Client[]>(['clients'], (old) =>
+    old?.map((c) => (c.id === client.id ? { ...c, stage } : c)),
+  )
+  queryClient.setQueryData<Client>(['clients', client.id], (old) =>
+    old ? { ...old, stage } : old,
+  )
+
+  await enqueue({
+    table: 'clients',
+    kind: 'update',
+    payload: { id: client.id, patch: { stage } },
+  })
+  await logActivity({
+    clientId: client.id,
+    kind: 'stage_change',
+    body: `Stage → ${stageLabel(stage)}`,
+  })
 }
 
 export async function archiveClient(client: Client): Promise<void> {

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Fab } from '@/components/Fab'
 import { useClients } from '@/features/clients/hooks'
 
@@ -18,7 +18,12 @@ function ClientsScreen() {
 
   return (
     <div className="px-4 pt-6 pb-8">
-      <h1 className="heading-stencil text-2xl text-khaki">Clients</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="heading-stencil text-2xl text-khaki">Clients</h1>
+        <Link to="/pipeline" className="label-caps text-blaze">
+          Pipeline
+        </Link>
+      </div>
 
       <input
         type="search"

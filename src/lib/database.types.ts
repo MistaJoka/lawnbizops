@@ -34,6 +34,61 @@ export type Database = {
   }
   public: {
     Tables: {
+      activities: {
+        Row: {
+          body: string
+          client_id: string | null
+          created_at: string
+          id: string
+          job_id: string | null
+          kind: string
+          org_id: string
+          user_id: string | null
+        }
+        Insert: {
+          body?: string
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          kind?: string
+          org_id?: string
+          user_id?: string | null
+        }
+        Update: {
+          body?: string
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          kind?: string
+          org_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_settings: {
         Row: {
           address: string
@@ -109,6 +164,7 @@ export type Database = {
           notes: string
           org_id: string
           phone: string
+          stage: string
           updated_at: string
           user_id: string
         }
@@ -121,6 +177,7 @@ export type Database = {
           notes?: string
           org_id?: string
           phone?: string
+          stage?: string
           updated_at?: string
           user_id?: string
         }
@@ -133,6 +190,7 @@ export type Database = {
           notes?: string
           org_id?: string
           phone?: string
+          stage?: string
           updated_at?: string
           user_id?: string
         }
@@ -957,6 +1015,57 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "services_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          done: boolean
+          due_date: string | null
+          id: string
+          org_id: string
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          done?: boolean
+          due_date?: string | null
+          id?: string
+          org_id?: string
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          done?: boolean
+          due_date?: string | null
+          id?: string
+          org_id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"

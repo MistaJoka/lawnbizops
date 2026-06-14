@@ -1,7 +1,15 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { archiveClient, useClient } from '@/features/clients/hooks'
+import {
+  CLIENT_STAGES,
+  archiveClient,
+  setClientStage,
+  useClient,
+  type Client,
+} from '@/features/clients/hooks'
 import { formatAddress, useProperties } from '@/features/properties/hooks'
 import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
+import { ActivityTimeline } from '@/components/ActivityTimeline'
+import { ClientFollowUps } from '@/features/tasks/TaskUI'
 import { formatCents } from '@/lib/format'
 
 export const Route = createFileRoute('/_authed/clients/$clientId/')({
@@ -50,6 +58,7 @@ function ClientDetailScreen() {
             ← Clients
           </Link>
           <h1 className="heading-stencil mt-2 text-2xl text-khaki">{client.name}</h1>
+          <StageControl client={client} />
         </div>
         <Link
           to="/clients/$clientId/edit"
@@ -98,6 +107,16 @@ function ClientDetailScreen() {
         </Link>
       )}
 
+      <h2 className="heading-stencil mt-8 text-lg text-khaki">Follow-ups</h2>
+      <div className="mt-2">
+        <ClientFollowUps clientId={clientId} />
+      </div>
+
+      <h2 className="heading-stencil mt-8 text-lg text-khaki">Activity</h2>
+      <div className="mt-2">
+        <ActivityTimeline clientId={clientId} />
+      </div>
+
       <h2 className="heading-stencil mt-8 text-lg text-khaki">Properties</h2>
       <ul className="mt-2 flex flex-col gap-2">
         {(properties ?? []).map((property) => (
@@ -140,6 +159,30 @@ function ClientDetailScreen() {
       >
         Archive client
       </button>
+    </div>
+  )
+}
+
+/** Segmented control over the 4 pipeline stages. */
+function StageControl({ client }: { client: Client }) {
+  return (
+    <div className="mt-2 flex gap-1 rounded-lg border-2 border-edge bg-surface-low p-1">
+      {CLIENT_STAGES.map((stage) => {
+        const active = client.stage === stage.value
+        return (
+          <button
+            key={stage.value}
+            type="button"
+            aria-pressed={active}
+            onClick={() => void setClientStage(client, stage.value)}
+            className={`label-caps tap-active min-h-touch flex-1 rounded-md px-2 py-2 text-xs ${
+              active ? 'bg-blaze text-on-cta' : 'text-faded'
+            }`}
+          >
+            {stage.label}
+          </button>
+        )
+      })}
     </div>
   )
 }

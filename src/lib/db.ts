@@ -16,6 +16,8 @@ export type SyncTable =
   | 'payments'
   | 'photos'
   | 'inventory_items'
+  | 'activities'
+  | 'tasks'
 
 export interface OutboxOp {
   /** Auto-increment — FIFO order. */
