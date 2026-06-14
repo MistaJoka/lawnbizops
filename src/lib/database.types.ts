@@ -101,6 +101,7 @@ export type Database = {
           logo_path: string | null
           next_estimate_number: number
           next_invoice_number: number
+          onboarded_at: string | null
           org_id: string
           payment_provider: string | null
           payment_provider_config: Json
@@ -119,6 +120,7 @@ export type Database = {
           logo_path?: string | null
           next_estimate_number?: number
           next_invoice_number?: number
+          onboarded_at?: string | null
           org_id?: string
           payment_provider?: string | null
           payment_provider_config?: Json
@@ -137,6 +139,7 @@ export type Database = {
           logo_path?: string | null
           next_estimate_number?: number
           next_invoice_number?: number
+          onboarded_at?: string | null
           org_id?: string
           payment_provider?: string | null
           payment_provider_config?: Json
@@ -1114,6 +1117,7 @@ export type Database = {
       }
       current_org: { Args: never; Returns: string }
       materialize_jobs: { Args: { through_date: string }; Returns: number }
+      materialize_jobs_all: { Args: never; Returns: number }
       resync_schedule: {
         Args: { p_schedule_id: string; through_date: string }
         Returns: number
