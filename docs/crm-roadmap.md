@@ -257,32 +257,36 @@ The deployed app has real rows owned by the placeholder user. Turning on auth ca
 
 ---
 
-## v0.1 status — BUILT & validated on a local stack (not yet on prod)
+## Build status — v0.1 → v1.0 BUILT & validated locally (not yet on prod)
 
-Implemented on branch `feat/v0.1-multitenant`, validated against a throwaway
-local Supabase stack (full Auth + Postgres + PostgREST). **Production was not
-touched and the deployed app was not changed.**
+All phases implemented on branch `feat/v0.1-multitenant`, each validated
+end-to-end against a throwaway local Supabase stack (full Auth + Postgres +
+PostgREST). **Production was never touched and the deployed app is unchanged.**
+Full chain: 16 migrations apply clean · RLS leak test PASS · lint + typecheck +
+57 tests + build green.
 
-- [x] `0011_org_tenancy.sql` — organizations, memberships, `current_org()`, `org_id` on all 14 tables (+ seed-org backfill), signup trigger. Additive/non-breaking.
-- [x] `0012_auth_on.sql` — `org_id` NOT NULL + `current_org()` default, single org-membership policy on every table, business_settings re-keyed to org, org-prefixed Storage RLS, recurrence RPC carries org.
-- [x] `supabase/tests/rls_isolation.sql` — two-tenant leak test (read/update/delete/detect): **PASS**.
-- [x] App: `/login` (sign in + sign up), restored `_authed` guard, `src/features/auth/`, outbox 401-refresh-and-retry, org-prefixed photo/logo paths, business_settings keyed by org, Sign-out (clears session + local caches).
-- [x] End-to-end proof through the real app: signed up two businesses; second sees zero of the first's rows.
+- [x] **v0.1 multi-tenant** — `0011` org tenancy (organizations/memberships/`current_org()`/`org_id` everywhere + signup trigger, additive), `0012` auth-on cutover (org RLS, business_settings re-keyed, org-prefixed Storage). App: `/login`, `_authed` guard, outbox 401-refresh, sign-out cache wipe. `rls_isolation.sql` two-tenant leak test PASS; proven through the app.
+- [x] **v0.2 CRM layer** — `0013`: client stage + Pipeline view, `activities` timeline (auto-logs stage changes + note/call), `tasks` follow-ups surfaced on Today.
+- [x] **v0.3 server scheduling** — `0014`: `materialize_jobs_all()` + nightly `pg_cron` sweep over all orgs (validated: two orgs each materialized independently).
+- [x] **v0.4 onboarding** — `0015`: `onboarded_at` flag + `/onboarding` wizard (profile, opt-in starter services, opt-in sample client), gated by the app router.
+- [x] **v1.0 billing seam** — `0016`: plans + subscriptions + 14-day trial + `app_state()` gate; `_authed` routes no-session→/login, not-onboarded→/onboarding, no-access→/billing. `/billing` screen + Stripe Edge Functions (checkout/portal/webhook) written, **dormant** until keys set.
 
-### Production cutover runbook (do this deliberately, you pull the trigger)
+### Phase E — Production go-live runbook (you pull the trigger)
 
-> Prod today: auth OFF, ~5 placeholder-owned rows (4 starter inventory + 1 settings). The breaking switch requires login, so order matters.
+> Prod today: auth OFF, ~5 placeholder-owned rows (4 starter inventory + 1 settings), single-tenant. Turning auth on is the one breaking, outward-facing step — do it deliberately.
 
-1. **Back up** prod (Supabase dashboard → Database → Backups, or `pg_dump`).
-2. **Apply `0011` only** (additive) via the Supabase MCP `apply_migration`. The live app keeps working — anon policies are untouched. Verify the seed org exists and every table's `org_id` is backfilled.
-3. **Create your login**: deploy the branch to a preview URL (or run locally against prod), open `/login`, sign up. The trigger makes a _fresh empty_ org for you.
-4. **Adopt the seed data into your org** (one SQL statement): repoint your membership to the seed org **or** re-stamp the 5 seed rows to your new org, then delete the empty one. (At ~5 throwaway rows you may simply skip this and re-seed.)
-5. **Apply `0012`** (the cutover). Anon access is now gone; the app requires login.
-6. **Switch hosting env**: the deployed app's Supabase key is already the publishable key; no change needed. Confirm login works on the live URL.
-7. **Run `get_advisors` (security)** and re-run the RLS test shape against prod.
-8. **Rollback path** if needed: `0012` is reversible by re-adding the anon policies + placeholder default; keep that revert SQL ready before step 5.
+1. **Back up** prod (Supabase dashboard → Database → Backups).
+2. **Merge the branch** `feat/v0.1-multitenant` → `main` (PR or fast-forward). _Do not deploy yet_ if the deploy workflow auto-runs — or accept that the deployed app will require login only after step 5's migrations land.
+3. **Apply `0011` only** (additive) to prod via Supabase MCP `apply_migration`. The live app keeps working (anon policies intact). Verify the seed org exists + every table's `org_id` backfilled.
+4. **Create your login**: run the app against prod (locally or the deployed build) → `/login` → sign up. The trigger makes a _fresh_ org + 14-day trial for you.
+5. **Adopt the ~5 seed rows** into your new org (one `update` re-stamping their `org_id`, or just skip and re-seed — they're throwaway starters).
+6. **Apply `0012` → `0016`** in order. Anon access is gone; the app now requires login, routes through onboarding, and enforces the trial/subscription gate.
+7. **Enable `pg_cron`** on prod (Supabase dashboard → Database → Extensions) so `0014`'s nightly sweep registers.
+8. **`get_advisors` (security)** + re-run the RLS test shape against prod.
+9. **Stripe (when ready to charge)**: follow `supabase/functions/_shared/stripe.ts` — set secrets, map price IDs, `supabase functions deploy stripe-checkout stripe-portal stripe-webhook`, register the webhook. Until then the trial + manual onboarding carry you.
+10. **Rollback**: `0012` is reversible (re-add anon policies + placeholder default); keep that revert SQL ready before step 6.
 
-To shut the local validation stack down: `npx supabase stop`.
+Stop the local validation stack: `npx supabase stop`.
 
 ---
 

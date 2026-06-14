@@ -1,13 +1,28 @@
 # LawnBizOps
 
-Mobile-first PWA for one solo South FL landscaper. Full plan + phase status:
-`/Users/andraewilliams/.claude/plans/business-system-for-a-witty-milner.md`.
+Mobile-first PWA evolving into a **multi-tenant trade-CRM SaaS** (landscaping
+first). Original plan: `/Users/andraewilliams/.claude/plans/business-system-for-a-witty-milner.md`.
+SaaS roadmap + go-live runbook: `docs/crm-roadmap.md`.
 
 Primary device: **Android Galaxy S26 Ultra (Chrome)** — Google Maps URLs for
 deep links, but keep the cross-platform app-managed outbox (no SW Background
-Sync dependence). **Auth is OFF for now** (migration 0004: anon policies +
-placeholder user_id default; `_authed` layout kept as the re-auth seam). Add
-real auth before sensitive client data (gate codes) ships.
+Sync dependence).
+
+## Tenancy & auth (branch `feat/v0.1-multitenant`)
+
+Multi-tenant via **org-scoped RLS** is BUILT (migrations 0011–0016) and
+validated on a local stack, but **prod is still single-tenant / auth-OFF** until
+the Phase E cutover in `docs/crm-roadmap.md` is run.
+
+- Every table has `org_id` defaulting to `current_org()` — the app **never sends
+  org_id** (DB stamps it from the session), same as the old user_id default.
+- New tables: `org_id uuid not null default public.current_org()` + a single
+  `using/with check (org_id = public.current_org())` policy. No anon policies.
+- `current_org()` is SECURITY DEFINER (reads memberships); `app_state()` is the
+  one gate RPC the `_authed` router uses (onboarded + subscription access).
+- Single-login-per-business in v1; `memberships` is the seam for multi-user.
+- Local validation: `supabase start` / `db reset`; `supabase/tests/rls_isolation.sql`
+  must stay PASS after any RLS change. Regen types from local after migrations.
 
 ## Iron rules
 
