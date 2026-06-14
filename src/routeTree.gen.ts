@@ -40,6 +40,7 @@ import { Route as AuthedInvoicesInvoiceIdRouteImport } from './routes/_authed/in
 import { Route as AuthedEstimatesNewRouteImport } from './routes/_authed/estimates/new'
 import { Route as AuthedEstimatesEstimateIdRouteImport } from './routes/_authed/estimates/$estimateId'
 import { Route as AuthedClientsNewRouteImport } from './routes/_authed/clients/new'
+import { Route as AuthedClientsImportRouteImport } from './routes/_authed/clients/import'
 import { Route as AuthedPropertiesPropertyIdIndexRouteImport } from './routes/_authed/properties/$propertyId.index'
 import { Route as AuthedClientsClientIdIndexRouteImport } from './routes/_authed/clients/$clientId.index'
 import { Route as AuthedSchedulesScheduleIdEditRouteImport } from './routes/_authed/schedules/$scheduleId.edit'
@@ -202,6 +203,11 @@ const AuthedClientsNewRoute = AuthedClientsNewRouteImport.update({
   path: '/clients/new',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedClientsImportRoute = AuthedClientsImportRouteImport.update({
+  id: '/clients/import',
+  path: '/clients/import',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedPropertiesPropertyIdIndexRoute =
   AuthedPropertiesPropertyIdIndexRouteImport.update({
     id: '/properties/$propertyId/',
@@ -242,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthedDashboardRoute
   '/pipeline': typeof AuthedPipelineRoute
   '/schedule': typeof AuthedScheduleRoute
+  '/clients/import': typeof AuthedClientsImportRoute
   '/clients/new': typeof AuthedClientsNewRoute
   '/estimates/$estimateId': typeof AuthedEstimatesEstimateIdRoute
   '/estimates/new': typeof AuthedEstimatesNewRoute
@@ -279,6 +286,7 @@ export interface FileRoutesByTo {
   '/pipeline': typeof AuthedPipelineRoute
   '/schedule': typeof AuthedScheduleRoute
   '/': typeof AuthedIndexRoute
+  '/clients/import': typeof AuthedClientsImportRoute
   '/clients/new': typeof AuthedClientsNewRoute
   '/estimates/$estimateId': typeof AuthedEstimatesEstimateIdRoute
   '/estimates/new': typeof AuthedEstimatesNewRoute
@@ -318,6 +326,7 @@ export interface FileRoutesById {
   '/_authed/pipeline': typeof AuthedPipelineRoute
   '/_authed/schedule': typeof AuthedScheduleRoute
   '/_authed/': typeof AuthedIndexRoute
+  '/_authed/clients/import': typeof AuthedClientsImportRoute
   '/_authed/clients/new': typeof AuthedClientsNewRoute
   '/_authed/estimates/$estimateId': typeof AuthedEstimatesEstimateIdRoute
   '/_authed/estimates/new': typeof AuthedEstimatesNewRoute
@@ -357,6 +366,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/pipeline'
     | '/schedule'
+    | '/clients/import'
     | '/clients/new'
     | '/estimates/$estimateId'
     | '/estimates/new'
@@ -394,6 +404,7 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/schedule'
     | '/'
+    | '/clients/import'
     | '/clients/new'
     | '/estimates/$estimateId'
     | '/estimates/new'
@@ -432,6 +443,7 @@ export interface FileRouteTypes {
     | '/_authed/pipeline'
     | '/_authed/schedule'
     | '/_authed/'
+    | '/_authed/clients/import'
     | '/_authed/clients/new'
     | '/_authed/estimates/$estimateId'
     | '/_authed/estimates/new'
@@ -687,6 +699,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedClientsNewRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/clients/import': {
+      id: '/_authed/clients/import'
+      path: '/clients/import'
+      fullPath: '/clients/import'
+      preLoaderRoute: typeof AuthedClientsImportRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/properties/$propertyId/': {
       id: '/_authed/properties/$propertyId/'
       path: '/properties/$propertyId'
@@ -731,6 +750,7 @@ interface AuthedRouteChildren {
   AuthedPipelineRoute: typeof AuthedPipelineRoute
   AuthedScheduleRoute: typeof AuthedScheduleRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
+  AuthedClientsImportRoute: typeof AuthedClientsImportRoute
   AuthedClientsNewRoute: typeof AuthedClientsNewRoute
   AuthedEstimatesEstimateIdRoute: typeof AuthedEstimatesEstimateIdRoute
   AuthedEstimatesNewRoute: typeof AuthedEstimatesNewRoute
@@ -766,6 +786,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedPipelineRoute: AuthedPipelineRoute,
   AuthedScheduleRoute: AuthedScheduleRoute,
   AuthedIndexRoute: AuthedIndexRoute,
+  AuthedClientsImportRoute: AuthedClientsImportRoute,
   AuthedClientsNewRoute: AuthedClientsNewRoute,
   AuthedEstimatesEstimateIdRoute: AuthedEstimatesEstimateIdRoute,
   AuthedEstimatesNewRoute: AuthedEstimatesNewRoute,

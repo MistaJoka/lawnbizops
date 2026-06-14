@@ -105,6 +105,23 @@ export async function saveClient(draft: ClientDraft): Promise<void> {
 }
 
 /**
+ * Bulk import (CSV). Adds all rows to the list cache in one pass, then enqueues
+ * each upsert through the outbox (idempotent client-generated ids). Returns the
+ * number imported.
+ */
+export async function importClients(drafts: ClientDraft[]): Promise<number> {
+  if (drafts.length === 0) return 0
+  const merged = drafts.map((d) => asClient(d))
+  queryClient.setQueryData<Client[]>(['clients'], (old = []) =>
+    [...old, ...merged].sort((a, b) => a.name.localeCompare(b.name)),
+  )
+  for (const draft of drafts) {
+    await enqueue({ table: 'clients', kind: 'upsert', payload: { ...draft } })
+  }
+  return drafts.length
+}
+
+/**
  * Move a client to a new pipeline stage: patch both caches, enqueue the
  * clients update, and log a stage_change activity for the timeline.
  */

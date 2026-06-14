@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { csvField, toCsv } from './csv'
+import { csvField, parseCsv, toCsv } from './csv'
 
 describe('csvField', () => {
   it('passes plain values through unquoted', () => {
@@ -40,5 +40,44 @@ describe('toCsv', () => {
   it('escapes tricky fields in data rows', () => {
     const csv = toCsv([{ note: 'call "before" 8am, not after', count: null }])
     expect(csv).toBe('note,count\r\n"call ""before"" 8am, not after",\r\n')
+  })
+})
+
+describe('parseCsv', () => {
+  it('parses a simple header + rows', () => {
+    expect(parseCsv('name,phone\nWalt,555-0100\nAna,555-0101')).toEqual([
+      ['name', 'phone'],
+      ['Walt', '555-0100'],
+      ['Ana', '555-0101'],
+    ])
+  })
+  it('handles CRLF line endings', () => {
+    expect(parseCsv('a,b\r\n1,2\r\n')).toEqual([
+      ['a', 'b'],
+      ['1', '2'],
+    ])
+  })
+  it('handles quoted fields with commas', () => {
+    expect(parseCsv('name,note\n"Pierce, W","mow, edge"')).toEqual([
+      ['name', 'note'],
+      ['Pierce, W', 'mow, edge'],
+    ])
+  })
+  it('handles doubled quotes and newlines inside quotes', () => {
+    expect(parseCsv('name,note\n"Walt","the ""big"" yard\nline two"')).toEqual([
+      ['name', 'note'],
+      ['Walt', 'the "big" yard\nline two'],
+    ])
+  })
+  it('round-trips with toCsv', () => {
+    const csv = toCsv([{ name: 'Ana "A"', note: 'a, b' }])
+    expect(parseCsv(csv)).toEqual([
+      ['name', 'note'],
+      ['Ana "A"', 'a, b'],
+    ])
+  })
+  it('returns empty array for empty input', () => {
+    expect(parseCsv('')).toEqual([])
+    expect(parseCsv('\n\n')).toEqual([])
   })
 })

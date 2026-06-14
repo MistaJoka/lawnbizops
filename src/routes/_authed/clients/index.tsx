@@ -18,11 +18,16 @@ function ClientsScreen() {
 
   return (
     <div className="px-4 pt-6 pb-8">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h1 className="heading-stencil text-2xl text-khaki">Clients</h1>
-        <Link to="/pipeline" className="label-caps text-blaze">
-          Pipeline
-        </Link>
+        <span className="flex items-center gap-4">
+          <Link to="/clients/import" className="label-caps text-faded">
+            Import
+          </Link>
+          <Link to="/pipeline" className="label-caps text-blaze">
+            Pipeline
+          </Link>
+        </span>
       </div>
 
       <input

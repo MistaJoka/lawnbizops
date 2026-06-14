@@ -26,3 +26,67 @@ export function toCsv(rows: Record<string, unknown>[]): string {
   }
   return lines.join('\r\n') + '\r\n'
 }
+
+/**
+ * Parse a CSV document into rows of string cells (RFC 4180): handles quoted
+ * fields, commas and newlines inside quotes, and doubled quotes. Accepts LF or
+ * CRLF line endings. Trailing blank lines are dropped. Returns [] for empty
+ * input.
+ */
+export function parseCsv(text: string): string[][] {
+  const rows: string[][] = []
+  let row: string[] = []
+  let field = ''
+  let inQuotes = false
+  let i = 0
+  const n = text.length
+
+  const pushField = () => {
+    row.push(field)
+    field = ''
+  }
+  const pushRow = () => {
+    pushField()
+    rows.push(row)
+    row = []
+  }
+
+  while (i < n) {
+    const c = text[i]
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') {
+          field += '"'
+          i += 2
+        } else {
+          inQuotes = false
+          i++
+        }
+      } else {
+        field += c
+        i++
+      }
+    } else if (c === '"') {
+      inQuotes = true
+      i++
+    } else if (c === ',') {
+      pushField()
+      i++
+    } else if (c === '\n') {
+      pushRow()
+      i++
+    } else if (c === '\r') {
+      // swallow CR (handle CRLF and bare CR)
+      pushRow()
+      i += text[i + 1] === '\n' ? 2 : 1
+    } else {
+      field += c
+      i++
+    }
+  }
+  // last field/row if the file didn't end with a newline
+  if (field !== '' || row.length > 0) pushRow()
+
+  // drop fully-empty trailing rows
+  return rows.filter((r) => !(r.length === 1 && r[0] === ''))
+}
