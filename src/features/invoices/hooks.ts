@@ -63,34 +63,37 @@ export function invoiceTotalCents(
 // Reads
 // ---------------------------------------------------------------------------
 
-export function useInvoiceBalances() {
-  return useQuery({
-    queryKey: ['invoices'],
-    queryFn: async (): Promise<InvoiceBalance[]> => {
-      const { data, error } = await supabase
-        .from('invoice_balances')
-        .select('*, client:clients(name, phone)')
-        .order('issued_at', { ascending: false })
-      if (!error) return data as unknown as InvoiceBalance[]
+/** Shared so a route loader can warm the list on tab-intent (preload). */
+export const invoiceBalancesQueryOptions = {
+  queryKey: ['invoices'] as const,
+  queryFn: async (): Promise<InvoiceBalance[]> => {
+    const { data, error } = await supabase
+      .from('invoice_balances')
+      .select('*, client:clients(name, phone)')
+      .order('issued_at', { ascending: false })
+    if (!error) return data as unknown as InvoiceBalance[]
 
-      // Views only infer FK joins in some PostgREST setups — fall back to a
-      // second query and stitch the client in ourselves.
-      const { data: rows, error: viewError } = await supabase
-        .from('invoice_balances')
-        .select('*')
-        .order('issued_at', { ascending: false })
-      if (viewError) throw viewError
-      const { data: clients, error: clientsError } = await supabase
-        .from('clients')
-        .select('id, name, phone')
-      if (clientsError) throw clientsError
-      const byId = new Map(clients.map((c) => [c.id, { name: c.name, phone: c.phone }]))
-      return (rows as unknown as Omit<InvoiceBalance, 'client'>[]).map((row) => ({
-        ...row,
-        client: byId.get(row.client_id) ?? null,
-      }))
-    },
-  })
+    // Views only infer FK joins in some PostgREST setups — fall back to a
+    // second query and stitch the client in ourselves.
+    const { data: rows, error: viewError } = await supabase
+      .from('invoice_balances')
+      .select('*')
+      .order('issued_at', { ascending: false })
+    if (viewError) throw viewError
+    const { data: clients, error: clientsError } = await supabase
+      .from('clients')
+      .select('id, name, phone')
+    if (clientsError) throw clientsError
+    const byId = new Map(clients.map((c) => [c.id, { name: c.name, phone: c.phone }]))
+    return (rows as unknown as Omit<InvoiceBalance, 'client'>[]).map((row) => ({
+      ...row,
+      client: byId.get(row.client_id) ?? null,
+    }))
+  },
+}
+
+export function useInvoiceBalances() {
+  return useQuery(invoiceBalancesQueryOptions)
 }
 
 export function useInvoice(id: string) {

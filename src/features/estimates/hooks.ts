@@ -49,27 +49,30 @@ export interface EstimateDetail {
 // Reads
 // ---------------------------------------------------------------------------
 
+/** Shared so a route loader can warm the list on tab-intent (preload). */
+export const estimatesQueryOptions = {
+  queryKey: ['estimates'] as const,
+  queryFn: async (): Promise<EstimateListRow[]> => {
+    const { data, error } = await supabase
+      .from('estimates')
+      .select(
+        '*, items:estimate_items(quantity, unit_price_cents), client:clients(name, phone)',
+      )
+      .order('issued_at', { ascending: false })
+    if (error) throw error
+    return data.map((row) => {
+      const { items, ...estimate } = row
+      return {
+        ...estimate,
+        total_cents: invoiceTotalCents(items),
+        client: row.client ?? null,
+      }
+    })
+  },
+}
+
 export function useEstimates() {
-  return useQuery({
-    queryKey: ['estimates'],
-    queryFn: async (): Promise<EstimateListRow[]> => {
-      const { data, error } = await supabase
-        .from('estimates')
-        .select(
-          '*, items:estimate_items(quantity, unit_price_cents), client:clients(name, phone)',
-        )
-        .order('issued_at', { ascending: false })
-      if (error) throw error
-      return data.map((row) => {
-        const { items, ...estimate } = row
-        return {
-          ...estimate,
-          total_cents: invoiceTotalCents(items),
-          client: row.client ?? null,
-        }
-      })
-    },
-  })
+  return useQuery(estimatesQueryOptions)
 }
 
 export function useEstimate(id: string) {

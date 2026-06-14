@@ -4,18 +4,30 @@ import { Fab } from '@/components/Fab'
 import {
   AGING_BUCKETS,
   agingBucket,
+  invoiceBalancesQueryOptions,
   isOpen,
   useInvoiceBalances,
   type AgingBucket,
   type InvoiceBalance,
 } from '@/features/invoices/hooks'
 import { InvoiceStatusChip } from '@/features/invoices/InvoiceStatusChip'
-import { useEstimates, type EstimateListRow } from '@/features/estimates/hooks'
+import {
+  estimatesQueryOptions,
+  useEstimates,
+  type EstimateListRow,
+} from '@/features/estimates/hooks'
 import { EstimateStatusChip } from '@/features/estimates/EstimateStatusChip'
+import { queryClient } from '@/lib/queryClient'
 import { formatCents, localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
 export const Route = createFileRoute('/_authed/money/')({
+  // Warm both lists on tab-intent (preload) so Money paints instantly on tap.
+  loader: () =>
+    Promise.all([
+      queryClient.ensureQueryData(invoiceBalancesQueryOptions),
+      queryClient.ensureQueryData(estimatesQueryOptions),
+    ]),
   component: MoneyScreen,
 })
 

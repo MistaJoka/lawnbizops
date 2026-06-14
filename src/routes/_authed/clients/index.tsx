@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Fab } from '@/components/Fab'
-import { useClients } from '@/features/clients/hooks'
+import { clientsQueryOptions, useClients } from '@/features/clients/hooks'
+import { queryClient } from '@/lib/queryClient'
 
 export const Route = createFileRoute('/_authed/clients/')({
+  // Warm the list on tab-intent (preload) so it paints instantly on tap.
+  loader: () => queryClient.ensureQueryData(clientsQueryOptions),
   component: ClientsScreen,
 })
 

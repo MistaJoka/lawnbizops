@@ -38,19 +38,22 @@ export interface ClientDraft {
   archived_at?: string | null
 }
 
+/** Shared so a route loader can warm the list on tab-intent (preload). */
+export const clientsQueryOptions = {
+  queryKey: ['clients'] as const,
+  queryFn: async (): Promise<Client[]> => {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .is('archived_at', null)
+      .order('name')
+    if (error) throw error
+    return data
+  },
+}
+
 export function useClients() {
-  return useQuery({
-    queryKey: ['clients'],
-    queryFn: async (): Promise<Client[]> => {
-      const { data, error } = await supabase
-        .from('clients')
-        .select('*')
-        .is('archived_at', null)
-        .order('name')
-      if (error) throw error
-      return data
-    },
-  })
+  return useQuery(clientsQueryOptions)
 }
 
 export function useClient(id: string) {

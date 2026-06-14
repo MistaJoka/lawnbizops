@@ -21,7 +21,14 @@ if (sentryDsn) {
 
 initOutbox()
 
-const router = createRouter({ routeTree })
+const router = createRouter({
+  routeTree,
+  // Preload a route (its code chunk + loader) on tap/hover intent, so the
+  // screen and its data are warm before the user actually navigates. Query
+  // owns data freshness, so the router itself shouldn't re-cache loader data.
+  defaultPreload: 'intent',
+  defaultPreloadStaleTime: 0,
+})
 
 declare module '@tanstack/react-router' {
   interface Register {
