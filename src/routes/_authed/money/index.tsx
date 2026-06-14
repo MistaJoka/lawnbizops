@@ -47,7 +47,12 @@ function MoneyScreen() {
 
   return (
     <div className="px-4 pt-6">
-      <h1 className="heading-stencil text-2xl text-khaki">Money</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="heading-stencil text-2xl text-khaki">Money</h1>
+        <Link to="/dashboard" className="label-caps text-blaze">
+          Dashboard
+        </Link>
+      </div>
 
       <div className="mt-4 flex rounded-lg border border-edge bg-panel p-1">
         {(['invoices', 'estimates'] as const).map((t) => (

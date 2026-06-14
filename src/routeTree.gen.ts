@@ -16,6 +16,7 @@ import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as AuthedScheduleRouteImport } from './routes/_authed/schedule'
 import { Route as AuthedPipelineRouteImport } from './routes/_authed/pipeline'
+import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedBoardRouteImport } from './routes/_authed/board'
 import { Route as AuthedToolsIndexRouteImport } from './routes/_authed/tools/index'
 import { Route as AuthedSettingsIndexRouteImport } from './routes/_authed/settings/index'
@@ -77,6 +78,11 @@ const AuthedScheduleRoute = AuthedScheduleRouteImport.update({
 const AuthedPipelineRoute = AuthedPipelineRouteImport.update({
   id: '/pipeline',
   path: '/pipeline',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedBoardRoute = AuthedBoardRouteImport.update({
@@ -233,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/board': typeof AuthedBoardRoute
+  '/dashboard': typeof AuthedDashboardRoute
   '/pipeline': typeof AuthedPipelineRoute
   '/schedule': typeof AuthedScheduleRoute
   '/clients/new': typeof AuthedClientsNewRoute
@@ -268,6 +275,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/board': typeof AuthedBoardRoute
+  '/dashboard': typeof AuthedDashboardRoute
   '/pipeline': typeof AuthedPipelineRoute
   '/schedule': typeof AuthedScheduleRoute
   '/': typeof AuthedIndexRoute
@@ -306,6 +314,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/onboarding': typeof OnboardingRoute
   '/_authed/board': typeof AuthedBoardRoute
+  '/_authed/dashboard': typeof AuthedDashboardRoute
   '/_authed/pipeline': typeof AuthedPipelineRoute
   '/_authed/schedule': typeof AuthedScheduleRoute
   '/_authed/': typeof AuthedIndexRoute
@@ -345,6 +354,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/board'
+    | '/dashboard'
     | '/pipeline'
     | '/schedule'
     | '/clients/new'
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/board'
+    | '/dashboard'
     | '/pipeline'
     | '/schedule'
     | '/'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/onboarding'
     | '/_authed/board'
+    | '/_authed/dashboard'
     | '/_authed/pipeline'
     | '/_authed/schedule'
     | '/_authed/'
@@ -505,6 +517,13 @@ declare module '@tanstack/react-router' {
       path: '/pipeline'
       fullPath: '/pipeline'
       preLoaderRoute: typeof AuthedPipelineRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/dashboard': {
+      id: '/_authed/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthedDashboardRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/board': {
@@ -708,6 +727,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthedRouteChildren {
   AuthedBoardRoute: typeof AuthedBoardRoute
+  AuthedDashboardRoute: typeof AuthedDashboardRoute
   AuthedPipelineRoute: typeof AuthedPipelineRoute
   AuthedScheduleRoute: typeof AuthedScheduleRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
@@ -742,6 +762,7 @@ interface AuthedRouteChildren {
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedBoardRoute: AuthedBoardRoute,
+  AuthedDashboardRoute: AuthedDashboardRoute,
   AuthedPipelineRoute: AuthedPipelineRoute,
   AuthedScheduleRoute: AuthedScheduleRoute,
   AuthedIndexRoute: AuthedIndexRoute,

@@ -29,6 +29,10 @@ function SettingsScreen() {
       <h1 className="heading-stencil text-2xl text-khaki">Settings</h1>
 
       <div className="mt-6 flex flex-col gap-2">
+        <Link to="/dashboard" className={rowClass}>
+          <span className="text-lg text-sand">Dashboard</span>
+          <span className="text-faded">→</span>
+        </Link>
         <Link to="/board" className={rowClass}>
           <span className="text-lg text-sand">Jobs board</span>
           <span className="text-faded">→</span>

@@ -1200,6 +1200,27 @@ export type Database = {
         Returns: undefined
       }
       current_org: { Args: never; Returns: string }
+      dashboard_metrics: {
+        Args: {
+          p_month_start: string
+          p_today: string
+          p_week_end: string
+          p_week_start: string
+        }
+        Returns: {
+          active: number
+          collected_cents: number
+          dormant: number
+          jobs_done_week: number
+          jobs_week: number
+          leads: number
+          open_tasks: number
+          outstanding_cents: number
+          overdue_tasks: number
+          pipeline_cents: number
+          quoted: number
+        }[]
+      }
       materialize_jobs: { Args: { through_date: string }; Returns: number }
       materialize_jobs_all: { Args: never; Returns: number }
       resync_schedule: {
