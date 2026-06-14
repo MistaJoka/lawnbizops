@@ -49,6 +49,10 @@ function SettingsScreen() {
           <span className="text-lg text-sand">Business profile</span>
           <span className="text-faded">→</span>
         </Link>
+        <Link to="/settings/automations" className={rowClass}>
+          <span className="text-lg text-sand">Automations</span>
+          <span className="text-faded">→</span>
+        </Link>
         <Link to="/settings/preferences" className={rowClass}>
           <span className="text-lg text-sand">App preferences</span>
           <span className="text-faded">→</span>

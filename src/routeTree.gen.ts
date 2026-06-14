@@ -31,6 +31,7 @@ import { Route as AuthedSettingsProfileRouteImport } from './routes/_authed/sett
 import { Route as AuthedSettingsPreferencesRouteImport } from './routes/_authed/settings/preferences'
 import { Route as AuthedSettingsPaymentsRouteImport } from './routes/_authed/settings/payments'
 import { Route as AuthedSettingsExportRouteImport } from './routes/_authed/settings/export'
+import { Route as AuthedSettingsAutomationsRouteImport } from './routes/_authed/settings/automations'
 import { Route as AuthedSchedulesNewRouteImport } from './routes/_authed/schedules/new'
 import { Route as AuthedPropertiesNewRouteImport } from './routes/_authed/properties/new'
 import { Route as AuthedJobsNewRouteImport } from './routes/_authed/jobs/new'
@@ -157,6 +158,12 @@ const AuthedSettingsExportRoute = AuthedSettingsExportRouteImport.update({
   path: '/settings/export',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedSettingsAutomationsRoute =
+  AuthedSettingsAutomationsRouteImport.update({
+    id: '/settings/automations',
+    path: '/settings/automations',
+    getParentRoute: () => AuthedRoute,
+  } as any)
 const AuthedSchedulesNewRoute = AuthedSchedulesNewRouteImport.update({
   id: '/schedules/new',
   path: '/schedules/new',
@@ -258,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/jobs/new': typeof AuthedJobsNewRoute
   '/properties/new': typeof AuthedPropertiesNewRoute
   '/schedules/new': typeof AuthedSchedulesNewRoute
+  '/settings/automations': typeof AuthedSettingsAutomationsRoute
   '/settings/export': typeof AuthedSettingsExportRoute
   '/settings/payments': typeof AuthedSettingsPaymentsRoute
   '/settings/preferences': typeof AuthedSettingsPreferencesRoute
@@ -296,6 +304,7 @@ export interface FileRoutesByTo {
   '/jobs/new': typeof AuthedJobsNewRoute
   '/properties/new': typeof AuthedPropertiesNewRoute
   '/schedules/new': typeof AuthedSchedulesNewRoute
+  '/settings/automations': typeof AuthedSettingsAutomationsRoute
   '/settings/export': typeof AuthedSettingsExportRoute
   '/settings/payments': typeof AuthedSettingsPaymentsRoute
   '/settings/preferences': typeof AuthedSettingsPreferencesRoute
@@ -336,6 +345,7 @@ export interface FileRoutesById {
   '/_authed/jobs/new': typeof AuthedJobsNewRoute
   '/_authed/properties/new': typeof AuthedPropertiesNewRoute
   '/_authed/schedules/new': typeof AuthedSchedulesNewRoute
+  '/_authed/settings/automations': typeof AuthedSettingsAutomationsRoute
   '/_authed/settings/export': typeof AuthedSettingsExportRoute
   '/_authed/settings/payments': typeof AuthedSettingsPaymentsRoute
   '/_authed/settings/preferences': typeof AuthedSettingsPreferencesRoute
@@ -376,6 +386,7 @@ export interface FileRouteTypes {
     | '/jobs/new'
     | '/properties/new'
     | '/schedules/new'
+    | '/settings/automations'
     | '/settings/export'
     | '/settings/payments'
     | '/settings/preferences'
@@ -414,6 +425,7 @@ export interface FileRouteTypes {
     | '/jobs/new'
     | '/properties/new'
     | '/schedules/new'
+    | '/settings/automations'
     | '/settings/export'
     | '/settings/payments'
     | '/settings/preferences'
@@ -453,6 +465,7 @@ export interface FileRouteTypes {
     | '/_authed/jobs/new'
     | '/_authed/properties/new'
     | '/_authed/schedules/new'
+    | '/_authed/settings/automations'
     | '/_authed/settings/export'
     | '/_authed/settings/payments'
     | '/_authed/settings/preferences'
@@ -636,6 +649,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedSettingsExportRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/settings/automations': {
+      id: '/_authed/settings/automations'
+      path: '/settings/automations'
+      fullPath: '/settings/automations'
+      preLoaderRoute: typeof AuthedSettingsAutomationsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/schedules/new': {
       id: '/_authed/schedules/new'
       path: '/schedules/new'
@@ -760,6 +780,7 @@ interface AuthedRouteChildren {
   AuthedJobsNewRoute: typeof AuthedJobsNewRoute
   AuthedPropertiesNewRoute: typeof AuthedPropertiesNewRoute
   AuthedSchedulesNewRoute: typeof AuthedSchedulesNewRoute
+  AuthedSettingsAutomationsRoute: typeof AuthedSettingsAutomationsRoute
   AuthedSettingsExportRoute: typeof AuthedSettingsExportRoute
   AuthedSettingsPaymentsRoute: typeof AuthedSettingsPaymentsRoute
   AuthedSettingsPreferencesRoute: typeof AuthedSettingsPreferencesRoute
@@ -796,6 +817,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedJobsNewRoute: AuthedJobsNewRoute,
   AuthedPropertiesNewRoute: AuthedPropertiesNewRoute,
   AuthedSchedulesNewRoute: AuthedSchedulesNewRoute,
+  AuthedSettingsAutomationsRoute: AuthedSettingsAutomationsRoute,
   AuthedSettingsExportRoute: AuthedSettingsExportRoute,
   AuthedSettingsPaymentsRoute: AuthedSettingsPaymentsRoute,
   AuthedSettingsPreferencesRoute: AuthedSettingsPreferencesRoute,

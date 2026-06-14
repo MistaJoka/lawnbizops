@@ -92,6 +92,10 @@ export type Database = {
       business_settings: {
         Row: {
           address: string
+          auto_followup_after_job: boolean
+          auto_followup_days: number
+          auto_overdue_days: number
+          auto_overdue_reminder: boolean
           business_name: string
           created_at: string
           default_due_days: number
@@ -111,6 +115,10 @@ export type Database = {
         }
         Insert: {
           address?: string
+          auto_followup_after_job?: boolean
+          auto_followup_days?: number
+          auto_overdue_days?: number
+          auto_overdue_reminder?: boolean
           business_name?: string
           created_at?: string
           default_due_days?: number
@@ -130,6 +138,10 @@ export type Database = {
         }
         Update: {
           address?: string
+          auto_followup_after_job?: boolean
+          auto_followup_days?: number
+          auto_overdue_days?: number
+          auto_overdue_reminder?: boolean
           business_name?: string
           created_at?: string
           default_due_days?: number
@@ -1199,6 +1211,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      automation_sweep: { Args: never; Returns: number }
       current_org: { Args: never; Returns: string }
       dashboard_metrics: {
         Args: {
