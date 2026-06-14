@@ -8,7 +8,7 @@ import {
   usePlans,
   useSubscription,
 } from '@/features/billing/hooks'
-import { signOut } from '@/features/auth/hooks'
+import { refreshAppState, signOut } from '@/features/auth/hooks'
 import { formatCents } from '@/lib/format'
 
 export const Route = createFileRoute('/billing')({
@@ -106,7 +106,10 @@ function BillingScreen() {
       <div className="mt-10 flex justify-center gap-6">
         {hasAccess && (
           <button
-            onClick={() => void navigate({ to: '/' })}
+            onClick={async () => {
+              await refreshAppState()
+              void navigate({ to: '/' })
+            }}
             className="tap-active py-2 text-sm text-faded"
           >
             ← Back to app

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
 import { saveBusinessSettings } from '@/features/settings/hooks'
+import { refreshAppState } from '@/features/auth/hooks'
 import { loadStarterCatalog } from '@/features/services/hooks'
 import { saveClient } from '@/features/clients/hooks'
 import { saveProperty } from '@/features/properties/hooks'
@@ -65,6 +66,8 @@ function OnboardingScreen() {
       if (seedServices) await loadStarterCatalog()
       if (addSample) await addSampleClient()
       await saveBusinessSettings({ onboarded_at: new Date().toISOString() })
+      // Bust the cached gate so the next nav sees onboarded=true (no loop back).
+      await refreshAppState()
       void navigate({ to: '/' })
     } catch (err) {
       setBusy(false)
