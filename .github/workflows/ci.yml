@@ -22,3 +22,22 @@ jobs:
         env:
           VITE_SUPABASE_URL: https://example.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+
+  # Spins up a real Supabase stack, applies every migration, and runs the
+  # two-org RLS isolation test. This is the load-bearing tenant-safety
+  # guardrail — a leak here fails the build before it can reach prod.
+  rls-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start Supabase + apply all migrations
+        run: |
+          supabase start
+          supabase db reset
+      - name: Two-org RLS isolation test
+        run: |
+          psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
+            -v ON_ERROR_STOP=1 -f supabase/tests/rls_isolation.sql

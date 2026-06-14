@@ -1,7 +1,13 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { Fab } from '@/components/Fab'
-import { useJobsForDate, useJobsForRange } from '@/features/jobs/hooks'
+import {
+  jobsForDateQueryOptions,
+  jobsForRangeQueryOptions,
+  useJobsForDate,
+  useJobsForRange,
+} from '@/features/jobs/hooks'
 import { StatusChip } from '@/features/jobs/JobActions'
+import { queryClient } from '@/lib/queryClient'
 import { formatCents, localToday } from '@/lib/format'
 import { addDaysISO, formatClockTime, formatShortDate, parseLocalDate } from '@/lib/dates'
 
@@ -14,6 +20,15 @@ export const Route = createFileRoute('/_authed/schedule')({
         ? search.date
         : undefined,
   }),
+  // Warm today's jobs + the visible week on intent. prefetchQuery never
+  // throws — offline/no-cache stays graceful.
+  loader: () => {
+    const today = localToday()
+    return Promise.all([
+      queryClient.prefetchQuery(jobsForDateQueryOptions(today)),
+      queryClient.prefetchQuery(jobsForRangeQueryOptions(today, addDaysISO(today, 6))),
+    ])
+  },
   component: ScheduleScreen,
 })
 

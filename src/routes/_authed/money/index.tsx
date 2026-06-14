@@ -23,10 +23,11 @@ import { formatShortDate } from '@/lib/dates'
 
 export const Route = createFileRoute('/_authed/money/')({
   // Warm both lists on tab-intent (preload) so Money paints instantly on tap.
+  // prefetchQuery never throws — offline/no-cache stays graceful.
   loader: () =>
     Promise.all([
-      queryClient.ensureQueryData(invoiceBalancesQueryOptions),
-      queryClient.ensureQueryData(estimatesQueryOptions),
+      queryClient.prefetchQuery(invoiceBalancesQueryOptions),
+      queryClient.prefetchQuery(estimatesQueryOptions),
     ]),
   component: MoneyScreen,
 })

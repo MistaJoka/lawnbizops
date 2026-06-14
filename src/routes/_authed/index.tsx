@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useJobsForDate, type JobWithContext } from '@/features/jobs/hooks'
+import {
+  jobsForDateQueryOptions,
+  useJobsForDate,
+  type JobWithContext,
+} from '@/features/jobs/hooks'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
@@ -18,6 +22,9 @@ import { stockLevel, useInventory } from '@/features/inventory/hooks'
 import { TasksSection } from '@/features/tasks/TaskUI'
 
 export const Route = createFileRoute('/_authed/')({
+  // Warm today's jobs on intent so the home screen paints instantly.
+  // prefetchQuery never throws — offline/no-cache stays graceful.
+  loader: () => queryClient.prefetchQuery(jobsForDateQueryOptions(localToday())),
   component: TodayScreen,
 })
 

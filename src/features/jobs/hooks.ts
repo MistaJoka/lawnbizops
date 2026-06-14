@@ -32,9 +32,10 @@ export type JobWithContext = Job & { property: JobPropertyContext | null }
 const JOB_SELECT =
   '*, property:properties(id, label, address_line1, city, lat, lng, gate_code, notes, client:clients(id, name, phone))'
 
-export function useJobsForDate(date: string) {
-  return useQuery({
-    queryKey: ['jobs', { date }],
+/** Shared so a route loader can warm a day's jobs on tab-intent (preload). */
+export function jobsForDateQueryOptions(date: string) {
+  return {
+    queryKey: ['jobs', { date }] as const,
     queryFn: async (): Promise<JobWithContext[]> => {
       const { data, error } = await supabase
         .from('jobs')
@@ -44,13 +45,17 @@ export function useJobsForDate(date: string) {
       if (error) throw error
       return data as unknown as JobWithContext[]
     },
-  })
+  }
+}
+
+export function useJobsForDate(date: string) {
+  return useQuery(jobsForDateQueryOptions(date))
 }
 
 /** All non-canceled jobs in [from, to] — week strip counts + best-day helper. */
-export function useJobsForRange(from: string, to: string) {
-  return useQuery({
-    queryKey: ['jobs', { from, to }],
+export function jobsForRangeQueryOptions(from: string, to: string) {
+  return {
+    queryKey: ['jobs', { from, to }] as const,
     queryFn: async (): Promise<JobWithContext[]> => {
       const { data, error } = await supabase
         .from('jobs')
@@ -61,7 +66,11 @@ export function useJobsForRange(from: string, to: string) {
       if (error) throw error
       return data as unknown as JobWithContext[]
     },
-  })
+  }
+}
+
+export function useJobsForRange(from: string, to: string) {
+  return useQuery(jobsForRangeQueryOptions(from, to))
 }
 
 export function useJob(id: string) {

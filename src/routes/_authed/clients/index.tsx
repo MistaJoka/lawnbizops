@@ -6,7 +6,9 @@ import { queryClient } from '@/lib/queryClient'
 
 export const Route = createFileRoute('/_authed/clients/')({
   // Warm the list on tab-intent (preload) so it paints instantly on tap.
-  loader: () => queryClient.ensureQueryData(clientsQueryOptions),
+  // prefetchQuery never throws — offline/no-cache stays graceful (the
+  // component's useQuery owns loading/error states).
+  loader: () => queryClient.prefetchQuery(clientsQueryOptions),
   component: ClientsScreen,
 })
 
