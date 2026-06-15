@@ -5,6 +5,8 @@ export interface AppPreferences {
   inventoryAlerts: boolean
   offlinePreferred: boolean
   pushNotifications: boolean
+  /** Which Today layout to show: the pipeline board or the drive-order route. */
+  todayView: 'board' | 'route'
 }
 
 const KEY = 'lawnbizops:prefs'
@@ -14,6 +16,7 @@ const DEFAULTS: AppPreferences = {
   inventoryAlerts: true,
   offlinePreferred: false,
   pushNotifications: false,
+  todayView: 'board',
 }
 
 export function loadPreferences(): AppPreferences {

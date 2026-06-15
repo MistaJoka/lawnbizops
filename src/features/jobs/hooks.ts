@@ -92,12 +92,23 @@ export function useJob(id: string) {
  * Optimistically apply a patch to every cached view of a job. Handles the
  * date-list move when the patch reschedules the job.
  */
+/** Statuses the kanban board (`['jobs','kanban']`) keeps — others fall off it. */
+const KANBAN_STATUSES = ['scheduled', 'in_progress', 'done', 'invoiced']
+
 function patchJobCaches(job: Job, patch: Partial<Job>): void {
   const oldDate = job.scheduled_date
   const newDate = patch.scheduled_date ?? oldDate
 
   queryClient.setQueryData<JobWithContext>(['jobs', job.id], (old) =>
     old ? { ...old, ...patch } : old,
+  )
+
+  // Keep the board cache in step so tap-to-advance moves cards instantly:
+  // patch the row, then drop it if the new status left the kanban set.
+  queryClient.setQueryData<JobWithContext[]>(['jobs', 'kanban'], (old) =>
+    old
+      ?.map((j) => (j.id === job.id ? { ...j, ...patch } : j))
+      .filter((j) => KANBAN_STATUSES.includes(j.status)),
   )
 
   if (newDate === oldDate) {
@@ -183,6 +194,10 @@ export async function createOneOffJob(
   queryClient.setQueryData<JobWithContext[]>(
     ['jobs', { date: draft.scheduled_date }],
     (old) => (old ? [...old.filter((j) => j.id !== draft.id), cached] : old),
+  )
+  // Surface the new job on the board immediately (it's a scheduled card).
+  queryClient.setQueryData<JobWithContext[]>(['jobs', 'kanban'], (old) =>
+    old ? [...old.filter((j) => j.id !== draft.id), cached] : old,
   )
   await enqueue({ table: 'jobs', kind: 'upsert', payload: { ...row } })
 }

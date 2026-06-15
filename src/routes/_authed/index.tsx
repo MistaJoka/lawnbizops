@@ -6,6 +6,8 @@ import {
   type JobWithContext,
 } from '@/features/jobs/hooks'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
+import { PipelineBoard } from '@/features/board/PipelineBoard'
+import { QuickAddSheet } from '@/features/board/QuickAddJob'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { formatCents, localToday } from '@/lib/format'
@@ -16,8 +18,7 @@ import {
   orderByNearestNeighbor,
   type LatLng,
 } from '@/lib/route'
-import { Fab } from '@/components/Fab'
-import { loadPreferences } from '@/lib/preferences'
+import { loadPreferences, savePreferences } from '@/lib/preferences'
 import { stockLevel, useInventory } from '@/features/inventory/hooks'
 import { TasksSection } from '@/features/tasks/TaskUI'
 
@@ -51,16 +52,11 @@ function useOnline(): boolean {
   return online
 }
 
+/** Today is a work hub: a pipeline Board or the drive-order Route, toggled. */
 function TodayScreen() {
-  const today = localToday()
   const online = useOnline()
-  const { data: jobs, isLoading } = useJobsForDate(today)
-  const [origin, setOrigin] = useState<LatLng | null>(null)
-  const alertsOn = loadPreferences().inventoryAlerts
-  const { data: inventory } = useInventory(alertsOn)
-  const lowStockCount = alertsOn
-    ? (inventory ?? []).filter((i) => stockLevel(i) !== 'in_stock').length
-    : 0
+  const [view, setView] = useState<'board' | 'route'>(loadPreferences().todayView)
+  const [quickAdd, setQuickAdd] = useState(false)
 
   useEffect(() => {
     if (materializedThisSession || !navigator.onLine) return
@@ -69,6 +65,61 @@ function TodayScreen() {
       .rpc('materialize_jobs', { through_date: materializeHorizon() })
       .then(() => queryClient.invalidateQueries({ queryKey: ['jobs'] }))
   }, [])
+
+  function choose(next: 'board' | 'route') {
+    setView(next)
+    savePreferences({ todayView: next })
+  }
+
+  return (
+    <div>
+      <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center justify-between border-b-2 border-edge bg-canvas px-edge">
+        <div className="flex items-center gap-3">
+          <h1 className="heading-stencil text-2xl text-khaki">Today</h1>
+          {!online && (
+            <span
+              title="Offline"
+              aria-label="Offline"
+              className="inline-block h-2.5 w-2.5 rounded-full bg-alert"
+            />
+          )}
+        </div>
+        <div className="flex shrink-0 rounded-lg border-2 border-edge bg-panel p-0.5">
+          {(['board', 'route'] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => choose(v)}
+              className={`heading-stencil tap-active rounded-md px-3 py-1.5 text-sm ${
+                view === v ? 'bg-blaze text-on-cta' : 'text-faded'
+              }`}
+            >
+              {v === 'board' ? 'Board' : 'Route'}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      {view === 'board' ? (
+        <PipelineBoard />
+      ) : (
+        <RouteView onQuickAdd={() => setQuickAdd(true)} />
+      )}
+
+      <QuickAddSheet open={quickAdd} onClose={() => setQuickAdd(false)} />
+    </div>
+  )
+}
+
+/** Drive-order route: nearest-neighbor stops + one-tap multi-stop Maps link. */
+function RouteView({ onQuickAdd }: { onQuickAdd: () => void }) {
+  const today = localToday()
+  const { data: jobs, isLoading } = useJobsForDate(today)
+  const [origin, setOrigin] = useState<LatLng | null>(null)
+  const alertsOn = loadPreferences().inventoryAlerts
+  const { data: inventory } = useInventory(alertsOn)
+  const lowStockCount = alertsOn
+    ? (inventory ?? []).filter((i) => stockLevel(i) !== 'in_stock').length
+    : 0
 
   useEffect(() => {
     // "GPS tracking" preference off → skip geolocation; drive order falls
@@ -109,34 +160,25 @@ function TodayScreen() {
 
   return (
     <div>
-      <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center justify-between border-b-2 border-edge bg-canvas px-edge">
-        <div className="flex items-center gap-3">
-          <h1 className="heading-stencil text-2xl text-khaki">Today</h1>
-          {!online && (
-            <span
-              title="Offline"
-              aria-label="Offline"
-              className="inline-block h-2.5 w-2.5 rounded-full bg-alert"
-            />
-          )}
-        </div>
-        <div className="flex shrink-0 items-center gap-2">
-          <Link to="/board" className="label-caps text-blaze">
-            Board
-          </Link>
-          {mapsUrl && pinnedStops.length >= 1 && (
-            <a
-              href={mapsUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="heading-stencil tap-active rounded-lg border-2 border-edge bg-panel px-3 py-2 text-sm text-sand"
-            >
-              Route
-            </a>
-          )}
-        </div>
-      </header>
-      <Fab to="/jobs/new" />
+      <button
+        onClick={onQuickAdd}
+        aria-label="Add job"
+        className="tap-active fixed right-6 bottom-28 z-40 flex h-16 w-16 items-center justify-center rounded-full bg-blaze text-on-cta shadow-2xl ring-4 ring-canvas active:scale-90 sm:right-[calc(50%-14rem+1.5rem)]"
+      >
+        <span className="text-3xl leading-none font-bold">+</span>
+      </button>
+
+      {mapsUrl && pinnedStops.length >= 1 && (
+        <a
+          href={mapsUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="heading-stencil tap-active mx-edge mt-4 flex items-center justify-center rounded-lg border-2 border-edge bg-panel py-3 text-sm text-sand"
+        >
+          Open route in Maps ({pinnedStops.length} stop
+          {pinnedStops.length === 1 ? '' : 's'})
+        </a>
+      )}
 
       {lowStockCount > 0 && (
         <Link
@@ -173,13 +215,12 @@ function TodayScreen() {
               Jobs you schedule will show up here, in drive order.
             </p>
           )}
-          <Link
-            to="/jobs/new"
-            search={{}}
+          <button
+            onClick={onQuickAdd}
             className="heading-stencil tap-active mt-2 rounded-lg bg-blaze px-6 py-4 text-lg text-on-cta"
           >
             + Add job
-          </Link>
+          </button>
         </div>
       )}
 

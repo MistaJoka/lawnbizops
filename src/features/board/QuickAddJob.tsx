@@ -1,0 +1,141 @@
+import { useState } from 'react'
+import { createOneOffJob } from '@/features/jobs/hooks'
+import { useQuickAddTargets, type QuickAddTarget } from './hooks'
+import { formatCents, localToday } from '@/lib/format'
+
+/**
+ * Pick a property → create a job scheduled today, prefilled from that property's
+ * last job (same-as-last-time). One tap from list to a card on the board. The
+ * full /jobs/new form stays available via "More options" for the rare case.
+ */
+function QuickAddPicker({ onDone }: { onDone: () => void }) {
+  const { data: targets, isLoading } = useQuickAddTargets()
+  const [search, setSearch] = useState('')
+  const [saving, setSaving] = useState<string | null>(null)
+
+  const q = search.trim().toLowerCase()
+  const filtered = (targets ?? []).filter(
+    (t) =>
+      !q ||
+      t.client_name.toLowerCase().includes(q) ||
+      t.property.label.toLowerCase().includes(q),
+  )
+
+  async function pick(target: QuickAddTarget) {
+    setSaving(target.property.id)
+    try {
+      await createOneOffJob(
+        {
+          id: crypto.randomUUID(),
+          property_id: target.property.id,
+          service_id: target.defaults.service_id,
+          scheduled_date: localToday(),
+          price_cents: target.defaults.price_cents,
+          title: target.defaults.title,
+          notes: '',
+        },
+        target.property,
+      )
+      onDone()
+    } finally {
+      setSaving(null)
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <input
+        type="search"
+        autoFocus
+        placeholder="Search client or property"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="w-full rounded-lg border-2 border-edge bg-canvas px-4 py-3 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
+      />
+
+      <div className="flex max-h-[50vh] flex-col gap-2 overflow-y-auto">
+        {filtered.map((t) => (
+          <button
+            key={t.property.id}
+            onClick={() => void pick(t)}
+            disabled={saving !== null}
+            className="tap-active min-h-touch flex items-center justify-between gap-3 rounded-lg border-2 border-edge bg-panel px-4 py-3 text-left disabled:opacity-50"
+          >
+            <span className="min-w-0">
+              <span className="block truncate font-display text-lg font-semibold text-sand">
+                {t.client_name}
+              </span>
+              <span className="block truncate text-sm text-faded">
+                {t.property.label || t.property.address_line1}
+                {t.defaults.title ? ` · ${t.defaults.title}` : ''}
+              </span>
+            </span>
+            <span className="shrink-0 text-right">
+              {t.defaults.price_cents > 0 && (
+                <span className="heading-stencil block text-sand">
+                  {formatCents(t.defaults.price_cents)}
+                </span>
+              )}
+              <span className="label-caps text-blaze">
+                {saving === t.property.id ? 'Adding…' : 'Add today'}
+              </span>
+            </span>
+          </button>
+        ))}
+
+        {!isLoading && filtered.length === 0 && (
+          <p className="py-6 text-center text-sm text-faded">
+            {q ? 'No match.' : 'No properties yet — add a client first.'}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/** Inline collapsible "+ Job" row, pinned at the top of the Scheduled lane. */
+export function QuickAddRow() {
+  const [open, setOpen] = useState(false)
+
+  if (!open) {
+    return (
+      <button
+        onClick={() => setOpen(true)}
+        className="heading-stencil tap-active min-h-12 w-full rounded-lg border-2 border-dashed border-edge py-3 text-sm text-blaze"
+      >
+        + Job
+      </button>
+    )
+  }
+
+  return (
+    <div className="rounded-lg border-2 border-blaze bg-surface-low p-2">
+      <QuickAddPicker onDone={() => setOpen(false)} />
+      <button
+        onClick={() => setOpen(false)}
+        className="label-caps mt-2 w-full py-2 text-center text-faded"
+      >
+        Cancel
+      </button>
+    </div>
+  )
+}
+
+/** Bottom sheet for the Route view's FAB (no columns to inline into). */
+export function QuickAddSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+  if (!open) return null
+  return (
+    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/60">
+      <button aria-label="Close" className="flex-1" onClick={onClose} />
+      <div className="rounded-t-2xl border-t-2 border-edge bg-canvas px-edge pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="heading-stencil text-lg text-sand">Add job — today</h2>
+          <button onClick={onClose} className="label-caps text-faded">
+            Close
+          </button>
+        </div>
+        <QuickAddPicker onDone={onClose} />
+      </div>
+    </div>
+  )
+}
