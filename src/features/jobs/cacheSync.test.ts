@@ -31,13 +31,15 @@ describe('invoice ⇄ void job-status cache round-trip', () => {
     const detail = () => queryClient.getQueryData(['jobs', 'j1']) as JobWithContext
     const day = () =>
       queryClient.getQueryData(['jobs', { date: '2026-06-14' }]) as JobWithContext[]
-    expect(board()[0].status).toBe('invoiced')
+    // Invoiced jobs leave the board; detail + day list keep the 'invoiced' status.
+    expect(board()).toHaveLength(0)
     expect(detail().status).toBe('invoiced')
     expect(day()[0].status).toBe('invoiced')
 
     restoreInvoicedJobInCaches('j1')
-    expect(board()[0].status).toBe('done')
     expect(detail().status).toBe('done')
+    expect(board()).toHaveLength(1)
+    expect(board()[0].status).toBe('done')
   })
 
   it('restore never resurrects a job that is not invoiced', () => {

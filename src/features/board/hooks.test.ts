@@ -91,3 +91,27 @@ describe('resolveQuickAddDefaults', () => {
     })
   })
 })
+
+describe('bucketBoard scheduled windowing', () => {
+  const dated = (id: string, date: string): JobWithContext =>
+    ({ id, status: 'scheduled', scheduled_date: date, property: null }) as JobWithContext
+
+  it('hides scheduled jobs past the horizon', () => {
+    const lanes = bucketBoard({
+      jobs: [dated('near', '2026-06-20'), dated('far', '2026-07-30')],
+      estimates: [],
+      invoices: [],
+      scheduledThrough: '2026-07-01',
+    })
+    expect(lanes.scheduled.map((j) => j.id)).toEqual(['near'])
+  })
+
+  it('shows the full backlog when no horizon is given', () => {
+    const lanes = bucketBoard({
+      jobs: [dated('a', '2026-06-20'), dated('b', '2026-12-30')],
+      estimates: [],
+      invoices: [],
+    })
+    expect(lanes.scheduled).toHaveLength(2)
+  })
+})

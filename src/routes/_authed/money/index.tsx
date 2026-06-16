@@ -3,6 +3,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { Fab } from '@/components/Fab'
 import {
   AGING_BUCKETS,
+  AGING_COLOR,
   agingBucket,
   invoiceBalancesQueryOptions,
   isOpen,
@@ -38,14 +39,6 @@ const BUCKET_LABEL: Record<AgingBucket, string> = {
   '31-60': '31–60',
   '61-90': '61–90',
   '90+': '90+',
-}
-
-const BUCKET_COLOR: Record<AgingBucket, string> = {
-  current: 'text-sand',
-  '1-30': 'text-sand',
-  '31-60': 'text-khaki',
-  '61-90': 'text-khaki',
-  '90+': 'text-alert',
 }
 
 function daysAgo(timestamp: string): string {
@@ -117,7 +110,7 @@ function InvoicesTab() {
             {AGING_BUCKETS.filter((b) => buckets.has(b)).map((b) => (
               <span
                 key={b}
-                className={`heading-stencil rounded border border-edge px-2 py-1 text-[10px] ${BUCKET_COLOR[b]}`}
+                className={`heading-stencil rounded border border-edge px-2 py-1 text-[10px] ${AGING_COLOR[b]}`}
               >
                 {BUCKET_LABEL[b]} · {formatCents(buckets.get(b) ?? 0)}
               </span>

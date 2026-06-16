@@ -461,6 +461,15 @@ export type AgingBucket = 'current' | '1-30' | '31-60' | '61-90' | '90+'
 
 export const AGING_BUCKETS: AgingBucket[] = ['current', '1-30', '31-60', '61-90', '90+']
 
+/** Theme text-color tint per aging bucket — shared by the board and Money. */
+export const AGING_COLOR: Record<AgingBucket, string> = {
+  current: 'text-sand',
+  '1-30': 'text-sand',
+  '31-60': 'text-khaki',
+  '61-90': 'text-khaki',
+  '90+': 'text-alert',
+}
+
 /** An invoice that still wants money: draft/sent/partially_paid with balance. */
 export function isOpen(
   invoice: Pick<InvoiceBalance, 'status' | 'balance_cents'>,

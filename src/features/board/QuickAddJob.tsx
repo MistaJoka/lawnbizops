@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { createOneOffJob } from '@/features/jobs/hooks'
 import { useQuickAddTargets, type QuickAddTarget } from './hooks'
 import { formatCents, localToday } from '@/lib/format'
@@ -6,7 +7,7 @@ import { formatCents, localToday } from '@/lib/format'
 /**
  * Pick a property → create a job scheduled today, prefilled from that property's
  * last job (same-as-last-time). One tap from list to a card on the board. The
- * full /jobs/new form stays available via "More options" for the rare case.
+ * "Full form" link drops to /jobs/new for a different date, service, or notes.
  */
 function QuickAddPicker({ onDone }: { onDone: () => void }) {
   const { data: targets, isLoading } = useQuickAddTargets()
@@ -89,6 +90,15 @@ function QuickAddPicker({ onDone }: { onDone: () => void }) {
           </p>
         )}
       </div>
+
+      <Link
+        to="/jobs/new"
+        search={{}}
+        onClick={onDone}
+        className="label-caps block py-2 text-center text-faded"
+      >
+        Need a date or service? Full form →
+      </Link>
     </div>
   )
 }

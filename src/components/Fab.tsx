@@ -9,20 +9,38 @@ export function Fab({
   to,
   search,
   label,
+  onClick,
 }: {
-  to: string
+  to?: string
   search?: Record<string, unknown>
   label?: string
+  /** Render a button (e.g. to open a sheet) instead of a navigation Link. */
+  onClick?: () => void
 }) {
-  return (
-    <Link
-      to={to}
-      search={search}
-      className={label ? `${baseClass} h-14 gap-2 px-6` : `${baseClass} h-16 w-16`}
-      aria-label={label ? `Add ${label.toLowerCase()}` : 'Add'}
-    >
+  const className = label ? `${baseClass} h-14 gap-2 px-6` : `${baseClass} h-16 w-16`
+  const ariaLabel = label ? `Add ${label.toLowerCase()}` : 'Add'
+  const inner = (
+    <>
       <span className="text-3xl leading-none font-bold">+</span>
       {label && <span className="label-caps text-sm">{label}</span>}
+    </>
+  )
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className={className}
+        aria-label={ariaLabel}
+      >
+        {inner}
+      </button>
+    )
+  }
+  return (
+    <Link to={to!} search={search} className={className} aria-label={ariaLabel}>
+      {inner}
     </Link>
   )
 }

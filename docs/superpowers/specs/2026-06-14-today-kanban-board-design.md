@@ -60,14 +60,14 @@ Horizontal snap-scroll columns (same pattern as today's `/board`). Each lane is
 a workflow state with an entry gate (definition-of-ready), an exit action
 (definition-of-done), and an advisory WIP signal.
 
-| Lane | Backed by | Entry: card appears when… | Exit: primary tap | WIP signal |
-|---|---|---|---|---|
-| **Quote** | estimates `draft`/`sent` | a quote is drafted/sent | card → estimate detail (Accept → Create Job, existing flow) | soft ~10 |
-| **Scheduled** | jobs `scheduled` | job has a date (accepted quote, recurrence, or quick-add) | **Start** → `in_progress` | none (backlog) |
-| **In progress** | jobs `in_progress` | tapped Start (on-site) | **Done** → `done` | **hard 1–2** (Little's Law) |
-| **Done** | jobs `done` (unbilled) | work finished, not invoiced | **Invoice** → create/link invoice | ~5 (unconverted revenue) |
-| **Invoiced · A/R** | open invoices (`balance_cents > 0`) | invoice issued | **Record payment** → Paid | aging-tinted amber→red |
-| → **Paid** | invoices `paid` | balance hits 0 | terminal — shown as "Paid this week ×N", off-board | — |
+| Lane               | Backed by                           | Entry: card appears when…                                 | Exit: primary tap                                           | WIP signal                  |
+| ------------------ | ----------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------- | --------------------------- |
+| **Quote**          | estimates `draft`/`sent`            | a quote is drafted/sent                                   | card → estimate detail (Accept → Create Job, existing flow) | soft ~10                    |
+| **Scheduled**      | jobs `scheduled`                    | job has a date (accepted quote, recurrence, or quick-add) | **Start** → `in_progress`                                   | none (backlog)              |
+| **In progress**    | jobs `in_progress`                  | tapped Start (on-site)                                    | **Done** → `done`                                           | **hard 1–2** (Little's Law) |
+| **Done**           | jobs `done` (unbilled)              | work finished, not invoiced                               | **Invoice** → create/link invoice                           | ~5 (unconverted revenue)    |
+| **Invoiced · A/R** | open invoices (`balance_cents > 0`) | invoice issued                                            | **Record payment** → Paid                                   | aging-tinted amber→red      |
+| → **Paid**         | invoices `paid`                     | balance hits 0                                            | terminal — shown as "Paid this week ×N", off-board          | —                           |
 
 - WIP signals are **color cues on the lane's count badge** (amber/red past the
   cap), **never a hard block**.

@@ -92,8 +92,10 @@ export function useJob(id: string) {
  * Optimistically apply a patch to every cached view of a job. Handles the
  * date-list move when the patch reschedules the job.
  */
-/** Statuses the kanban board (`['jobs','kanban']`) keeps — others fall off it. */
-const KANBAN_STATUSES = ['scheduled', 'in_progress', 'done', 'invoiced']
+// Statuses the kanban board (`['jobs','kanban']`) keeps — active work only.
+// An invoiced job leaves the board (it's represented by its invoice in A/R),
+// so 'invoiced' is deliberately absent; the filter drops it on that transition.
+const KANBAN_STATUSES = ['scheduled', 'in_progress', 'done']
 
 function patchJobCaches(job: Job, patch: Partial<Job>): void {
   const oldDate = job.scheduled_date
@@ -157,13 +159,13 @@ export function markJobsInvoicedInCaches(
  * job that's in some other state.
  */
 export function restoreInvoicedJobInCaches(jobId: string): void {
-  const back = (j: JobWithContext): JobWithContext =>
-    j.status === 'invoiced' ? { ...j, status: 'done' } : j
+  const current = queryClient.getQueryData<JobWithContext>(['jobs', jobId])
+  if (!current || current.status !== 'invoiced') return
+  const restored: JobWithContext = { ...current, status: 'done' }
+  queryClient.setQueryData<JobWithContext>(['jobs', jobId], restored)
+  // Invoiced jobs are off the board, so re-insert (not just map) as done.
   queryClient.setQueryData<JobWithContext[]>(['jobs', 'kanban'], (old) =>
-    old?.map((j) => (j.id === jobId ? back(j) : j)),
-  )
-  queryClient.setQueryData<JobWithContext>(['jobs', jobId], (old) =>
-    old ? back(old) : old,
+    old ? [...old.filter((j) => j.id !== jobId), restored] : old,
   )
 }
 
@@ -248,7 +250,7 @@ export function useKanbanJobs() {
       const { data, error } = await supabase
         .from('jobs')
         .select(JOB_SELECT)
-        .in('status', ['scheduled', 'in_progress', 'done', 'invoiced'])
+        .in('status', ['scheduled', 'in_progress', 'done'])
         .order('scheduled_date', { ascending: true })
       if (error) throw error
       return data as unknown as JobWithContext[]

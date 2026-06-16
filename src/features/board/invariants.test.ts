@@ -88,8 +88,7 @@ describe('money conservation', () => {
   })
 
   it('total = sum of per-line rounded totals (no drift)', () => {
-    const manual =
-      Math.round(4 * 6500) + Math.round(1 * 12000) + Math.round(2.5 * 350)
+    const manual = Math.round(4 * 6500) + Math.round(1 * 12000) + Math.round(2.5 * 350)
     expect(invoiceTotalCents(items)).toBe(manual)
   })
 

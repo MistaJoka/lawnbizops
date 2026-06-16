@@ -8,6 +8,7 @@ import {
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { PipelineBoard } from '@/features/board/PipelineBoard'
 import { QuickAddSheet } from '@/features/board/QuickAddJob'
+import { Fab } from '@/components/Fab'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { formatCents, localToday } from '@/lib/format'
@@ -160,13 +161,7 @@ function RouteView({ onQuickAdd }: { onQuickAdd: () => void }) {
 
   return (
     <div>
-      <button
-        onClick={onQuickAdd}
-        aria-label="Add job"
-        className="tap-active fixed right-6 bottom-28 z-40 flex h-16 w-16 items-center justify-center rounded-full bg-blaze text-on-cta shadow-2xl ring-4 ring-canvas active:scale-90 sm:right-[calc(50%-14rem+1.5rem)]"
-      >
-        <span className="text-3xl leading-none font-bold">+</span>
-      </button>
+      <Fab onClick={onQuickAdd} />
 
       {mapsUrl && pinnedStops.length >= 1 && (
         <a

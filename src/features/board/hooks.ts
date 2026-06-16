@@ -11,6 +11,8 @@ import {
   useInvoiceBalances,
   type InvoiceBalance,
 } from '@/features/invoices/hooks'
+import { localToday } from '@/lib/format'
+import { addDaysISO } from '@/lib/dates'
 
 // ---------------------------------------------------------------------------
 // Lanes — the work/money pipeline, quote → cash
@@ -42,20 +44,30 @@ export interface BoardLanes {
   paid: InvoiceBalance[]
 }
 
+/** How far ahead the Scheduled lane looks (further-out work lives in Schedule). */
+export const SCHEDULED_HORIZON_DAYS = 21
+
 /**
  * Pure bucketing: fan the three entity lists into lanes. Quote = open estimates,
  * the three middle lanes = job status, A/R = open invoices, Paid = settled ones.
+ * `scheduledThrough` (a date string) windows the Scheduled backlog so the board
+ * doesn't drown in weeks of materialized recurring jobs; omit it to show all.
  * Kept side-effect-free so it's unit-tested without React.
  */
 export function bucketBoard(input: {
   jobs: JobWithContext[]
   estimates: EstimateListRow[]
   invoices: InvoiceBalance[]
+  scheduledThrough?: string
 }): BoardLanes {
-  const { jobs, estimates, invoices } = input
+  const { jobs, estimates, invoices, scheduledThrough } = input
   return {
     quote: estimates.filter((e) => e.status === 'draft' || e.status === 'sent'),
-    scheduled: jobs.filter((j) => j.status === 'scheduled'),
+    scheduled: jobs.filter(
+      (j) =>
+        j.status === 'scheduled' &&
+        (!scheduledThrough || j.scheduled_date <= scheduledThrough),
+    ),
     in_progress: jobs.filter((j) => j.status === 'in_progress'),
     done: jobs.filter((j) => j.status === 'done'),
     ar: invoices.filter(isOpen),
@@ -98,6 +110,7 @@ export function usePipelineBoard(): PipelineBoard {
     jobs: jobs.data ?? [],
     estimates: estimates.data ?? [],
     invoices: invoices.data ?? [],
+    scheduledThrough: addDaysISO(localToday(), SCHEDULED_HORIZON_DAYS),
   })
 
   return {

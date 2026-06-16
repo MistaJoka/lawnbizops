@@ -5,6 +5,7 @@ import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { type JobWithContext } from '@/features/jobs/hooks'
 import { type EstimateListRow } from '@/features/estimates/hooks'
 import {
+  AGING_COLOR,
   agingBucket,
   createInvoiceFromJobs,
   useBusinessSettings,
@@ -13,29 +14,13 @@ import {
 import { formatCents, localToday } from '@/lib/format'
 import { formatClockTime, formatShortDate } from '@/lib/dates'
 
-const AGING_TINT: Record<string, string> = {
-  current: 'text-sand',
-  '1-30': 'text-sand',
-  '31-60': 'text-khaki',
-  '61-90': 'text-khaki',
-  '90+': 'text-alert',
-}
-
 export function PipelineBoard() {
   const { lanes } = usePipelineBoard()
-  const counts: Record<string, number> = {
-    quote: lanes.quote.length,
-    scheduled: lanes.scheduled.length,
-    in_progress: lanes.in_progress.length,
-    done: lanes.done.length,
-    ar: lanes.ar.length,
-    paid: lanes.paid.length,
-  }
 
   return (
     <div className="scroll-hide flex snap-x gap-3 overflow-x-auto px-edge py-4">
       {LANES.map((lane) => (
-        <KanbanColumn key={lane.id} lane={lane} count={counts[lane.id]}>
+        <KanbanColumn key={lane.id} lane={lane} count={lanes[lane.id].length}>
           {lane.id === 'quote' &&
             lanes.quote.map((est) => <QuoteCard key={est.id} estimate={est} />)}
 
@@ -201,7 +186,7 @@ function QuoteCard({ estimate }: { estimate: EstimateListRow }) {
 }
 
 function ArCard({ invoice }: { invoice: InvoiceBalance }) {
-  const tint = AGING_TINT[agingBucket(invoice, localToday())] ?? 'text-sand'
+  const tint = AGING_COLOR[agingBucket(invoice, localToday())] ?? 'text-sand'
   return (
     <div className="card-surface p-3">
       <Link
