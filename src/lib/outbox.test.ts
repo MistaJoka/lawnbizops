@@ -6,9 +6,14 @@ const updateEqMock = vi.fn()
 const deleteEqMock = vi.fn()
 const rpcMock = vi.fn()
 const invalidateMock = vi.fn()
+const sentryMock = vi.fn()
 
 vi.mock('./queryClient', () => ({
   queryClient: { invalidateQueries: (arg: unknown) => invalidateMock(arg) },
+}))
+
+vi.mock('@sentry/react', () => ({
+  captureException: (err: unknown, ctx: unknown) => sentryMock(err, ctx),
 }))
 
 vi.mock('./supabase', () => ({
@@ -48,6 +53,7 @@ beforeEach(async () => {
   deleteEqMock.mockReset().mockResolvedValue(ok)
   rpcMock.mockReset().mockResolvedValue({ error: null })
   invalidateMock.mockReset()
+  sentryMock.mockReset()
 })
 
 afterEach(() => {
@@ -121,6 +127,24 @@ describe('outbox', () => {
     goOnline()
     await flush()
     expect(invalidateMock).not.toHaveBeenCalled()
+  })
+
+  it('reports a poison op to Sentry (visibility), but not a retryable 5xx', async () => {
+    upsertMock.mockResolvedValueOnce(badRequest)
+    await enqueue({ table: 'clients', kind: 'upsert', payload: { id: 'bad' } })
+    goOnline()
+    await flush()
+    expect(sentryMock).toHaveBeenCalledTimes(1)
+    const [err, ctx] = sentryMock.mock.calls[0]
+    expect((err as Error).message).toContain('clients/upsert')
+    expect((ctx as { tags: { table: string } }).tags.table).toBe('clients')
+    expect((ctx as { extra: { ref: string } }).extra.ref).toBe('bad') // no PII payload
+
+    sentryMock.mockReset()
+    upsertMock.mockResolvedValueOnce(serverError)
+    await enqueue({ table: 'clients', kind: 'upsert', payload: { id: 'transient' } })
+    await flush()
+    expect(sentryMock).not.toHaveBeenCalled() // transient failures aren't noise
   })
 
   it('halts on a 5xx failure to preserve FIFO, keeps op pending', async () => {

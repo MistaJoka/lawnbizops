@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/react'
 import { db, type OutboxOp, type SyncTable } from './db'
 import { supabase } from './supabase'
 import { queryClient } from './queryClient'
@@ -168,6 +169,20 @@ async function drain(): Promise<void> {
         error: result.message,
       })
       touched.add(op.table)
+      // A poison write = the UI shows a change the server rejected. Report it so
+      // prod failures are visible, not silent. No PII: table/kind + row ref only.
+      const ref =
+        op.kind === 'rpc'
+          ? (op.payload as { fn: string }).fn
+          : ((op.payload as { id?: string }).id ?? 'unknown')
+      Sentry.captureException(
+        new Error(`Outbox op rejected (${op.table}/${op.kind}): ${result.message}`),
+        {
+          level: 'error',
+          tags: { area: 'outbox', table: op.table, kind: op.kind },
+          extra: { ref, attempts: op.attempts + 1 },
+        },
+      )
     }
   }
   for (const table of touched) {
