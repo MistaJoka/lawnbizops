@@ -10,7 +10,6 @@ import {
   useBusinessSettings,
   type InvoiceBalance,
 } from '@/features/invoices/hooks'
-import { queryClient } from '@/lib/queryClient'
 import { formatCents, localToday } from '@/lib/format'
 import { formatClockTime, formatShortDate } from '@/lib/dates'
 
@@ -165,10 +164,7 @@ function DoneCard({ job }: { job: JobWithContext }) {
       extraItems: [],
       defaultDueDays: settings?.default_due_days ?? 15,
     })
-    // Drop the now-invoiced job out of the Done lane immediately.
-    queryClient.setQueryData<JobWithContext[]>(['jobs', 'kanban'], (old) =>
-      old?.map((j) => (j.id === job.id ? { ...j, status: 'invoiced' } : j)),
-    )
+    // createInvoiceFromJobs flips the job to 'invoiced' across all caches.
     void navigate({ to: '/invoices/$invoiceId', params: { invoiceId: id } })
   }
 

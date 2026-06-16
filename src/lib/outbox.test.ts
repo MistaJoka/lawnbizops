@@ -5,6 +5,11 @@ const upsertMock = vi.fn()
 const updateEqMock = vi.fn()
 const deleteEqMock = vi.fn()
 const rpcMock = vi.fn()
+const invalidateMock = vi.fn()
+
+vi.mock('./queryClient', () => ({
+  queryClient: { invalidateQueries: (arg: unknown) => invalidateMock(arg) },
+}))
 
 vi.mock('./supabase', () => ({
   supabase: {
@@ -42,6 +47,7 @@ beforeEach(async () => {
   updateEqMock.mockReset().mockResolvedValue(ok)
   deleteEqMock.mockReset().mockResolvedValue(ok)
   rpcMock.mockReset().mockResolvedValue({ error: null })
+  invalidateMock.mockReset()
 })
 
 afterEach(() => {
@@ -86,6 +92,35 @@ describe('outbox', () => {
     expect(remaining[0].status).toBe('failed')
     expect(remaining[0].error).toBe('invalid input')
     expect((remaining[0].payload as { id: string }).id).toBe('bad')
+  })
+
+  it('rolls a poison op back by invalidating its table (reconcile to server)', async () => {
+    // The UI already applied an optimistic patch; a 4xx means the server
+    // rejected it, so the table must be invalidated to revert to server truth.
+    updateEqMock.mockResolvedValueOnce(badRequest)
+    await enqueue({
+      table: 'jobs',
+      kind: 'update',
+      payload: { id: 'j1', patch: { status: 'done' } },
+    })
+    goOnline()
+    await flush()
+
+    const remaining = await db.outbox.toArray()
+    expect(remaining[0].status).toBe('failed')
+    expect(invalidateMock).toHaveBeenCalledWith({ queryKey: ['jobs'] })
+  })
+
+  it('does not invalidate on a retryable 5xx (op stays pending, no rollback)', async () => {
+    updateEqMock.mockResolvedValueOnce(serverError)
+    await enqueue({
+      table: 'jobs',
+      kind: 'update',
+      payload: { id: 'j1', patch: { status: 'done' } },
+    })
+    goOnline()
+    await flush()
+    expect(invalidateMock).not.toHaveBeenCalled()
   })
 
   it('halts on a 5xx failure to preserve FIFO, keeps op pending', async () => {

@@ -139,6 +139,34 @@ export async function setJobStatus(job: Job, status: JobStatus): Promise<void> {
   await enqueue({ table: 'jobs', kind: 'update', payload: { id: job.id, patch } })
 }
 
+/**
+ * Flip jobs to 'invoiced' across every cached view (board, day list, detail) —
+ * the symmetric half of creating an invoice from them, so the board, Today list,
+ * and job detail all agree the instant the invoice is made (no double-invoice
+ * window). The invoice mutation owns the enqueue; this owns the caches.
+ */
+export function markJobsInvoicedInCaches(
+  jobs: { id: string; scheduled_date: string }[],
+): void {
+  for (const job of jobs) patchJobCaches(job as Job, { status: 'invoiced' })
+}
+
+/**
+ * Inverse of the above for one job: when an invoice is voided, its job returns
+ * from 'invoiced' to 'done' (billable again). Guarded so it never resurrects a
+ * job that's in some other state.
+ */
+export function restoreInvoicedJobInCaches(jobId: string): void {
+  const back = (j: JobWithContext): JobWithContext =>
+    j.status === 'invoiced' ? { ...j, status: 'done' } : j
+  queryClient.setQueryData<JobWithContext[]>(['jobs', 'kanban'], (old) =>
+    old?.map((j) => (j.id === jobId ? back(j) : j)),
+  )
+  queryClient.setQueryData<JobWithContext>(['jobs', jobId], (old) =>
+    old ? back(old) : old,
+  )
+}
+
 /** Move a job to a different date. */
 export async function rescheduleJob(job: Job, scheduledDate: string): Promise<void> {
   const patch: Partial<Job> = { scheduled_date: scheduledDate }

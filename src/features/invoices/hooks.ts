@@ -4,6 +4,10 @@ import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
 import { localToday } from '@/lib/format'
 import { addDaysISO, parseLocalDate } from '@/lib/dates'
+import {
+  markJobsInvoicedInCaches,
+  restoreInvoicedJobInCaches,
+} from '@/features/jobs/hooks'
 import type { Tables } from '@/lib/database.types'
 
 export type Invoice = Tables<'invoices'>
@@ -293,6 +297,9 @@ export async function createInvoiceFromJobs(input: CreateInvoiceInput): Promise<
     ['jobs', { uninvoicedFor: input.clientId }],
     (old) => old?.filter((j) => !invoicedJobIds.has(j.id)),
   )
+  // Flip the jobs to 'invoiced' in every cached view (board, day list, detail)
+  // so they leave Done everywhere at once — no stale 'done' to re-invoice.
+  markJobsInvoicedInCaches(input.jobs)
 
   // FIFO: invoice → items → job status flips.
   await enqueue({ table: 'invoices', kind: 'upsert', payload: invoiceRow })
@@ -389,13 +396,51 @@ export async function markSent(id: string): Promise<void> {
   })
 }
 
+/**
+ * Void an invoice and return its work to billable. Voiding is the *compensating*
+ * inverse of invoicing: the invoice itself stays on the books as 'void' (an
+ * append-only financial record — correctly NOT a rewind), but each job it
+ * invoiced goes back to 'done' so it isn't stranded at 'invoiced', and we append
+ * an activity as the audit trail. Mirrors createInvoiceFromJobs' forward flip.
+ */
 export async function voidInvoice(id: string): Promise<void> {
+  const detail = queryClient.getQueryData<InvoiceDetail>(['invoices', id])
   patchInvoiceCaches(id, { status: 'void' })
   await enqueue({
     table: 'invoices',
     kind: 'update',
     payload: { id, patch: { status: 'void' } },
   })
+
+  const jobIds = Array.from(
+    new Set(
+      (detail?.items ?? []).map((it) => it.job_id).filter((j): j is string => j !== null),
+    ),
+  )
+  for (const jobId of jobIds) {
+    restoreInvoicedJobInCaches(jobId)
+    await enqueue({
+      table: 'jobs',
+      kind: 'update',
+      payload: { id: jobId, patch: { status: 'done' } },
+    })
+  }
+
+  const clientId = detail?.invoice.client_id
+  if (jobIds.length > 0 && clientId) {
+    await enqueue({
+      table: 'activities',
+      kind: 'upsert',
+      payload: {
+        id: crypto.randomUUID(),
+        client_id: clientId,
+        kind: 'note',
+        body: `Voided invoice ${detail?.invoice.number ?? ''} — returned ${
+          jobIds.length
+        } job${jobIds.length === 1 ? '' : 's'} to Done`.trim(),
+      },
+    })
+  }
 }
 
 export async function recordReminder(id: string): Promise<void> {

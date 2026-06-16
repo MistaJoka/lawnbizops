@@ -158,12 +158,16 @@ async function drain(): Promise<void> {
         scheduleRetry(op.attempts + 1)
         break outer
       }
-      // Poison op: park it, surface it, keep the queue moving.
+      // Poison op: park it, surface it, keep the queue moving. A 4xx means we
+      // reached the server, so invalidate this table too — that rolls the
+      // rejected optimistic patch back to server truth (the inverse of the
+      // forward write the UI already applied).
       await db.outbox.update(op.seq, {
         status: 'failed',
         attempts: op.attempts + 1,
         error: result.message,
       })
+      touched.add(op.table)
     }
   }
   for (const table of touched) {
