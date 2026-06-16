@@ -6,6 +6,7 @@ import * as Sentry from '@sentry/react'
 import { routeTree } from './routeTree.gen'
 import { CACHE_MAX_AGE_MS, dexiePersister, queryClient } from './lib/queryClient'
 import { initOutbox } from './lib/outbox'
+import { DevPanel } from './dev/DevPanel' // DEV-ONLY — see below; delete with src/dev/
 import '@fontsource/archivo-narrow/latin-400.css'
 import '@fontsource/archivo-narrow/latin-600.css'
 import '@fontsource/archivo-narrow/latin-700.css'
@@ -48,6 +49,10 @@ createRoot(document.getElementById('root')!).render(
     >
       <RouterProvider router={router} />
     </PersistQueryClientProvider>
+    {/* DEV-ONLY dev tools (skip login, etc.). `import.meta.env.DEV` is false in
+        production builds, so Vite strips this and src/dev/ from the bundle.
+        To remove after launch: delete this block and the src/dev/ folder. */}
+    {import.meta.env.DEV && <DevPanel />}
   </StrictMode>,
 )
 
