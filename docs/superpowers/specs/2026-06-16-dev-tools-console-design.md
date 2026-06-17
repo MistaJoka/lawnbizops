@@ -45,12 +45,12 @@ The panel **writes** `localStorage['dev:today']`; `localToday()` **reads** it (n
 
 ## Feature 2 — Data scenarios
 
-Stripe's lesson: test clocks do half the work of fixtures. "Overdue-heavy A/R" is just the *same* seed viewed +60 days — so it's a time-travel preset, not a new dataset. The rest are a few small mutators run **as the logged-in demo user through the normal client** (`supabase`/`enqueue`), local-only by the dev gate, each followed by a reload/invalidate:
+Stripe's lesson: test clocks do half the work of fixtures. "Overdue-heavy A/R" is just the _same_ seed viewed +60 days — so it's a time-travel preset, not a new dataset. The rest are a few small mutators run **as the logged-in demo user through the normal client** (`supabase`/`enqueue`), local-only by the dev gate, each followed by a reload/invalidate:
 
 - **Make A-R overdue** — back-date open invoices' `due_at` (or just a time-travel +60d preset).
 - **Add a busy day** — insert a handful of jobs scheduled for today.
 - **Clear my data** — delete this org's rows (leaf-first for FKs); the empty-business state.
-- **Reset to default seed** — *not* browser-doable (the full seed can't be rebuilt client-side). The sheet **displays the command** `supabase db reset` with a copy button.
+- **Reset to default seed** — _not_ browser-doable (the full seed can't be rebuilt client-side). The sheet **displays the command** `supabase db reset` with a copy button.
 
 ## Components & boundaries
 
