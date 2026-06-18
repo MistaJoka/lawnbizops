@@ -15,6 +15,11 @@ values
   ('00000000-0000-0000-0000-000000000000', '22222222-2222-2222-2222-222222222222',
    'authenticated', 'authenticated', 'bravo@test.dev', '{"business_name":"Bravo Yard"}');
 
+-- Capture Alpha's org id as the superuser running this script (pre-RLS), so the
+-- later cross-org forgery attempt has a concrete target to aim at.
+select org_id as alpha_org from public.memberships
+  where user_id = '11111111-1111-1111-1111-111111111111' \gset
+
 -- Helper: become a given user for RLS evaluation.
 create or replace function pg_temp.become(uid text) returns void
 language plpgsql as $$
@@ -27,6 +32,20 @@ create or replace function pg_temp.assert(cond boolean, msg text) returns void
 language plpgsql as $$
 begin
   if not cond then raise exception 'RLS LEAK ❌ %', msg; end if;
+end $$;
+
+-- Helper: assert a statement is REJECTED (RLS with-check or missing grant).
+-- Swallows the DB error; if the statement unexpectedly SUCCEEDS, that's a leak.
+create or replace function pg_temp.expect_denied(stmt text, msg text) returns void
+language plpgsql as $$
+begin
+  execute stmt;
+  raise exception 'RLS LEAK ❌ %', msg;
+exception
+  -- 42501 = the row-level-security with-check failure OR a missing table/function
+  -- grant. That's the ONLY acceptable outcome — anything else (bad SQL, NULL
+  -- target) is a broken test and must surface, not silently "pass".
+  when insufficient_privilege then null;
 end $$;
 
 -- ── As Alpha: signup trigger should have provisioned exactly one org + one
@@ -57,6 +76,18 @@ select pg_temp.assert(
 
 insert into public.clients (id, name) values ('bbbbbbbb-0000-0000-0000-000000000001', 'Bravo Client');
 
+-- Write-side: Bravo must NOT be able to forge a row stamped into Alpha's org.
+-- The `with check (org_id = current_org())` policy must reject this.
+select pg_temp.expect_denied(
+  format(
+    $f$insert into public.clients (id, name, org_id) values (%L, %L, %L)$f$,
+    'cccccccc-0000-0000-0000-000000000001',
+    'Forged into Alpha',
+    :'alpha_org'
+  ),
+  'Bravo forged a client into Alpha''s org (with-check policy failed)'
+);
+
 -- RLS makes the row invisible, so the UPDATE matches 0 rows (silent no-op).
 update public.clients set name = 'HACKED' where id = 'aaaaaaaa-0000-0000-0000-000000000001';
 delete from public.clients where id = 'aaaaaaaa-0000-0000-0000-000000000001';
@@ -72,6 +103,19 @@ select pg_temp.assert(
 select pg_temp.assert(
   not exists (select 1 from public.clients where name = 'Bravo Client'),
   'Alpha must NOT see Bravo client'
+);
+
+-- ── As anon (no session): post-cutover (0012 + 0025), anon has zero access. ──
+select set_config('role', 'anon', true);
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+
+select pg_temp.expect_denied(
+  'select count(*) from public.clients',
+  'anon can read clients'
+);
+select pg_temp.expect_denied(
+  $f$insert into public.clients (id, name) values ('dddddddd-0000-0000-0000-000000000001', 'Anon')$f$,
+  'anon can insert a client'
 );
 
 rollback;
