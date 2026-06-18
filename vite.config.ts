@@ -50,5 +50,20 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     // e2e/ holds Playwright specs (run via `npm run test:e2e`), not vitest.
     exclude: [...configDefaults.exclude, 'e2e/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'text', 'html'],
+      include: ['src/**/*.{ts,tsx}'],
+      // Exclude generated, dev-only, config, and pure-UI-wiring entry points.
+      exclude: [
+        'src/**/*.test.ts',
+        'src/**/*.test.tsx',
+        'src/dev/**',
+        'src/test/**',
+        'src/main.tsx',
+        'src/routeTree.gen.ts',
+        'src/lib/database.types.ts',
+      ],
+    },
   },
 })

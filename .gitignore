@@ -38,3 +38,4 @@ supabase/.temp
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/coverage/

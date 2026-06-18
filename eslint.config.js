@@ -8,7 +8,15 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   // supabase/functions are Deno (separate runtime, remote imports) — not part
   // of the app's lint/typecheck.
-  globalIgnores(['dist', 'dev-dist', 'src/routeTree.gen.ts', 'supabase/functions']),
+  globalIgnores([
+    'dist',
+    'dev-dist',
+    'coverage',
+    'playwright-report',
+    'test-results',
+    'src/routeTree.gen.ts',
+    'supabase/functions',
+  ]),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
