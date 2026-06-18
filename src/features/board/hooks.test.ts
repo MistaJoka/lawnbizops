@@ -114,4 +114,14 @@ describe('bucketBoard scheduled windowing', () => {
     })
     expect(lanes.scheduled).toHaveLength(2)
   })
+
+  it('includes a job scheduled exactly on the horizon (inclusive boundary)', () => {
+    const lanes = bucketBoard({
+      jobs: [dated('edge', '2026-07-01'), dated('past', '2026-07-02')],
+      estimates: [],
+      invoices: [],
+      scheduledThrough: '2026-07-01',
+    })
+    expect(lanes.scheduled.map((j) => j.id)).toEqual(['edge'])
+  })
 })

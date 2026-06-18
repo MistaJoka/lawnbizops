@@ -70,6 +70,9 @@ describe('googleMapsRouteUrl', () => {
     expect(parsed.searchParams.get('waypoints')).toBe(
       '26.616800,-80.068400|26.714100,-80.054400',
     )
+    // The deep link must request the directions API in driving mode.
+    expect(parsed.searchParams.get('api')).toBe('1')
+    expect(parsed.searchParams.get('travelmode')).toBe('driving')
   })
   it('single stop has no waypoints', () => {
     const url = googleMapsRouteUrl([wpb])!
