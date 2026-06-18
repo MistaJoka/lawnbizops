@@ -36,4 +36,17 @@ export default defineConfig([
       'react-refresh/only-export-components': 'off',
     },
   },
+  {
+    // Type-aware hardening rules, scoped to src/ (covered by tsconfig). Catches
+    // unhandled async (critical for an offline-write app — a dropped promise is
+    // a lost write) and non-exhaustive switches over unions/enums.
+    files: ['src/**/*.{ts,tsx}'],
+    languageOptions: {
+      parserOptions: { projectService: true, tsconfigRootDir: import.meta.dirname },
+    },
+    rules: {
+      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/switch-exhaustiveness-check': 'error',
+    },
+  },
 ])

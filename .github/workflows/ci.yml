@@ -22,6 +22,7 @@ jobs:
         env:
           VITE_SUPABASE_URL: https://example.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+      - run: npm run bundle:check
 
   # Spins up a real Supabase stack, applies every migration, and runs the
   # two-org RLS isolation test. This is the load-bearing tenant-safety
