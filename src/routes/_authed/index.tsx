@@ -6,6 +6,8 @@ import {
   type JobWithContext,
 } from '@/features/jobs/hooks'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
+import { CardQuickActions } from '@/features/board/CardQuickActions'
+import { jobQuickActions } from '@/features/board/cardActions'
 import { PipelineBoard } from '@/features/board/PipelineBoard'
 import { QuickAddSheet } from '@/features/board/QuickAddJob'
 import { Fab } from '@/components/Fab'
@@ -383,6 +385,7 @@ function TodayJobCard({
         </div>
 
         <JobActions job={job} />
+        <CardQuickActions actions={jobQuickActions(job)} />
       </div>
     </div>
   )
