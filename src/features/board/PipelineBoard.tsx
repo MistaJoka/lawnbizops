@@ -1,6 +1,13 @@
 import { Link, useNavigate } from '@tanstack/react-router'
 import { LANES, usePipelineBoard, wipLevel, type LaneDef } from './hooks'
 import { QuickAddRow } from './QuickAddJob'
+import { CardQuickActions } from './CardQuickActions'
+import {
+  jobQuickActions,
+  quoteQuickActions,
+  arQuickActions,
+  callOnly,
+} from './cardActions'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { type JobWithContext } from '@/features/jobs/hooks'
 import { type EstimateListRow } from '@/features/estimates/hooks'
@@ -107,6 +114,7 @@ function CardShell({
         <p className="mt-1 text-sm text-faded">{formatCents(job.price_cents)}</p>
       </Link>
       {children}
+      <CardQuickActions actions={jobQuickActions(job)} />
     </div>
   )
 }
@@ -167,21 +175,24 @@ function DoneCard({ job }: { job: JobWithContext }) {
 
 function QuoteCard({ estimate }: { estimate: EstimateListRow }) {
   return (
-    <Link
-      to="/estimates/$estimateId"
-      params={{ estimateId: estimate.id }}
-      className="card-surface tap-active block p-3"
-    >
-      <div className="flex items-start justify-between gap-2">
-        <span className="min-w-0 truncate font-display text-base font-semibold text-sand">
-          {estimate.client?.name ?? 'Estimate'}
-        </span>
-        <span className="status-badge shrink-0 rounded bg-olive px-2 py-0.5 text-sand">
-          {estimate.status}
-        </span>
-      </div>
-      <p className="mt-1 text-sm text-muted">{formatCents(estimate.total_cents)}</p>
-    </Link>
+    <div className="card-surface p-3">
+      <Link
+        to="/estimates/$estimateId"
+        params={{ estimateId: estimate.id }}
+        className="tap-active block"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <span className="min-w-0 truncate font-display text-base font-semibold text-sand">
+            {estimate.client?.name ?? 'Estimate'}
+          </span>
+          <span className="status-badge shrink-0 rounded bg-olive px-2 py-0.5 text-sand">
+            {estimate.status}
+          </span>
+        </div>
+        <p className="mt-1 text-sm text-muted">{formatCents(estimate.total_cents)}</p>
+      </Link>
+      <CardQuickActions actions={quoteQuickActions(estimate)} />
+    </div>
   )
 }
 
@@ -214,26 +225,30 @@ function ArCard({ invoice }: { invoice: InvoiceBalance }) {
       >
         Record payment
       </Link>
+      <CardQuickActions actions={arQuickActions(invoice)} />
     </div>
   )
 }
 
 function PaidCard({ invoice }: { invoice: InvoiceBalance }) {
   return (
-    <Link
-      to="/invoices/$invoiceId"
-      params={{ invoiceId: invoice.invoice_id }}
-      className="card-surface tap-active block p-3 opacity-70"
-    >
-      <div className="flex items-start justify-between gap-2">
-        <span className="min-w-0 truncate font-display text-base font-semibold text-sand">
-          {invoice.client?.name ?? 'Client'}
-        </span>
-        <span className="status-badge shrink-0 rounded bg-go px-2 py-0.5 text-canvas">
-          paid
-        </span>
-      </div>
-      <p className="mt-1 text-sm text-faded">{formatCents(invoice.total_cents)}</p>
-    </Link>
+    <div className="card-surface p-3 opacity-70">
+      <Link
+        to="/invoices/$invoiceId"
+        params={{ invoiceId: invoice.invoice_id }}
+        className="tap-active block"
+      >
+        <div className="flex items-start justify-between gap-2">
+          <span className="min-w-0 truncate font-display text-base font-semibold text-sand">
+            {invoice.client?.name ?? 'Client'}
+          </span>
+          <span className="status-badge shrink-0 rounded bg-go px-2 py-0.5 text-canvas">
+            paid
+          </span>
+        </div>
+        <p className="mt-1 text-sm text-faded">{formatCents(invoice.total_cents)}</p>
+      </Link>
+      <CardQuickActions actions={callOnly(invoice.client?.phone)} />
+    </div>
   )
 }
