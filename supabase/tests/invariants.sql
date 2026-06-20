@@ -66,6 +66,19 @@ select pg_temp.assert(
           where ii.job_id = j.id and inv.status <> 'void')),
   'every invoiced job is backed by a non-void invoice line');
 
+-- --- Reversals: every offsetting (negative) line backs a real payment --------
+-- Payment reversal is append-only: a negative line is always "Reversal of <id>"
+-- of a positive payment on the same invoice. A malformed/orphan reversal would
+-- break the audit trail (and could drive paid below the true total).
+select pg_temp.assert(
+  (select count(*) = 0 from public.payments r
+     where r.amount_cents < 0
+       and not exists (
+         select 1 from public.payments o
+          where o.invoice_id = r.invoice_id
+            and r.note = 'Reversal of ' || o.id::text)),
+  'every reversal line offsets a real payment on the same invoice');
+
 -- --- Numbering: assigned numbers are unique per org --------------------------
 select pg_temp.assert(
   (select count(*) = 0 from (

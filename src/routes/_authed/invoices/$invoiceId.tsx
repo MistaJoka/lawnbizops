@@ -7,10 +7,12 @@ import {
   markSent,
   recordPayment,
   recordReminder,
+  reversePayment,
   useBusinessSettings,
   useInvoice,
   voidInvoice,
   type InvoiceDetail,
+  type Payment,
   type PaymentMethod,
 } from '@/features/invoices/hooks'
 import { InvoiceStatusChip } from '@/features/invoices/InvoiceStatusChip'
@@ -64,6 +66,24 @@ function InvoiceDetailScreen() {
   const canRemind =
     balance > 0 && (invoice.status === 'sent' || invoice.status === 'partially_paid')
   const canPay = balance > 0 && invoice.status !== 'void'
+
+  // A payment is spent once an offsetting "Reversal of <id>" line exists — used
+  // to hide the Reverse action so a single payment can't be reversed twice.
+  const reversedIds = new Set(
+    payments
+      .filter((p) => p.amount_cents < 0 && p.note.startsWith('Reversal of '))
+      .map((p) => p.note.slice('Reversal of '.length)),
+  )
+
+  async function handleReverse(payment: Payment) {
+    if (
+      !window.confirm(
+        `Reverse this ${formatCents(payment.amount_cents)} payment? An offsetting line is recorded — nothing is deleted.`,
+      )
+    )
+      return
+    await reversePayment(payment)
+  }
 
   async function handleSharePdf() {
     if (!detail || !detail.invoice.number || sharing) return
@@ -213,25 +233,43 @@ function InvoiceDetailScreen() {
       {payments.length > 0 && (
         <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-2">
           <p className="heading-stencil pt-2 text-xs text-faded">Payments</p>
-          {payments.map((payment) => (
-            <div
-              key={payment.id}
-              className="flex items-center justify-between gap-3 border-b border-edge py-3 last:border-b-0"
-            >
-              <span className="min-w-0">
-                <span className="block text-sand capitalize">
-                  {payment.method.replace('_', ' ')}
+          {payments.map((payment) => {
+            const isReversal = payment.amount_cents < 0
+            const canReverse =
+              !isReversal && !reversedIds.has(payment.id) && invoice.status !== 'void'
+            return (
+              <div
+                key={payment.id}
+                className="flex items-center justify-between gap-3 border-b border-edge py-3 last:border-b-0"
+              >
+                <span className="min-w-0">
+                  <span
+                    className={`block capitalize ${isReversal ? 'text-faded line-through' : 'text-sand'}`}
+                  >
+                    {payment.method.replace('_', ' ')}
+                  </span>
+                  <span className="block text-sm text-faded">
+                    {formatShortDate(payment.paid_at)}
+                    {payment.note && ` · ${payment.note}`}
+                  </span>
                 </span>
-                <span className="block text-sm text-faded">
-                  {formatShortDate(payment.paid_at)}
-                  {payment.note && ` · ${payment.note}`}
+                <span className="flex shrink-0 items-center gap-3">
+                  <span className={isReversal ? 'text-faded' : 'text-go'}>
+                    {formatCents(payment.amount_cents)}
+                  </span>
+                  {canReverse && (
+                    <button
+                      type="button"
+                      onClick={() => void handleReverse(payment)}
+                      className="tap-active min-h-12 rounded-lg border-2 border-edge px-3 text-xs text-alert"
+                    >
+                      Reverse
+                    </button>
+                  )}
                 </span>
-              </span>
-              <span className="shrink-0 text-go">
-                {formatCents(payment.amount_cents)}
-              </span>
-            </div>
-          ))}
+              </div>
+            )
+          })}
         </div>
       )}
 

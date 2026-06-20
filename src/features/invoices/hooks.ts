@@ -390,6 +390,81 @@ export async function recordPayment(input: RecordPaymentInput): Promise<void> {
   confirmToast('Payment recorded')
 }
 
+/** Status from totals, mirroring apply_payment's recompute (sent when unpaid). */
+function statusFromTotals(total: number, paid: number): InvoiceStatus {
+  if (paid >= total && total > 0) return 'paid'
+  if (paid > 0) return 'partially_paid'
+  return 'sent'
+}
+
+/**
+ * Reverse a payment with an offsetting negative line. apply_payment sums every
+ * payment row from invoice_balances, so a negative amount drops `paid` and flips
+ * the status back — append-only and auditable (the original row is never
+ * deleted). The new line's id keeps the outbox RPC idempotent.
+ */
+export async function reversePayment(payment: Payment): Promise<void> {
+  const reversalId = crypto.randomUUID()
+  const now = new Date().toISOString()
+  const amount = payment.amount_cents
+  const invoiceId = payment.invoice_id
+  const note = `Reversal of ${payment.id}`
+  const paidAt = localToday()
+
+  // Optimistic: drop paid/balance in the list + append the negative detail line.
+  queryClient.setQueryData<InvoiceBalance[]>(['invoices'], (old) =>
+    old?.map((row) => {
+      if (row.invoice_id !== invoiceId) return row
+      const paid = row.paid_cents - amount
+      return {
+        ...row,
+        paid_cents: paid,
+        balance_cents: row.total_cents - paid,
+        status: statusFromTotals(row.total_cents, paid),
+      }
+    }),
+  )
+  queryClient.setQueryData<InvoiceDetail>(['invoices', invoiceId], (old) => {
+    if (!old) return old
+    const reversal: Payment = {
+      id: reversalId,
+      invoice_id: invoiceId,
+      amount_cents: -amount,
+      method: payment.method,
+      paid_at: paidAt,
+      note,
+      created_at: now,
+      updated_at: now,
+      user_id: '',
+      org_id: '',
+    }
+    const payments = [...old.payments, reversal]
+    const total = invoiceTotalCents(old.items)
+    const paid = payments.reduce((sum, p) => sum + p.amount_cents, 0)
+    return {
+      ...old,
+      payments,
+      invoice: { ...old.invoice, status: statusFromTotals(total, paid) },
+    }
+  })
+
+  await enqueue({
+    table: 'payments',
+    kind: 'rpc',
+    payload: {
+      fn: 'apply_payment',
+      args: {
+        p_id: reversalId,
+        p_invoice_id: invoiceId,
+        p_amount_cents: -amount,
+        p_method: payment.method,
+        p_paid_at: paidAt,
+        p_note: note,
+      },
+    },
+  })
+}
+
 export async function markSent(id: string): Promise<void> {
   patchInvoiceCaches(id, { status: 'sent' })
   await enqueue({
