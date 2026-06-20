@@ -24,6 +24,10 @@ initOutbox()
 
 const router = createRouter({
   routeTree,
+  // Deployed under a sub-path on GitHub Pages (VITE_BASE=/lawnbizops/); the
+  // router must know that prefix or it can't match any route at the deployed
+  // URL and renders "Not Found". BASE_URL is '/' in dev so this is a no-op there.
+  basepath: import.meta.env.BASE_URL,
   // Preload a route (its code chunk + loader) on tap/hover intent, so the
   // screen and its data are warm before the user actually navigates. Query
   // owns data freshness, so the router itself shouldn't re-cache loader data.
