@@ -32,6 +32,12 @@ jobs:
           # Publishable values — public by design (they ship in the JS bundle).
           VITE_SUPABASE_URL: https://kjovmqtcalrfdguccnfm.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_OvnOGkNCeBEHUss8G7VjCA_TvZVCFlw
+          # DEV/TEST-ONLY auto-login (skip the login screen). Empty unless these
+          # repo secrets are set → no-op normal builds. ⚠️ When set, the creds
+          # ship in the PUBLIC bundle; use a THROWAWAY test account only and
+          # remove before onboarding real customers. See src/lib/autologin.ts.
+          VITE_AUTOLOGIN_EMAIL: ${{ secrets.AUTOLOGIN_EMAIL }}
+          VITE_AUTOLOGIN_PASSWORD: ${{ secrets.AUTOLOGIN_PASSWORD }}
       # SPA fallback: GitHub Pages serves 404.html for unknown paths
       - run: cp dist/index.html dist/404.html
       - uses: actions/upload-pages-artifact@v5

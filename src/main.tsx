@@ -6,6 +6,7 @@ import * as Sentry from '@sentry/react'
 import { routeTree } from './routeTree.gen'
 import { CACHE_MAX_AGE_MS, dexiePersister, queryClient } from './lib/queryClient'
 import { initOutbox } from './lib/outbox'
+import { maybeAutologin } from './lib/autologin' // DEV/TEST-ONLY — see autologin.ts
 import { DevPanel } from './dev/DevPanel' // DEV-ONLY — see below; delete with src/dev/
 import '@fontsource/archivo-narrow/latin-400.css'
 import '@fontsource/archivo-narrow/latin-600.css'
@@ -41,24 +42,31 @@ declare module '@tanstack/react-router' {
   }
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={{
-        persister: dexiePersister,
-        maxAge: CACHE_MAX_AGE_MS,
-        buster: import.meta.env.VITE_APP_VERSION ?? 'dev',
-      }}
-    >
-      <RouterProvider router={router} />
-    </PersistQueryClientProvider>
-    {/* DEV-ONLY dev tools (skip login, etc.). `import.meta.env.DEV` is false in
-        production builds, so Vite strips this and src/dev/ from the bundle.
-        To remove after launch: delete this block and the src/dev/ folder. */}
-    {import.meta.env.DEV && <DevPanel />}
-  </StrictMode>,
-)
+// DEV/TEST-only: if build-env credentials are set, establish a session before
+// the first render so the router's auth guard sees it and skips /login. A no-op
+// in normal builds (env unset). See lib/autologin.ts — remove before launch.
+async function bootstrap() {
+  await maybeAutologin()
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{
+          persister: dexiePersister,
+          maxAge: CACHE_MAX_AGE_MS,
+          buster: import.meta.env.VITE_APP_VERSION ?? 'dev',
+        }}
+      >
+        <RouterProvider router={router} />
+      </PersistQueryClientProvider>
+      {/* DEV-ONLY dev tools (skip login, etc.). `import.meta.env.DEV` is false in
+          production builds, so Vite strips this and src/dev/ from the bundle.
+          To remove after launch: delete this block and the src/dev/ folder. */}
+      {import.meta.env.DEV && <DevPanel />}
+    </StrictMode>,
+  )
+}
+void bootstrap()
 
 // Ask the browser to protect IndexedDB (outbox + cache) from storage-pressure
 // eviction. Fire-and-forget — denial just means default eviction rules apply.
