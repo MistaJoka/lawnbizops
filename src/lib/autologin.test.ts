@@ -1,5 +1,14 @@
-import { describe, expect, it } from 'vitest'
-import { autologinCredentials, guestModeEnabled } from './autologin'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+// vi.hoisted so the mock factory (also hoisted) can reference these fns.
+const auth = vi.hoisted(() => ({
+  getSession: vi.fn(),
+  signInAnonymously: vi.fn(),
+  signInWithPassword: vi.fn(),
+}))
+vi.mock('@/lib/supabase', () => ({ supabase: { auth } }))
+
+import { autologinCredentials, guestModeEnabled, maybeAutologin } from './autologin'
 
 // Guest mode (anonymous auth) — active when VITE_GUEST_MODE is exactly '1'.
 describe('guestModeEnabled', () => {
@@ -39,5 +48,46 @@ describe('autologinCredentials', () => {
         VITE_AUTOLOGIN_PASSWORD: 'secret',
       }),
     ).toEqual({ email: 'test@lawnbizops.test', password: 'secret' })
+  })
+})
+
+// The session bootstrap (runs before the router's auth guard in main.tsx).
+describe('maybeAutologin', () => {
+  beforeEach(() => {
+    auth.getSession.mockReset().mockResolvedValue({ data: { session: null } })
+    auth.signInAnonymously.mockReset().mockResolvedValue({ error: null })
+    auth.signInWithPassword.mockReset().mockResolvedValue({ error: null })
+  })
+  afterEach(() => vi.unstubAllEnvs())
+
+  it('signs in anonymously in guest mode when there is no session', async () => {
+    vi.stubEnv('VITE_GUEST_MODE', '1')
+    await maybeAutologin()
+    expect(auth.signInAnonymously).toHaveBeenCalledTimes(1)
+    expect(auth.signInWithPassword).not.toHaveBeenCalled()
+  })
+
+  it('does nothing when a session already exists', async () => {
+    vi.stubEnv('VITE_GUEST_MODE', '1')
+    auth.getSession.mockResolvedValue({ data: { session: { user: {} } } })
+    await maybeAutologin()
+    expect(auth.signInAnonymously).not.toHaveBeenCalled()
+  })
+
+  it('uses password auto-login when creds are set and guest mode is off', async () => {
+    vi.stubEnv('VITE_AUTOLOGIN_EMAIL', 'a@b.com')
+    vi.stubEnv('VITE_AUTOLOGIN_PASSWORD', 'pw')
+    await maybeAutologin()
+    expect(auth.signInWithPassword).toHaveBeenCalledWith({
+      email: 'a@b.com',
+      password: 'pw',
+    })
+    expect(auth.signInAnonymously).not.toHaveBeenCalled()
+  })
+
+  it('is a no-op when neither guest mode nor creds are configured', async () => {
+    await maybeAutologin()
+    expect(auth.signInAnonymously).not.toHaveBeenCalled()
+    expect(auth.signInWithPassword).not.toHaveBeenCalled()
   })
 })
