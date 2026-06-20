@@ -37,6 +37,11 @@ export function PipelineBoard() {
               {lanes.scheduled.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
+              {lanes.scheduled.length === 0 && (
+                <p className="py-6 text-center text-xs text-faded">
+                  No jobs today — tap + to add one
+                </p>
+              )}
             </>
           )}
 
@@ -44,7 +49,9 @@ export function PipelineBoard() {
             lanes.in_progress.map((job) => <JobCard key={job.id} job={job} />)}
 
           {lane.id === 'done' &&
-            lanes.done.map((job) => <DoneCard key={job.id} job={job} />)}
+            lanes.done.map((job) => (
+              <DoneCard key={job.id} job={job} allDone={lanes.done} />
+            ))}
 
           {lane.id === 'ar' &&
             lanes.ar.map((inv) => <ArCard key={inv.invoice_id} invoice={inv} />)}
@@ -127,37 +134,53 @@ function JobCard({ job }: { job: JobWithContext }) {
   )
 }
 
-function DoneCard({ job }: { job: JobWithContext }) {
+function toInvoiceJob(j: JobWithContext, clientId: string) {
+  return {
+    id: j.id,
+    title: j.title,
+    scheduled_date: j.scheduled_date,
+    completed_at: j.completed_at,
+    price_cents: j.price_cents,
+    property: j.property
+      ? {
+          client_id: clientId,
+          label: j.property.label,
+          address_line1: j.property.address_line1,
+        }
+      : null,
+    service: null,
+  }
+}
+
+function DoneCard({ job, allDone }: { job: JobWithContext; allDone: JobWithContext[] }) {
   const navigate = useNavigate()
   const { data: settings } = useBusinessSettings()
+  const client = job.property?.client
+
+  // Other Done jobs for the same client — offer to batch them.
+  const siblings = client
+    ? allDone.filter((j) => j.id !== job.id && j.property?.client?.id === client.id)
+    : []
 
   async function invoice() {
-    const client = job.property?.client
     if (!client) return
+
+    let jobsToInvoice = [job]
+    if (siblings.length > 0) {
+      const extraTotal = siblings.reduce((s, j) => s + j.price_cents, 0)
+      const batch = window.confirm(
+        `Also include ${siblings.length} other done job${siblings.length > 1 ? 's' : ''} for ${client.name}? (+${formatCents(extraTotal)})`,
+      )
+      if (batch) jobsToInvoice = [job, ...siblings]
+    }
+
     const id = await createInvoiceFromJobs({
       clientId: client.id,
       client: { name: client.name, phone: client.phone },
-      jobs: [
-        {
-          id: job.id,
-          title: job.title,
-          scheduled_date: job.scheduled_date,
-          completed_at: job.completed_at,
-          price_cents: job.price_cents,
-          property: job.property
-            ? {
-                client_id: client.id,
-                label: job.property.label,
-                address_line1: job.property.address_line1,
-              }
-            : null,
-          service: null,
-        },
-      ],
+      jobs: jobsToInvoice.map((j) => toInvoiceJob(j, client.id)),
       extraItems: [],
       defaultDueDays: settings?.default_due_days ?? 15,
     })
-    // createInvoiceFromJobs flips the job to 'invoiced' across all caches.
     void navigate({ to: '/invoices/$invoiceId', params: { invoiceId: id } })
   }
 
@@ -167,7 +190,7 @@ function DoneCard({ job }: { job: JobWithContext }) {
         onClick={() => void invoice()}
         className="heading-stencil tap-active mt-3 min-h-12 w-full rounded-lg bg-blaze px-2 py-3 text-base text-on-cta"
       >
-        Invoice →
+        Invoice →{siblings.length > 0 ? ` (+${siblings.length})` : ''}
       </button>
     </CardShell>
   )

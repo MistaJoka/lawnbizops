@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/react'
+import { useLiveQuery } from 'dexie-react-hooks'
 import { db, type OutboxOp, type SyncTable } from './db'
 import { supabase } from './supabase'
 import { queryClient } from './queryClient'
@@ -196,6 +197,11 @@ function scheduleRetry(attempts: number) {
   clearTimeout(retryTimer)
   const delay = Math.min(2 ** attempts * 1000, 60_000)
   retryTimer = setTimeout(() => void flush(), delay)
+}
+
+/** Live count of pending outbox writes — drives the sync badge. */
+export function useOutboxPending(): number {
+  return useLiveQuery(() => db.outbox.where('status').equals('pending').count(), [], 0)
 }
 
 /** Stop pending retry timers (tests, teardown). */

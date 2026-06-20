@@ -97,20 +97,30 @@ function PipelineCard({ client, balance }: { client: Client; balance: number }) 
         <span className="font-display text-base font-semibold text-sand">
           {client.name}
         </span>
-        {balance > 0 ? (
+        {balance > 0 && (
           <p className="mt-1 text-sm text-blaze">{formatCents(balance)} open</p>
-        ) : (
-          client.phone && (
-            <a
-              href={`tel:${client.phone}`}
-              onClick={(e) => e.stopPropagation()}
-              className="mt-1 inline-block text-sm text-faded"
-            >
-              {client.phone}
-            </a>
-          )
         )}
       </div>
+
+      {client.phone && (
+        <div className="mt-2 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
+          <a
+            href={`tel:${client.phone}`}
+            aria-label={`Call ${client.name}`}
+            className="tap-active grid h-10 flex-1 place-items-center rounded-md border-2 border-edge text-base text-sand"
+          >
+            📞
+          </a>
+          <a
+            href={`sms:${client.phone}`}
+            aria-label={`Text ${client.name}`}
+            className="tap-active grid h-10 flex-1 place-items-center rounded-md border-2 border-edge text-base text-sand"
+          >
+            💬
+          </a>
+        </div>
+      )}
+
       {advanceTo && (
         <button
           type="button"

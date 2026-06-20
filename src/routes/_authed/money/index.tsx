@@ -7,6 +7,7 @@ import {
   agingBucket,
   invoiceBalancesQueryOptions,
   isOpen,
+  recordReminder,
   useInvoiceBalances,
   type AgingBucket,
   type InvoiceBalance,
@@ -88,6 +89,7 @@ function MoneyScreen() {
 
 function InvoicesTab() {
   const { data: invoices, isLoading } = useInvoiceBalances()
+  const [nudgeOpen, setNudgeOpen] = useState(false)
   const today = localToday()
 
   const open = (invoices ?? []).filter(isOpen)
@@ -97,6 +99,9 @@ function InvoicesTab() {
     const bucket = agingBucket(inv, today)
     buckets.set(bucket, (buckets.get(bucket) ?? 0) + inv.balance_cents)
   }
+  const overdue = open.filter(
+    (inv) => agingBucket(inv, today) !== 'current' && inv.client?.phone,
+  )
 
   return (
     <>
@@ -117,7 +122,24 @@ function InvoicesTab() {
             ))}
           </div>
         )}
+        {overdue.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setNudgeOpen(true)}
+            className="heading-stencil tap-active mt-3 w-full rounded-lg border-2 border-blaze py-2 text-xs text-blaze"
+          >
+            🔔 Nudge overdue ({overdue.length})
+          </button>
+        )}
       </div>
+
+      {nudgeOpen && (
+        <NudgeSheet
+          invoices={overdue}
+          today={today}
+          onClose={() => setNudgeOpen(false)}
+        />
+      )}
 
       <ul className="mt-4 flex flex-col gap-2 pb-28">
         {(invoices ?? []).map((inv) => (
@@ -132,6 +154,67 @@ function InvoicesTab() {
         </p>
       )}
     </>
+  )
+}
+
+function NudgeSheet({
+  invoices,
+  today,
+  onClose,
+}: {
+  invoices: InvoiceBalance[]
+  today: string
+  onClose: () => void
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end bg-black/60" onClick={onClose}>
+      <div
+        className="w-full rounded-t-2xl border-t-2 border-edge bg-canvas px-4 pb-10 pt-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="heading-stencil text-lg text-khaki">Nudge overdue</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="label-caps text-faded"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <ul className="flex flex-col gap-3">
+          {invoices.map((inv) => {
+            const name = inv.client?.name ?? 'Client'
+            const phone = inv.client!.phone
+            const nudgeBody =
+              `Hi ${name}, friendly reminder about invoice ${inv.number ?? ''} — ` +
+              `${formatCents(inv.balance_cents)} whenever it's convenient. Thank you!`
+            return (
+              <li
+                key={inv.invoice_id}
+                className="flex items-center justify-between gap-3"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate text-base text-sand">{name}</span>
+                  <span className={`text-sm ${AGING_COLOR[agingBucket(inv, today)]}`}>
+                    {formatCents(inv.balance_cents)} ·{' '}
+                    {BUCKET_LABEL[agingBucket(inv, today)]} overdue
+                  </span>
+                </span>
+                <a
+                  href={`sms:${phone}?&body=${encodeURIComponent(nudgeBody)}`}
+                  onClick={() => void recordReminder(inv.invoice_id)}
+                  className="heading-stencil tap-active shrink-0 rounded-lg border-2 border-blaze px-4 py-2 text-sm text-blaze"
+                >
+                  🔔 Nudge
+                </a>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+    </div>
   )
 }
 
@@ -167,7 +250,7 @@ function EstimateRow({ estimate }: { estimate: EstimateListRow }) {
         <span className="heading-stencil min-w-0 truncate text-sand">
           {estimate.number ?? 'pending #'}
         </span>
-        <EstimateStatusChip status={estimate.status} />
+        <EstimateStatusChip status={estimate.status} validUntil={estimate.valid_until} />
       </span>
       <span className="mt-1 flex items-center justify-between gap-2">
         <span className="min-w-0 truncate text-lg text-sand">

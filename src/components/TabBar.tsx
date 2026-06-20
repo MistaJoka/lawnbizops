@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { useOutboxPending } from '@/lib/outbox'
 
 const tabs = [
   { to: '/', label: 'Today', icon: SunIcon },
@@ -9,6 +10,8 @@ const tabs = [
 ] as const
 
 export function TabBar() {
+  const pending = useOutboxPending()
+
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-edge bg-surface-low"
@@ -26,7 +29,15 @@ export function TabBar() {
             }}
             activeOptions={{ exact: to === '/' }}
           >
-            <Icon />
+            <span className="relative">
+              <Icon />
+              {to === '/' && pending > 0 && (
+                <span
+                  aria-label={`${pending} write${pending === 1 ? '' : 's'} pending sync`}
+                  className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-blaze ring-2 ring-surface-low"
+                />
+              )}
+            </span>
             <span className="label-caps mt-0.5">{label}</span>
           </Link>
         ))}

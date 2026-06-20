@@ -1,8 +1,10 @@
+import { useRef, useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { JobChecklist } from '@/features/jobs/JobChecklist'
 import { setJobStatus, useJob } from '@/features/jobs/hooks'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { JobStepper } from '@/components/JobStepper'
+import { deletePhoto, uploadPhoto, usePhotos } from '@/features/estimates/photos'
 import { jobPipelineStage } from '@/lib/jobPipeline'
 import { formatCents } from '@/lib/format'
 import { formatClockTime, formatShortDate } from '@/lib/dates'
@@ -153,6 +155,8 @@ function JobDetailScreen() {
         <JobChecklist job={job} />
       )}
 
+      <PhotosSection jobId={jobId} />
+
       {(job.status === 'scheduled' || job.status === 'in_progress') && (
         <button
           onClick={() => void handleCancel()}
@@ -160,6 +164,98 @@ function JobDetailScreen() {
         >
           Cancel job
         </button>
+      )}
+    </div>
+  )
+}
+
+function PhotosSection({ jobId }: { jobId: string }) {
+  const { data: photos } = usePhotos('job', jobId)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setError(null)
+    setUploading(true)
+    try {
+      await uploadPhoto('job', jobId, file)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed')
+    } finally {
+      setUploading(false)
+      if (inputRef.current) inputRef.current.value = ''
+    }
+  }
+
+  async function handleDelete(photo: Parameters<typeof deletePhoto>[0]) {
+    if (!window.confirm('Delete this photo?')) return
+    try {
+      await deletePhoto(photo)
+    } catch {
+      setError('Delete failed — try again')
+    }
+  }
+
+  return (
+    <div className="mt-4">
+      <div className="flex items-center justify-between">
+        <p className="label-caps text-faded">Photos</p>
+        <button
+          type="button"
+          disabled={uploading}
+          onClick={() => inputRef.current?.click()}
+          className="heading-stencil tap-active rounded-lg border-2 border-edge px-3 py-1.5 text-xs text-sand disabled:opacity-40"
+        >
+          {uploading ? 'Uploading…' : '+ Photo'}
+        </button>
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          className="hidden"
+          onChange={(e) => void handleFile(e)}
+        />
+      </div>
+
+      {error && <p className="mt-2 text-sm text-alert">{error}</p>}
+
+      {(photos ?? []).length > 0 && (
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {(photos ?? []).map((photo) => (
+            <button
+              key={photo.id}
+              type="button"
+              onClick={() => void handleDelete(photo)}
+              aria-label="Delete photo"
+              className="tap-active relative aspect-square overflow-hidden rounded-lg border-2 border-edge"
+            >
+              {photo.url ? (
+                <img
+                  src={photo.url}
+                  alt="Job photo"
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-2xl">
+                  🖼
+                </span>
+              )}
+              <span className="absolute bottom-0 right-0 rounded-tl bg-black/60 px-1 py-0.5 text-[10px] text-white">
+                ✕
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {(photos ?? []).length === 0 && !uploading && (
+        <p className="mt-2 text-sm text-faded">
+          Tap + Photo to document the work — before/after, scope, issues.
+        </p>
       )}
     </div>
   )

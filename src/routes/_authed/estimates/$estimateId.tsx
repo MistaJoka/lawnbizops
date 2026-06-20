@@ -103,7 +103,7 @@ function EstimateDetailScreen() {
         <h1 className="heading-stencil min-w-0 text-2xl text-khaki">
           {estimate.number ?? 'pending #'}
         </h1>
-        <EstimateStatusChip status={estimate.status} />
+        <EstimateStatusChip status={estimate.status} validUntil={estimate.valid_until} />
       </div>
       <p className="mt-1 text-faded">
         Issued {formatShortDate(estimate.issued_at)}
