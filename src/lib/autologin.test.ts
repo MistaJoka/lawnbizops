@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest'
-import { autologinCredentials } from './autologin'
+import { autologinCredentials, guestModeEnabled } from './autologin'
+
+// Guest mode (anonymous auth) — active when VITE_GUEST_MODE is exactly '1'.
+describe('guestModeEnabled', () => {
+  it('is true only when VITE_GUEST_MODE is "1"', () => {
+    expect(guestModeEnabled({ VITE_GUEST_MODE: '1' })).toBe(true)
+  })
+  it('is false when unset, empty, or any other value', () => {
+    expect(guestModeEnabled({})).toBe(false)
+    expect(guestModeEnabled({ VITE_GUEST_MODE: '' })).toBe(false)
+    expect(guestModeEnabled({ VITE_GUEST_MODE: '0' })).toBe(false)
+    expect(guestModeEnabled({ VITE_GUEST_MODE: 'true' })).toBe(false)
+  })
+})
 
 // Build-time opt-in: auto-login only when BOTH env vars are present (set as
 // GitHub secrets on the deploy). Absent → null → normal login screen.

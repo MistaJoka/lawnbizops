@@ -3,6 +3,7 @@ import { TabBar } from '@/components/TabBar'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { appStateQuery } from '@/features/auth/hooks'
+import { guestModeEnabled } from '@/lib/autologin'
 
 // App gate. getSession reads the persisted session from localStorage (instant,
 // offline-friendly). The app_state check is cached (ensureQueryData honours
@@ -15,6 +16,11 @@ export const Route = createFileRoute('/_authed')({
   beforeLoad: async () => {
     const { data: sess } = await supabase.auth.getSession()
     if (!sess.session) throw redirect({ to: '/login' })
+
+    // Guest mode opens straight into the app — the anonymous user is a fresh,
+    // un-onboarded org, so skip the onboarding/billing gates (RLS still isolates
+    // each guest). Remove with the rest of guest mode when real auth returns.
+    if (guestModeEnabled()) return
 
     const state = await queryClient.ensureQueryData(appStateQuery)
     if (!state) return

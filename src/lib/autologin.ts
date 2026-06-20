@@ -14,6 +14,19 @@ import { supabase } from './supabase'
 type AutologinEnv = {
   VITE_AUTOLOGIN_EMAIL?: string
   VITE_AUTOLOGIN_PASSWORD?: string
+  VITE_GUEST_MODE?: string
+}
+
+/**
+ * Guest mode: sign in anonymously so the app opens with no login screen, while
+ * RLS stays ON (each guest gets its own isolated org via handle_new_user). The
+ * _authed guard also skips the onboarding/billing gates in this mode. To restore
+ * real auth later: unset VITE_GUEST_MODE (and remove this file's call sites).
+ */
+export function guestModeEnabled(
+  env: AutologinEnv = import.meta.env as unknown as AutologinEnv,
+): boolean {
+  return env.VITE_GUEST_MODE === '1'
 }
 
 /** Credentials only when BOTH vars are non-empty; otherwise null (no-op). */
@@ -32,10 +45,18 @@ export function autologinCredentials(
  * any failure (bad creds, offline) just falls through to the normal login flow.
  */
 export async function maybeAutologin(): Promise<void> {
-  const creds = autologinCredentials()
-  if (!creds) return
   const { data } = await supabase.auth.getSession()
   if (data.session) return
+
+  if (guestModeEnabled()) {
+    const { error } = await supabase.auth.signInAnonymously()
+    if (error)
+      console.warn('[guest] anonymous sign-in failed, showing login:', error.message)
+    return
+  }
+
+  const creds = autologinCredentials()
+  if (!creds) return
   const { error } = await supabase.auth.signInWithPassword(creds)
   if (error) console.warn('[autologin] sign-in failed, showing login:', error.message)
 }
