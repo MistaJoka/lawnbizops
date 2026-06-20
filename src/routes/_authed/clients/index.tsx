@@ -22,7 +22,7 @@ function ClientsScreen() {
   )
 
   return (
-    <div className="px-4 pt-6 pb-8">
+    <div className="px-4 pt-6 pb-28">
       <div className="flex items-center justify-between gap-3">
         <h1 className="heading-stencil text-2xl text-khaki">Clients</h1>
         <span className="flex items-center gap-4">
@@ -63,16 +63,25 @@ function ClientsScreen() {
                   })
                 }
               }}
-              className="flex cursor-pointer items-center justify-between rounded-lg border border-edge bg-panel px-4 py-4"
+              className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-edge bg-panel px-4 py-3"
             >
-              <span className="min-w-0 truncate text-lg text-sand">{client.name}</span>
+              <span className="min-w-0">
+                <span className="block truncate text-base font-medium text-sand">
+                  {client.name}
+                </span>
+                {client.phone && (
+                  <span className="block truncate text-sm text-faded">
+                    {client.phone}
+                  </span>
+                )}
+              </span>
               {client.phone && (
-                <span className="flex shrink-0 items-center gap-2 pl-3">
+                <span className="flex shrink-0 items-center gap-2">
                   <a
                     href={`tel:${client.phone}`}
                     onClick={(e) => e.stopPropagation()}
                     aria-label={`Call ${client.name}`}
-                    className="rounded-lg border border-edge px-3 py-2 text-lg"
+                    className="grid h-11 w-11 place-items-center rounded-lg border border-edge text-base"
                   >
                     📞
                   </a>
@@ -80,7 +89,7 @@ function ClientsScreen() {
                     href={`sms:${client.phone}`}
                     onClick={(e) => e.stopPropagation()}
                     aria-label={`Text ${client.name}`}
-                    className="rounded-lg border border-edge px-3 py-2 text-lg"
+                    className="grid h-11 w-11 place-items-center rounded-lg border border-edge text-base"
                   >
                     💬
                   </a>

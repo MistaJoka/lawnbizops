@@ -119,7 +119,7 @@ function InvoicesTab() {
         )}
       </div>
 
-      <ul className="mt-4 flex flex-col gap-2 pb-8">
+      <ul className="mt-4 flex flex-col gap-2 pb-28">
         {(invoices ?? []).map((inv) => (
           <li key={inv.invoice_id}>
             <InvoiceRow invoice={inv} />
@@ -140,7 +140,7 @@ function EstimatesTab() {
 
   return (
     <>
-      <ul className="mt-4 flex flex-col gap-2 pb-8">
+      <ul className="mt-4 flex flex-col gap-2 pb-28">
         {(estimates ?? []).map((est) => (
           <li key={est.id}>
             <EstimateRow estimate={est} />
