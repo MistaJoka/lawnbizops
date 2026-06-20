@@ -71,7 +71,12 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Sub-path routing smoke (guards the basepath/Pages outage class)
         # Prod is served under /lawnbizops/; dev/e2e run at base '/', so only a
-        # prod-base build catches a missing router basepath. No backend needed.
+        # prod-base build catches a missing router basepath. Placeholder Supabase
+        # env so the client module loads (no backend needed — with no session the
+        # app routes to /login, which is all this asserts).
+        env:
+          VITE_SUPABASE_URL: https://example.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
         run: |
           VITE_BASE=/lawnbizops/ npm run build
           node scripts/smoke-basepath.mjs
