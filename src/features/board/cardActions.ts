@@ -95,14 +95,23 @@ export function arQuickActions(inv: InvoiceBalance): QuickAction[] {
       label: 'Mark paid in full',
       glyph: '💵',
       tone: 'go',
-      onClick: () =>
+      // Books money from a single tap on a small target — confirm so a
+      // fat-finger can't silently record a full payment.
+      onClick: () => {
+        if (
+          !window.confirm(
+            `Mark ${inv.number ?? 'this invoice'} paid in full (${formatCents(inv.balance_cents)})?`,
+          )
+        )
+          return
         void recordPayment({
           invoiceId: inv.invoice_id,
           amountCents: inv.balance_cents,
           method: 'other',
           paidAt: localToday(),
           note: 'Marked paid (board quick action)',
-        }),
+        })
+      },
     },
   ])
 }

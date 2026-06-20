@@ -4,8 +4,8 @@ import { type QuickAction } from './cardActions'
 // taps through to detail; these are siblings, so no nested-anchor invalidity.
 
 const TONE: Record<string, string> = {
-  go: 'border-go text-go',
-  blaze: 'border-blaze text-blaze',
+  go: 'text-go',
+  blaze: 'text-blaze',
 }
 
 export function CardQuickActions({ actions }: { actions: QuickAction[] }) {
@@ -14,8 +14,8 @@ export function CardQuickActions({ actions }: { actions: QuickAction[] }) {
     // stopPropagation is defensive — actions are siblings of the body link.
     <div className="mt-2 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
       {actions.map((a) => {
-        const cls = `tap-active flex h-10 min-w-10 items-center justify-center rounded-md border-2 px-2 text-base ${
-          a.tone ? TONE[a.tone] : 'border-edge text-sand'
+        const cls = `tap-active flex h-10 min-w-10 items-center justify-center rounded-md border-2 border-edge px-2 text-base ${
+          a.tone ? TONE[a.tone] : 'text-sand'
         }`
         return a.href ? (
           <a
