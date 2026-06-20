@@ -48,6 +48,13 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
+    // Dummy Supabase env so the client module loads under a bare checkout/CI
+    // (no .env.local). Unit tests never hit a real backend — they mock or
+    // exercise pure logic — so the values only need to be present, not valid.
+    env: {
+      VITE_SUPABASE_URL: 'http://localhost:54321',
+      VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_test_placeholder',
+    },
     // e2e/ holds Playwright specs (run via `npm run test:e2e`), not vitest.
     exclude: [...configDefaults.exclude, 'e2e/**'],
     coverage: {
