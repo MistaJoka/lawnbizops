@@ -17,7 +17,8 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run format:check
-      - run: npm test
+      # test:coverage enforces the src/lib coverage thresholds (see vite.config).
+      - run: npm run test:coverage
       - run: npm run build
         env:
           VITE_SUPABASE_URL: https://example.supabase.co
@@ -68,6 +69,12 @@ jobs:
         run: supabase start
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
+      - name: Sub-path routing smoke (guards the basepath/Pages outage class)
+        # Prod is served under /lawnbizops/; dev/e2e run at base '/', so only a
+        # prod-base build catches a missing router basepath. No backend needed.
+        run: |
+          VITE_BASE=/lawnbizops/ npm run build
+          node scripts/smoke-basepath.mjs
       - name: E2E regression suite
         env:
           # `supabase start` already seeded a fresh DB, so skip the global-setup
@@ -83,3 +90,18 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  # Mutation testing on the scoped pure-logic files (route/csv/dates/format/
+  # recurrence/board). Catches assertions that pass but don't actually pin
+  # behaviour — it already found 2 real gaps once. Gated by the `break`
+  # threshold in stryker.config.json.
+  mutation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run test:mutation

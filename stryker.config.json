@@ -12,5 +12,5 @@
   ],
   "reporters": ["clear-text", "progress"],
   "clearTextReporter": { "allowColor": false },
-  "thresholds": { "high": 85, "low": 70, "break": 0 }
+  "thresholds": { "high": 85, "low": 70, "break": 55 }
 }

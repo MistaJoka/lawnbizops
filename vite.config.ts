@@ -71,6 +71,13 @@ export default defineConfig({
         'src/routeTree.gen.ts',
         'src/lib/database.types.ts',
       ],
+      // Ratchet on the stable logic layer only. UI/route screens are covered by
+      // e2e (invisible to v8 unit coverage), so a global gate would be noise —
+      // these floors sit just under current src/lib coverage to block regressions
+      // without churn. Raise them as feature-hook unit tests land.
+      thresholds: {
+        'src/lib/**': { statements: 70, branches: 65, functions: 60, lines: 70 },
+      },
     },
   },
 })
