@@ -2,6 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { LANES, usePipelineBoard, wipLevel, type LaneDef } from './hooks'
 import { QuickAddRow } from './QuickAddJob'
 import { CardQuickActions } from './CardQuickActions'
+import { SkeletonCard } from '@/components/Skeleton'
 import {
   jobQuickActions,
   quoteQuickActions,
@@ -22,12 +23,17 @@ import { formatCents, localToday } from '@/lib/format'
 import { formatClockTime, formatShortDate } from '@/lib/dates'
 
 export function PipelineBoard() {
-  const { lanes } = usePipelineBoard()
+  const { lanes, isLoading } = usePipelineBoard()
 
   return (
     <div className="scroll-hide flex snap-x gap-3 overflow-x-auto px-edge py-4">
       {LANES.map((lane) => (
-        <KanbanColumn key={lane.id} lane={lane} count={lanes[lane.id].length}>
+        <KanbanColumn
+          key={lane.id}
+          lane={lane}
+          count={lanes[lane.id].length}
+          loading={isLoading}
+        >
           {lane.id === 'quote' &&
             lanes.quote.map((est) => <QuoteCard key={est.id} estimate={est} />)}
 
@@ -37,7 +43,7 @@ export function PipelineBoard() {
               {lanes.scheduled.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
-              {lanes.scheduled.length === 0 && (
+              {lanes.scheduled.length === 0 && !isLoading && (
                 <p className="py-6 text-center text-xs text-faded">
                   No jobs today — tap + to add one
                 </p>
@@ -67,10 +73,12 @@ export function PipelineBoard() {
 function KanbanColumn({
   lane,
   count,
+  loading,
   children,
 }: {
   lane: LaneDef
   count: number
+  loading: boolean
   children: React.ReactNode
 }) {
   const over = wipLevel(lane.id, count) === 'over'
@@ -84,11 +92,19 @@ function KanbanColumn({
           title={over ? 'Over the WIP cap — clear this lane' : undefined}
           className={`label-caps rounded px-1.5 ${over ? 'bg-alert/20 text-alert' : 'text-faded'}`}
         >
-          {count}
+          {loading && count === 0 ? '·' : count}
         </span>
       </div>
       <div className="flex min-h-32 flex-col gap-2">{children}</div>
-      {count === 0 && lane.id !== 'scheduled' && (
+      {/* Loading → a couple of card placeholders so the board reads as "filling
+          in", not "empty". Settled empty lanes keep the plain "Empty" marker. */}
+      {loading && count === 0 && lane.id !== 'scheduled' && (
+        <div className="flex flex-col gap-2">
+          <SkeletonCard />
+          <SkeletonCard />
+        </div>
+      )}
+      {!loading && count === 0 && lane.id !== 'scheduled' && (
         <p className="py-8 text-center text-sm text-faded">Empty</p>
       )}
     </section>

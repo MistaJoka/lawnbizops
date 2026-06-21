@@ -16,6 +16,7 @@ import {
 import { InvoiceStatusChip } from '@/features/invoices/InvoiceStatusChip'
 import { invoiceFilename, shareInvoicePdf } from '@/features/invoices/share'
 import { Field, PrimaryButton, Select, TextInput } from '@/components/Field'
+import { SkeletonDetail } from '@/components/Skeleton'
 import { formatCents, localToday, parseDollarsToCents } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
@@ -44,9 +45,13 @@ function InvoiceDetailScreen() {
         <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
           ← Money
         </Link>
-        <p className="mt-16 text-center text-faded">
-          {isLoading ? 'Loading…' : 'Invoice not found.'}
-        </p>
+        {isLoading ? (
+          <div className="mt-4">
+            <SkeletonDetail />
+          </div>
+        ) : (
+          <p className="mt-16 text-center text-faded">Invoice not found.</p>
+        )}
       </div>
     )
   }

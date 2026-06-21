@@ -9,6 +9,7 @@ import {
 import { formatAddress, useProperties } from '@/features/properties/hooks'
 import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
 import { ActivityTimeline } from '@/components/ActivityTimeline'
+import { SkeletonDetail } from '@/components/Skeleton'
 import { ClientFollowUps } from '@/features/tasks/TaskUI'
 import { formatCents } from '@/lib/format'
 
@@ -32,9 +33,13 @@ function ClientDetailScreen() {
         <Link to="/clients" className="inline-block py-2 pr-4 text-sm text-faded">
           ← Clients
         </Link>
-        <p className="mt-16 text-center text-faded">
-          {isLoading ? 'Loading…' : 'Client not found.'}
-        </p>
+        {isLoading ? (
+          <div className="mt-4">
+            <SkeletonDetail />
+          </div>
+        ) : (
+          <p className="mt-16 text-center text-faded">Client not found.</p>
+        )}
       </div>
     )
   }

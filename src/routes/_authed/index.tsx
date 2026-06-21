@@ -11,6 +11,7 @@ import { jobQuickActions } from '@/features/board/cardActions'
 import { PipelineBoard } from '@/features/board/PipelineBoard'
 import { QuickAddSheet } from '@/features/board/QuickAddJob'
 import { Fab } from '@/components/Fab'
+import { SkeletonList } from '@/components/Skeleton'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { formatCents, localToday } from '@/lib/format'
@@ -201,6 +202,12 @@ function RouteView({ onQuickAdd }: { onQuickAdd: () => void }) {
           </div>
         ))}
       </section>
+
+      {isLoading && ordered.length === 0 && (
+        <div className="px-edge pt-2">
+          <SkeletonList count={4} variant="card" />
+        </div>
+      )}
 
       {!isLoading && ordered.length === 0 && (
         <div className="flex flex-col items-center gap-3 px-edge py-16 text-center">

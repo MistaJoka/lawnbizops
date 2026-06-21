@@ -4,6 +4,7 @@ import { JobChecklist } from '@/features/jobs/JobChecklist'
 import { setJobStatus, useJob } from '@/features/jobs/hooks'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { JobStepper } from '@/components/JobStepper'
+import { SkeletonDetail } from '@/components/Skeleton'
 import { deletePhoto, uploadPhoto, usePhotos } from '@/features/estimates/photos'
 import { jobPipelineStage } from '@/lib/jobPipeline'
 import { formatCents } from '@/lib/format'
@@ -24,9 +25,13 @@ function JobDetailScreen() {
         <Link to="/" className="inline-block py-2 pr-4 text-sm text-faded">
           ← Today
         </Link>
-        <p className="mt-16 text-center text-faded">
-          {isLoading ? 'Loading…' : 'Job not found.'}
-        </p>
+        {isLoading ? (
+          <div className="mt-4">
+            <SkeletonDetail />
+          </div>
+        ) : (
+          <p className="mt-16 text-center text-faded">Job not found.</p>
+        )}
       </div>
     )
   }

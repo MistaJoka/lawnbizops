@@ -21,6 +21,7 @@ import {
   useBusinessSettings,
 } from '@/features/invoices/hooks'
 import { Field, TextInput } from '@/components/Field'
+import { SkeletonDetail } from '@/components/Skeleton'
 import { formatCents, localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
@@ -42,9 +43,13 @@ function EstimateDetailScreen() {
         <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
           ← Money
         </Link>
-        <p className="mt-16 text-center text-faded">
-          {isLoading ? 'Loading…' : 'Estimate not found.'}
-        </p>
+        {isLoading ? (
+          <div className="mt-4">
+            <SkeletonDetail />
+          </div>
+        ) : (
+          <p className="mt-16 text-center text-faded">Estimate not found.</p>
+        )}
       </div>
     )
   }

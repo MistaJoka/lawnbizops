@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Fab } from '@/components/Fab'
+import { SkeletonList } from '@/components/Skeleton'
 import { clientsQueryOptions, useClients } from '@/features/clients/hooks'
 import { queryClient } from '@/lib/queryClient'
 
@@ -99,6 +100,12 @@ function ClientsScreen() {
           </li>
         ))}
       </ul>
+
+      {isLoading && filtered.length === 0 && (
+        <div className="mt-2">
+          <SkeletonList count={6} />
+        </div>
+      )}
 
       {!isLoading && filtered.length === 0 && (
         <p className="mt-16 text-center text-faded">

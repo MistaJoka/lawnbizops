@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { Fab } from '@/components/Fab'
 import { Sheet } from '@/components/Sheet'
+import { SkeletonList } from '@/components/Skeleton'
 import {
   AGING_BUCKETS,
   AGING_COLOR,
@@ -149,11 +150,14 @@ function InvoicesTab() {
           </li>
         ))}
       </ul>
-      {(invoices ?? []).length === 0 && (
-        <p className="mt-8 text-center text-faded">
-          {isLoading ? 'Loading…' : 'No invoices yet.'}
-        </p>
-      )}
+      {(invoices ?? []).length === 0 &&
+        (isLoading ? (
+          <div className="mt-4">
+            <SkeletonList count={5} />
+          </div>
+        ) : (
+          <p className="mt-8 text-center text-faded">No invoices yet.</p>
+        ))}
     </>
   )
 }
@@ -223,11 +227,14 @@ function EstimatesTab() {
           </li>
         ))}
       </ul>
-      {(estimates ?? []).length === 0 && (
-        <p className="mt-8 text-center text-faded">
-          {isLoading ? 'Loading…' : 'No estimates yet.'}
-        </p>
-      )}
+      {(estimates ?? []).length === 0 &&
+        (isLoading ? (
+          <div className="mt-4">
+            <SkeletonList count={5} />
+          </div>
+        ) : (
+          <p className="mt-8 text-center text-faded">No estimates yet.</p>
+        ))}
     </>
   )
 }
