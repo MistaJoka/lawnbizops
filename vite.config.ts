@@ -1,14 +1,59 @@
-import { defineConfig } from 'vite'
+import { execSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
+import { defineConfig, type Plugin } from 'vite'
 import { configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// Build-time provenance baked into the bundle (a static PWA has no git at
+// runtime). Each git call is isolated so a thin checkout — e.g. a CI build from
+// a tarball — degrades field-by-field to env-var fallbacks instead of failing.
+function git(cmd: string): string {
+  try {
+    return execSync(`git ${cmd}`, { stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString()
+      .trim()
+  } catch {
+    return ''
+  }
+}
+
+function buildInfo() {
+  const version = JSON.parse(readFileSync('./package.json', 'utf8')).version as string
+  return {
+    version,
+    sha:
+      git('rev-parse --short HEAD') || process.env.GITHUB_SHA?.slice(0, 7) || 'unknown',
+    branch:
+      git('rev-parse --abbrev-ref HEAD') || process.env.GITHUB_REF_NAME || 'unknown',
+    // Uncommitted changes at build time — meaningless in clean CI, handy locally.
+    dirty: git('status --porcelain').length > 0,
+    committedAt: git('log -1 --format=%cI') || new Date().toISOString(),
+  }
+}
+
+// Expose build provenance as a virtual module. A virtual module resolves
+// identically in dev and build (unlike `define`, which Vite 8 only substitutes
+// at build time), so DevStripe sees the same data either way. Snapshotted once
+// at config load — restart the dev server to pick up new commits.
+function buildInfoPlugin(): Plugin {
+  const id = 'virtual:build-info'
+  const resolved = '\0' + id
+  const code = `export default ${JSON.stringify(buildInfo())}`
+  return {
+    name: 'build-info',
+    resolveId: (source) => (source === id ? resolved : null),
+    load: (loadId) => (loadId === resolved ? code : null),
+  }
+}
+
 export default defineConfig({
   // '/' locally and on a custom domain; '/LawnBizOps/' on GitHub Pages project URL
   base: process.env.VITE_BASE ?? '/',
   plugins: [
+    buildInfoPlugin(),
     tanstackRouter({ target: 'react', autoCodeSplitting: true }),
     react(),
     tailwindcss(),
