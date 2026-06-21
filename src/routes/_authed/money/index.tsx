@@ -3,6 +3,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { Fab } from '@/components/Fab'
 import { Sheet } from '@/components/Sheet'
 import { SkeletonList } from '@/components/Skeleton'
+import { EmptyState } from '@/components/EmptyState'
 import {
   AGING_BUCKETS,
   AGING_COLOR,
@@ -156,7 +157,11 @@ function InvoicesTab() {
             <SkeletonList count={5} />
           </div>
         ) : (
-          <p className="mt-8 text-center text-faded">No invoices yet.</p>
+          <EmptyState
+            glyph="🧾"
+            title="No invoices yet"
+            body="Finish a job, then bill it — invoices show up here with their aging."
+          />
         ))}
     </>
   )
@@ -233,7 +238,11 @@ function EstimatesTab() {
             <SkeletonList count={5} />
           </div>
         ) : (
-          <p className="mt-8 text-center text-faded">No estimates yet.</p>
+          <EmptyState
+            glyph="📋"
+            title="No estimates yet"
+            body="Quote a job to win the work — your estimates collect here."
+          />
         ))}
     </>
   )

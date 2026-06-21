@@ -1,12 +1,14 @@
-const STATUS_COLOR: Record<string, string> = {
-  draft: 'bg-surface-highest text-faded',
-  sent: 'bg-olive text-sand',
-  accepted: 'bg-go text-canvas',
-  declined: 'bg-alert/20 text-alert',
-  expired: 'bg-surface-highest text-faded line-through',
+import { StatusChip, type StatusVariant } from '@/components/StatusChip'
+
+const VARIANT: Record<string, StatusVariant> = {
+  draft: 'neutral',
+  sent: 'info',
+  accepted: 'success',
+  declined: 'danger',
+  expired: 'muted',
 }
 
-const STATUS_LABEL: Record<string, string> = {
+const LABEL: Record<string, string> = {
   draft: 'Draft',
   sent: 'Sent',
   accepted: 'Accepted',
@@ -31,16 +33,15 @@ export function EstimateStatusChip({
   const days = validUntil != null ? daysUntil(validUntil) : null
   const expiringSoon = status === 'sent' && days != null && days <= 3
 
-  const color = expiringSoon
-    ? 'bg-blaze/20 text-blaze'
-    : (STATUS_COLOR[status] ?? 'bg-surface-highest text-faded')
-
-  let label = STATUS_LABEL[status] ?? status
   if (expiringSoon) {
-    label = days === 0 ? 'Expires today' : days < 0 ? 'Expired' : `Expires in ${days}d`
+    const label =
+      days === 0 ? 'Expires today' : days! < 0 ? 'Expired' : `Expires in ${days}d`
+    return <StatusChip variant="attention">{label}</StatusChip>
   }
 
   return (
-    <span className={`status-badge shrink-0 rounded px-2 py-0.5 ${color}`}>{label}</span>
+    <StatusChip variant={VARIANT[status] ?? 'neutral'}>
+      {LABEL[status] ?? status}
+    </StatusChip>
   )
 }

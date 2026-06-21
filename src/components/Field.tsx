@@ -30,3 +30,23 @@ export function PrimaryButton(props: React.ButtonHTMLAttributes<HTMLButtonElemen
     />
   )
 }
+
+/** Neutral action — the repeated bordered-panel pattern, named once. */
+export function SecondaryButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      {...props}
+      className="heading-stencil tap-active min-h-touch w-full rounded-lg border-2 border-edge bg-panel px-4 py-3 text-base text-sand disabled:opacity-50"
+    />
+  )
+}
+
+/** Destructive action — outlined alert so it reads as caution, not a CTA. */
+export function DangerButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button
+      {...props}
+      className="heading-stencil tap-active min-h-touch w-full rounded-lg border-2 border-alert px-4 py-3 text-base text-alert disabled:opacity-50"
+    />
+  )
+}

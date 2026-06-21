@@ -1,12 +1,14 @@
-const STATUS_COLOR: Record<string, string> = {
-  draft: 'bg-surface-highest text-faded',
-  sent: 'bg-olive text-sand',
-  partially_paid: 'bg-blaze text-on-cta',
-  paid: 'bg-go text-canvas',
-  void: 'bg-surface-highest text-faded line-through',
+import { StatusChip, type StatusVariant } from '@/components/StatusChip'
+
+const VARIANT: Record<string, StatusVariant> = {
+  draft: 'neutral',
+  sent: 'info',
+  partially_paid: 'progress',
+  paid: 'success',
+  void: 'muted',
 }
 
-const STATUS_LABEL: Record<string, string> = {
+const LABEL: Record<string, string> = {
   draft: 'Draft',
   sent: 'Sent',
   partially_paid: 'Partial',
@@ -16,12 +18,8 @@ const STATUS_LABEL: Record<string, string> = {
 
 export function InvoiceStatusChip({ status }: { status: string }) {
   return (
-    <span
-      className={`status-badge shrink-0 rounded px-2 py-0.5 ${
-        STATUS_COLOR[status] ?? 'bg-surface-highest text-faded'
-      }`}
-    >
-      {STATUS_LABEL[status] ?? status}
-    </span>
+    <StatusChip variant={VARIANT[status] ?? 'neutral'}>
+      {LABEL[status] ?? status}
+    </StatusChip>
   )
 }

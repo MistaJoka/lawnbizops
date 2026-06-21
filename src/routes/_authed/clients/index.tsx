@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Fab } from '@/components/Fab'
 import { SkeletonList } from '@/components/Skeleton'
+import { EmptyState } from '@/components/EmptyState'
 import { clientsQueryOptions, useClients } from '@/features/clients/hooks'
 import { queryClient } from '@/lib/queryClient'
 
@@ -107,13 +108,21 @@ function ClientsScreen() {
         </div>
       )}
 
-      {!isLoading && filtered.length === 0 && (
-        <p className="mt-16 text-center text-faded">
-          {search
-            ? 'No clients match that search.'
-            : 'No clients yet. Add your first one.'}
-        </p>
-      )}
+      {!isLoading &&
+        filtered.length === 0 &&
+        (search ? (
+          <EmptyState
+            glyph="🔍"
+            title="No matches"
+            body={`Nothing matches "${search}".`}
+          />
+        ) : (
+          <EmptyState
+            glyph="👤"
+            title="No clients yet"
+            body="Add your first client to start booking work and sending invoices."
+          />
+        ))}
 
       <Fab to="/clients/new" label="Client" />
     </div>

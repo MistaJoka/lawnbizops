@@ -15,7 +15,7 @@ import {
 } from '@/features/invoices/hooks'
 import { InvoiceStatusChip } from '@/features/invoices/InvoiceStatusChip'
 import { invoiceFilename, shareInvoicePdf } from '@/features/invoices/share'
-import { Field, PrimaryButton, Select, TextInput } from '@/components/Field'
+import { Field, PrimaryButton, Select, TextInput, DangerButton } from '@/components/Field'
 import { SkeletonDetail } from '@/components/Skeleton'
 import { confirm } from '@/lib/confirm'
 import { formatCents, localToday, parseDollarsToCents } from '@/lib/format'
@@ -283,13 +283,11 @@ function InvoiceDetailScreen() {
         )}
 
         {invoice.status !== 'void' && (
-          <button
-            type="button"
-            onClick={() => void handleVoid()}
-            className="heading-stencil mx-auto mt-6 block rounded-lg border border-edge px-6 py-3 text-alert"
-          >
-            Void invoice
-          </button>
+          <div className="mt-6">
+            <DangerButton type="button" onClick={() => void handleVoid()}>
+              Void invoice
+            </DangerButton>
+          </div>
         )}
       </div>
     </div>

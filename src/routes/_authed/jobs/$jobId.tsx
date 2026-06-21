@@ -5,6 +5,7 @@ import { setJobStatus, useJob } from '@/features/jobs/hooks'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { JobStepper } from '@/components/JobStepper'
 import { SkeletonDetail } from '@/components/Skeleton'
+import { DangerButton } from '@/components/Field'
 import { confirm } from '@/lib/confirm'
 import { deletePhoto, uploadPhoto, usePhotos } from '@/features/estimates/photos'
 import { jobPipelineStage } from '@/lib/jobPipeline'
@@ -173,12 +174,9 @@ function JobDetailScreen() {
       <PhotosSection jobId={jobId} />
 
       {(job.status === 'scheduled' || job.status === 'in_progress') && (
-        <button
-          onClick={() => void handleCancel()}
-          className="heading-stencil mx-auto mt-12 block rounded-lg border-2 border-edge px-6 py-3 text-alert"
-        >
-          Cancel job
-        </button>
+        <div className="mt-12">
+          <DangerButton onClick={() => void handleCancel()}>Cancel job</DangerButton>
+        </div>
       )}
     </div>
   )
