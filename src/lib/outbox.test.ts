@@ -30,7 +30,7 @@ vi.mock('./supabase', () => ({
 }))
 
 import { db } from './db'
-import { enqueue, flush, retryFailed, stopRetries } from './outbox'
+import { discardFailed, enqueue, flush, retryFailed, stopRetries } from './outbox'
 
 const ok = { error: null, status: 200 }
 const badRequest = { error: { message: 'invalid input' }, status: 400 }
@@ -194,6 +194,21 @@ describe('outbox', () => {
     expect(failed.status).toBe('failed')
 
     await retryFailed(failed.seq)
+    await flush()
+    expect(await db.outbox.count()).toBe(0)
+  })
+
+  it('discardFailed removes the op permanently (no retry, no queue entry)', async () => {
+    upsertMock.mockResolvedValueOnce(badRequest)
+    await enqueue({ table: 'clients', kind: 'upsert', payload: { id: 'p' } })
+    goOnline()
+    await flush()
+    const failed = (await db.outbox.toArray())[0]
+    expect(failed.status).toBe('failed')
+
+    await discardFailed(failed.seq)
+    expect(await db.outbox.count()).toBe(0)
+    // A subsequent flush should have nothing to do — not an error.
     await flush()
     expect(await db.outbox.count()).toBe(0)
   })

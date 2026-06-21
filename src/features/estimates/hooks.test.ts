@@ -61,30 +61,36 @@ describe('createEstimate', () => {
 })
 
 describe('setEstimateStatus', () => {
-  it('patches status in both caches and enqueues the update', async () => {
+  function seedEstimate(status: string) {
     queryClient.setQueryData<EstimateListRow[]>(
       ['estimates'],
-      [{ id: 'e1', status: 'draft' } as EstimateListRow],
+      [{ id: 'e1', status } as EstimateListRow],
     )
     queryClient.setQueryData<EstimateDetail>(['estimates', 'e1'], {
-      estimate: { id: 'e1', status: 'draft' },
+      estimate: { id: 'e1', status },
       items: [],
       client: null,
       property: null,
       linkedInvoiceId: null,
     } as unknown as EstimateDetail)
+  }
 
+  it('forward: accepted — patches both caches and enqueues update', async () => {
+    seedEstimate('draft')
     await setEstimateStatus('e1', 'accepted')
 
-    expect(queryClient.getQueryData<EstimateListRow[]>(['estimates'])![0].status).toBe(
-      'accepted',
-    )
-    expect(
-      queryClient.getQueryData<EstimateDetail>(['estimates', 'e1'])!.estimate.status,
-    ).toBe('accepted')
-    expect(enqueue).toHaveBeenCalledWith(
-      expect.objectContaining({ table: 'estimates', kind: 'update' }),
-    )
+    expect(queryClient.getQueryData<EstimateListRow[]>(['estimates'])![0].status).toBe('accepted')
+    expect(queryClient.getQueryData<EstimateDetail>(['estimates', 'e1'])!.estimate.status).toBe('accepted')
+    expect(enqueue).toHaveBeenCalledWith(expect.objectContaining({ table: 'estimates', kind: 'update' }))
+  })
+
+  it('backward: declined — patches both caches and enqueues update', async () => {
+    seedEstimate('sent')
+    await setEstimateStatus('e1', 'declined')
+
+    expect(queryClient.getQueryData<EstimateListRow[]>(['estimates'])![0].status).toBe('declined')
+    expect(queryClient.getQueryData<EstimateDetail>(['estimates', 'e1'])!.estimate.status).toBe('declined')
+    expect(enqueue).toHaveBeenCalledWith(expect.objectContaining({ table: 'estimates', kind: 'update' }))
   })
 })
 

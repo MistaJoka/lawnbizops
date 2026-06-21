@@ -5,17 +5,60 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 // these tests exercise only the in-memory cache helpers.
 vi.mock('@/lib/supabase', () => ({ supabase: {} }))
 
+const enqueue = vi.fn()
+vi.mock('@/lib/outbox', () => ({ enqueue: (op: unknown) => enqueue(op) }))
+
 import { queryClient } from '@/lib/queryClient'
 import {
   markJobsInvoicedInCaches,
   restoreInvoicedJobInCaches,
+  setJobStatus,
+  type Job,
   type JobWithContext,
 } from './hooks'
 
 const job = (id: string, status: string): JobWithContext =>
   ({ id, status, scheduled_date: '2026-06-14', property: null }) as JobWithContext
 
-afterEach(() => queryClient.clear())
+afterEach(() => {
+  queryClient.clear()
+  enqueue.mockClear()
+})
+
+describe('setJobStatus', () => {
+  it('forward: done — patches cache with completed_at and enqueues update', async () => {
+    const j = job('j1', 'in_progress')
+    queryClient.setQueryData(['jobs', 'j1'], j)
+    queryClient.setQueryData(['jobs', 'kanban'], [j])
+
+    await setJobStatus(j as unknown as Job, 'done')
+
+    const updated = queryClient.getQueryData(['jobs', 'j1']) as JobWithContext
+    expect(updated.status).toBe('done')
+    expect(enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        table: 'jobs',
+        kind: 'update',
+        payload: expect.objectContaining({ patch: expect.objectContaining({ status: 'done', completed_at: expect.any(String) }) }),
+      }),
+    )
+  })
+
+  it('backward: canceled — patches cache without completed_at and enqueues update', async () => {
+    const j = job('j1', 'scheduled')
+    queryClient.setQueryData(['jobs', 'j1'], j)
+    queryClient.setQueryData(['jobs', 'kanban'], [j])
+
+    await setJobStatus(j as unknown as Job, 'canceled')
+
+    const updated = queryClient.getQueryData(['jobs', 'j1']) as JobWithContext
+    expect(updated.status).toBe('canceled')
+    // canceled must NOT stamp a completed_at — that would corrupt the job record
+    const patch = (enqueue.mock.calls[0][0] as { payload: { patch: Record<string, unknown> } }).payload.patch
+    expect(patch.completed_at).toBeUndefined()
+    expect(patch.status).toBe('canceled')
+  })
+})
 
 // Reversibility made executable: invoicing flips a job done→invoiced across
 // every cached view; voiding flips it back. forward ∘ inverse must = identity.

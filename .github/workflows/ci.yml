@@ -36,7 +36,7 @@ jobs:
         with:
           # Pin a specific version — 'latest' resolves via the GitHub API and
           # gets rate-limited on shared runners.
-          version: 2.105.0
+          version: 2.107.0
       - name: Start Supabase + apply all migrations
         run: |
           supabase start
@@ -64,7 +64,7 @@ jobs:
       - run: npm ci
       - uses: supabase/setup-cli@v1
         with:
-          version: 2.105.0
+          version: 2.107.0
       - name: Start Supabase (applies migrations + seed)
         run: supabase start
       - name: Install Playwright browser
