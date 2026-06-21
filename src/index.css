@@ -98,3 +98,91 @@ body {
 .scroll-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ── Motion ──────────────────────────────────────────────────────────────
+   Fast, subtle confirmation only — this is a field tool used in sunlight.
+   All transform-based motion is gated behind prefers-reduced-motion so the
+   reduced-motion path keeps opacity changes but drops movement entirely. */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+}
+@keyframes shimmer {
+  from {
+    background-position: -150% 0;
+  }
+  to {
+    background-position: 150% 0;
+  }
+}
+
+/* Backdrop dim fades in on every overlay (cheap, motion-safe). */
+.anim-fade-in {
+  animation: fade-in 150ms ease-out;
+}
+
+/* Transform-based animations: movement only when motion is welcome. The
+   no-preference fallback below keeps a soft fade so nothing pops in hard. */
+@media (prefers-reduced-motion: no-preference) {
+  .anim-slide-up {
+    animation: slide-up 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .anim-toast-in {
+    animation: toast-in 160ms ease-out;
+  }
+  .anim-toast-out {
+    animation: toast-out 160ms ease-in forwards;
+  }
+  .shimmer {
+    background-image: linear-gradient(
+      100deg,
+      var(--color-surface-high) 30%,
+      var(--color-surface-highest) 50%,
+      var(--color-surface-high) 70%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .anim-slide-up,
+  .anim-toast-in {
+    animation: fade-in 120ms ease-out;
+  }
+  /* Static placeholder tone — no sweeping shimmer for reduced-motion users. */
+  .shimmer {
+    background-color: var(--color-surface-high);
+  }
+}

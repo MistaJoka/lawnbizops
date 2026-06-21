@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { Fab } from '@/components/Fab'
+import { Sheet } from '@/components/Sheet'
 import {
   AGING_BUCKETS,
   AGING_COLOR,
@@ -167,54 +168,46 @@ function NudgeSheet({
   onClose: () => void
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-black/60" onClick={onClose}>
-      <div
-        className="w-full rounded-t-2xl border-t-2 border-edge bg-canvas px-4 pb-10 pt-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="heading-stencil text-lg text-khaki">Nudge overdue</h2>
-          <button
-            type="button"
-            onClick={onClose}
-            className="label-caps text-faded"
-            aria-label="Close"
-          >
-            ✕
-          </button>
-        </div>
-        <ul className="flex flex-col gap-3">
-          {invoices.map((inv) => {
-            const name = inv.client?.name ?? 'Client'
-            const phone = inv.client!.phone
-            const nudgeBody =
-              `Hi ${name}, friendly reminder about invoice ${inv.number ?? ''} — ` +
-              `${formatCents(inv.balance_cents)} whenever it's convenient. Thank you!`
-            return (
-              <li
-                key={inv.invoice_id}
-                className="flex items-center justify-between gap-3"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate text-base text-sand">{name}</span>
-                  <span className={`text-sm ${AGING_COLOR[agingBucket(inv, today)]}`}>
-                    {formatCents(inv.balance_cents)} ·{' '}
-                    {BUCKET_LABEL[agingBucket(inv, today)]} overdue
-                  </span>
-                </span>
-                <a
-                  href={`sms:${phone}?&body=${encodeURIComponent(nudgeBody)}`}
-                  onClick={() => void recordReminder(inv.invoice_id)}
-                  className="heading-stencil tap-active shrink-0 rounded-lg border-2 border-blaze px-4 py-2 text-sm text-blaze"
-                >
-                  🔔 Nudge
-                </a>
-              </li>
-            )
-          })}
-        </ul>
+    <Sheet open onClose={onClose}>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="heading-stencil text-lg text-khaki">Nudge overdue</h2>
+        <button
+          type="button"
+          onClick={onClose}
+          className="label-caps text-faded"
+          aria-label="Close"
+        >
+          ✕
+        </button>
       </div>
-    </div>
+      <ul className="flex flex-col gap-3">
+        {invoices.map((inv) => {
+          const name = inv.client?.name ?? 'Client'
+          const phone = inv.client!.phone
+          const nudgeBody =
+            `Hi ${name}, friendly reminder about invoice ${inv.number ?? ''} — ` +
+            `${formatCents(inv.balance_cents)} whenever it's convenient. Thank you!`
+          return (
+            <li key={inv.invoice_id} className="flex items-center justify-between gap-3">
+              <span className="min-w-0">
+                <span className="block truncate text-base text-sand">{name}</span>
+                <span className={`text-sm ${AGING_COLOR[agingBucket(inv, today)]}`}>
+                  {formatCents(inv.balance_cents)} ·{' '}
+                  {BUCKET_LABEL[agingBucket(inv, today)]} overdue
+                </span>
+              </span>
+              <a
+                href={`sms:${phone}?&body=${encodeURIComponent(nudgeBody)}`}
+                onClick={() => void recordReminder(inv.invoice_id)}
+                className="heading-stencil tap-active shrink-0 rounded-lg border-2 border-blaze px-4 py-2 text-sm text-blaze"
+              >
+                🔔 Nudge
+              </a>
+            </li>
+          )
+        })}
+      </ul>
+    </Sheet>
   )
 }
 

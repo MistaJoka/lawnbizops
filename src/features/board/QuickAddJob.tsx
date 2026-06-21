@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
+import { Sheet } from '@/components/Sheet'
 import { createOneOffJob } from '@/features/jobs/hooks'
 import { useQuickAddTargets, type QuickAddTarget } from './hooks'
 import { formatCents, localToday } from '@/lib/format'
@@ -133,19 +134,9 @@ export function QuickAddRow() {
 
 /** Bottom sheet for the Route view's FAB (no columns to inline into). */
 export function QuickAddSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
-  if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex flex-col justify-end bg-black/60">
-      <button aria-label="Close" className="flex-1" onClick={onClose} />
-      <div className="rounded-t-2xl border-t-2 border-edge bg-canvas px-edge pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="heading-stencil text-lg text-sand">Add job — today</h2>
-          <button onClick={onClose} className="label-caps text-faded">
-            Close
-          </button>
-        </div>
-        <QuickAddPicker onDone={onClose} />
-      </div>
-    </div>
+    <Sheet open={open} onClose={onClose} title="Add job — today">
+      <QuickAddPicker onDone={onClose} />
+    </Sheet>
   )
 }
