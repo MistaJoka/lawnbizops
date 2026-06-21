@@ -10,6 +10,7 @@ import { formatAddress, useProperties } from '@/features/properties/hooks'
 import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
 import { ActivityTimeline } from '@/components/ActivityTimeline'
 import { SkeletonDetail } from '@/components/Skeleton'
+import { confirm } from '@/lib/confirm'
 import { ClientFollowUps } from '@/features/tasks/TaskUI'
 import { formatCents } from '@/lib/format'
 
@@ -47,7 +48,11 @@ function ClientDetailScreen() {
   async function handleArchive() {
     if (!client) return
     if (
-      !window.confirm(`Archive ${client.name}? They'll disappear from your client list.`)
+      !(await confirm({
+        title: `Archive ${client.name}?`,
+        body: "They'll disappear from your client list. You can still find them in exports.",
+        confirmLabel: 'Archive',
+      }))
     ) {
       return
     }

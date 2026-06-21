@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { Field, PrimaryButton, Select, TextArea, TextInput } from '@/components/Field'
+import { confirm } from '@/lib/confirm'
 import {
   SERVICE_UNITS,
   archiveService,
@@ -146,7 +147,14 @@ function ServiceForm({ initial, onDone }: { initial?: Service; onDone: () => voi
 
   async function handleArchive() {
     if (!initial) return
-    if (!window.confirm(`Archive ${initial.name}? It won't show up for new work.`)) return
+    if (
+      !(await confirm({
+        title: `Archive ${initial.name}?`,
+        body: "It won't show up when you add new work.",
+        confirmLabel: 'Archive',
+      }))
+    )
+      return
     await archiveService(initial)
     onDone()
   }

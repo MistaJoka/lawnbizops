@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { Field, PrimaryButton, TextArea, TextInput } from '@/components/Field'
+import { confirm } from '@/lib/confirm'
 import { useBusinessSettings, type BusinessSettings } from '@/features/invoices/hooks'
 import {
   removeLogo,
@@ -168,7 +169,15 @@ function LogoSection({ settings }: { settings: BusinessSettings | null }) {
 
   async function handleRemove() {
     if (!logoPath) return
-    if (!window.confirm('Remove your logo? PDFs go back to plain text.')) return
+    if (
+      !(await confirm({
+        title: 'Remove your logo?',
+        body: 'Invoices and estimates go back to plain text.',
+        confirmLabel: 'Remove',
+        destructive: true,
+      }))
+    )
+      return
     setBusy(true)
     setError(null)
     try {

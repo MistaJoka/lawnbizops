@@ -17,6 +17,7 @@ import { InvoiceStatusChip } from '@/features/invoices/InvoiceStatusChip'
 import { invoiceFilename, shareInvoicePdf } from '@/features/invoices/share'
 import { Field, PrimaryButton, Select, TextInput } from '@/components/Field'
 import { SkeletonDetail } from '@/components/Skeleton'
+import { confirm } from '@/lib/confirm'
 import { formatCents, localToday, parseDollarsToCents } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
@@ -115,7 +116,14 @@ function InvoiceDetailScreen() {
 
   async function handleVoid() {
     if (!detail) return
-    if (!window.confirm('Void this invoice? It stays on the books but stops counting.'))
+    if (
+      !(await confirm({
+        title: 'Void this invoice?',
+        body: 'It stays on the books as a record but stops counting toward what you’re owed.',
+        confirmLabel: 'Void invoice',
+        destructive: true,
+      }))
+    )
       return
     await voidInvoice(detail.invoice.id)
     void navigate({ to: '/money' })

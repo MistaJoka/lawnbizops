@@ -5,6 +5,7 @@ import { setJobStatus, useJob } from '@/features/jobs/hooks'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { JobStepper } from '@/components/JobStepper'
 import { SkeletonDetail } from '@/components/Skeleton'
+import { confirm } from '@/lib/confirm'
 import { deletePhoto, uploadPhoto, usePhotos } from '@/features/estimates/photos'
 import { jobPipelineStage } from '@/lib/jobPipeline'
 import { formatCents } from '@/lib/format'
@@ -43,7 +44,16 @@ function JobDetailScreen() {
 
   async function handleCancel() {
     if (!job) return
-    if (!window.confirm('Cancel this job? It comes off the schedule for good.')) return
+    if (
+      !(await confirm({
+        title: 'Cancel this job?',
+        body: 'It comes off the schedule for good.',
+        confirmLabel: 'Cancel job',
+        cancelLabel: 'Keep it',
+        destructive: true,
+      }))
+    )
+      return
     await setJobStatus(job, 'canceled')
     void navigate({ to: '/' })
   }
@@ -196,7 +206,14 @@ function PhotosSection({ jobId }: { jobId: string }) {
   }
 
   async function handleDelete(photo: Parameters<typeof deletePhoto>[0]) {
-    if (!window.confirm('Delete this photo?')) return
+    if (
+      !(await confirm({
+        title: 'Delete this photo?',
+        confirmLabel: 'Delete',
+        destructive: true,
+      }))
+    )
+      return
     try {
       await deletePhoto(photo)
     } catch {

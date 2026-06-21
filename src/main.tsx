@@ -9,6 +9,7 @@ import { initOutbox } from './lib/outbox'
 import { maybeAutologin } from './lib/autologin' // DEV/TEST-ONLY — see autologin.ts
 import { DevPanel } from './dev/DevPanel' // DEV-ONLY — see below; delete with src/dev/
 import { ToastHost } from './components/Toast'
+import { ConfirmHost } from './components/ConfirmDialog'
 import '@fontsource/archivo-narrow/latin-400.css'
 import '@fontsource/archivo-narrow/latin-600.css'
 import '@fontsource/archivo-narrow/latin-700.css'
@@ -64,6 +65,9 @@ async function bootstrap() {
           call site (toast.success(…)). Outside the providers so a router/query
           error can still surface a toast. */}
       <ToastHost />
+      {/* Imperative confirm() dialogs — themed replacement for window.confirm,
+          mounted app-wide so any call site can await a yes/no. */}
+      <ConfirmHost />
       {/* DEV-ONLY dev tools (skip login, etc.). `import.meta.env.DEV` is false in
           production builds, so Vite strips this and src/dev/ from the bundle.
           To remove after launch: delete this block and the src/dev/ folder. */}

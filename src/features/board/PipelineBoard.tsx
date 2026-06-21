@@ -3,6 +3,7 @@ import { LANES, usePipelineBoard, wipLevel, type LaneDef } from './hooks'
 import { QuickAddRow } from './QuickAddJob'
 import { CardQuickActions } from './CardQuickActions'
 import { SkeletonCard } from '@/components/Skeleton'
+import { confirm } from '@/lib/confirm'
 import {
   jobQuickActions,
   quoteQuickActions,
@@ -184,9 +185,12 @@ function DoneCard({ job, allDone }: { job: JobWithContext; allDone: JobWithConte
     let jobsToInvoice = [job]
     if (siblings.length > 0) {
       const extraTotal = siblings.reduce((s, j) => s + j.price_cents, 0)
-      const batch = window.confirm(
-        `Also include ${siblings.length} other done job${siblings.length > 1 ? 's' : ''} for ${client.name}? (+${formatCents(extraTotal)})`,
-      )
+      const batch = await confirm({
+        title: 'Combine done jobs?',
+        body: `${client.name} has ${siblings.length} other done job${siblings.length > 1 ? 's' : ''} (+${formatCents(extraTotal)}). Put them all on one invoice?`,
+        confirmLabel: 'Include all',
+        cancelLabel: 'Just this one',
+      })
       if (batch) jobsToInvoice = [job, ...siblings]
     }
 

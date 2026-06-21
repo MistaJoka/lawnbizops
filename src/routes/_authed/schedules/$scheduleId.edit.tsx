@@ -1,5 +1,6 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ScheduleForm } from '@/features/schedules/ScheduleForm'
+import { confirm } from '@/lib/confirm'
 import {
   deleteSchedule,
   saveSchedule,
@@ -35,9 +36,12 @@ function EditScheduleScreen() {
   async function handleDelete() {
     if (!schedule) return
     if (
-      !window.confirm(
-        'Delete this schedule? Its upcoming visits come off the calendar too.',
-      )
+      !(await confirm({
+        title: 'Delete this schedule?',
+        body: 'Its upcoming visits come off the calendar too.',
+        confirmLabel: 'Delete',
+        destructive: true,
+      }))
     ) {
       return
     }

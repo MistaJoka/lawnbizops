@@ -22,6 +22,7 @@ import {
 } from '@/features/invoices/hooks'
 import { Field, TextInput } from '@/components/Field'
 import { SkeletonDetail } from '@/components/Skeleton'
+import { confirm } from '@/lib/confirm'
 import { formatCents, localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
@@ -318,7 +319,14 @@ function PhotosSection({ estimateId }: { estimateId: string }) {
   }
 
   async function handleDelete(photo: PhotoWithUrl) {
-    if (!window.confirm('Delete this photo?')) return
+    if (
+      !(await confirm({
+        title: 'Delete this photo?',
+        confirmLabel: 'Delete',
+        destructive: true,
+      }))
+    )
+      return
     setError('')
     try {
       await deletePhoto(photo)

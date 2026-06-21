@@ -3,6 +3,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/lib/db'
 import { discardFailed, flush, retryFailed } from '@/lib/outbox'
+import { confirm } from '@/lib/confirm'
 
 export const Route = createFileRoute('/_authed/settings/sync')({
   component: SyncScreen,
@@ -39,7 +40,14 @@ function SyncScreen() {
   }
 
   async function handleDiscard(seq: number) {
-    if (!window.confirm('Discard this change for good? It never reaches the server.'))
+    if (
+      !(await confirm({
+        title: 'Discard this change?',
+        body: 'It never reaches the server — this is permanent.',
+        confirmLabel: 'Discard',
+        destructive: true,
+      }))
+    )
       return
     await discardFailed(seq)
   }

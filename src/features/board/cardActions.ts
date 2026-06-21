@@ -7,6 +7,7 @@ import {
 import { type JobWithContext } from '@/features/jobs/hooks'
 import { googleMapsRouteUrl } from '@/lib/route'
 import { formatCents, localToday } from '@/lib/format'
+import { confirm } from '@/lib/confirm'
 
 // Curated per-card-type quick actions: secondary sub-tasks and safe pipeline
 // shortcuts that reuse existing flows (tel:/sms:/Maps, the friendly-reminder
@@ -97,11 +98,13 @@ export function arQuickActions(inv: InvoiceBalance): QuickAction[] {
       tone: 'go',
       // Books money from a single tap on a small target — confirm so a
       // fat-finger can't silently record a full payment.
-      onClick: () => {
+      onClick: async () => {
         if (
-          !window.confirm(
-            `Mark ${inv.number ?? 'this invoice'} paid in full (${formatCents(inv.balance_cents)})?`,
-          )
+          !(await confirm({
+            title: 'Mark paid in full?',
+            body: `Record ${formatCents(inv.balance_cents)} on ${inv.number ?? 'this invoice'}.`,
+            confirmLabel: 'Mark paid',
+          }))
         )
           return
         void recordPayment({
