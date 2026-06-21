@@ -79,18 +79,30 @@ describe('setEstimateStatus', () => {
     seedEstimate('draft')
     await setEstimateStatus('e1', 'accepted')
 
-    expect(queryClient.getQueryData<EstimateListRow[]>(['estimates'])![0].status).toBe('accepted')
-    expect(queryClient.getQueryData<EstimateDetail>(['estimates', 'e1'])!.estimate.status).toBe('accepted')
-    expect(enqueue).toHaveBeenCalledWith(expect.objectContaining({ table: 'estimates', kind: 'update' }))
+    expect(queryClient.getQueryData<EstimateListRow[]>(['estimates'])![0].status).toBe(
+      'accepted',
+    )
+    expect(
+      queryClient.getQueryData<EstimateDetail>(['estimates', 'e1'])!.estimate.status,
+    ).toBe('accepted')
+    expect(enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({ table: 'estimates', kind: 'update' }),
+    )
   })
 
   it('backward: declined — patches both caches and enqueues update', async () => {
     seedEstimate('sent')
     await setEstimateStatus('e1', 'declined')
 
-    expect(queryClient.getQueryData<EstimateListRow[]>(['estimates'])![0].status).toBe('declined')
-    expect(queryClient.getQueryData<EstimateDetail>(['estimates', 'e1'])!.estimate.status).toBe('declined')
-    expect(enqueue).toHaveBeenCalledWith(expect.objectContaining({ table: 'estimates', kind: 'update' }))
+    expect(queryClient.getQueryData<EstimateListRow[]>(['estimates'])![0].status).toBe(
+      'declined',
+    )
+    expect(
+      queryClient.getQueryData<EstimateDetail>(['estimates', 'e1'])!.estimate.status,
+    ).toBe('declined')
+    expect(enqueue).toHaveBeenCalledWith(
+      expect.objectContaining({ table: 'estimates', kind: 'update' }),
+    )
   })
 })
 

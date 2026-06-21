@@ -39,7 +39,12 @@ describe('setJobStatus', () => {
       expect.objectContaining({
         table: 'jobs',
         kind: 'update',
-        payload: expect.objectContaining({ patch: expect.objectContaining({ status: 'done', completed_at: expect.any(String) }) }),
+        payload: expect.objectContaining({
+          patch: expect.objectContaining({
+            status: 'done',
+            completed_at: expect.any(String),
+          }),
+        }),
       }),
     )
   })
@@ -54,7 +59,9 @@ describe('setJobStatus', () => {
     const updated = queryClient.getQueryData(['jobs', 'j1']) as JobWithContext
     expect(updated.status).toBe('canceled')
     // canceled must NOT stamp a completed_at — that would corrupt the job record
-    const patch = (enqueue.mock.calls[0][0] as { payload: { patch: Record<string, unknown> } }).payload.patch
+    const patch = (
+      enqueue.mock.calls[0][0] as { payload: { patch: Record<string, unknown> } }
+    ).payload.patch
     expect(patch.completed_at).toBeUndefined()
     expect(patch.status).toBe('canceled')
   })
