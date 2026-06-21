@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
+import { confirmToast } from '@/lib/toast'
 import type { Json, Tables } from '@/lib/database.types'
 
 export type Job = Tables<'jobs'>
@@ -133,12 +134,22 @@ function patchJobCaches(job: Job, patch: Partial<Job>): void {
   }
 }
 
+/** Human-readable confirmation per status transition (silent for the rest). */
+const JOB_STATUS_TOAST: Partial<Record<JobStatus, string>> = {
+  in_progress: 'Job started',
+  done: 'Job marked done',
+  scheduled: 'Job reopened',
+  canceled: 'Job canceled',
+}
+
 /** Set job status; 'done' stamps completed_at. */
 export async function setJobStatus(job: Job, status: JobStatus): Promise<void> {
   const patch: Partial<Job> =
     status === 'done' ? { status, completed_at: new Date().toISOString() } : { status }
   patchJobCaches(job, patch)
   await enqueue({ table: 'jobs', kind: 'update', payload: { id: job.id, patch } })
+  const message = JOB_STATUS_TOAST[status]
+  if (message) confirmToast(message)
 }
 
 /**
@@ -174,6 +185,7 @@ export async function rescheduleJob(job: Job, scheduledDate: string): Promise<vo
   const patch: Partial<Job> = { scheduled_date: scheduledDate }
   patchJobCaches(job, patch)
   await enqueue({ table: 'jobs', kind: 'update', payload: { id: job.id, patch } })
+  confirmToast('Job rescheduled')
 }
 
 export interface ChecklistItem {
@@ -230,6 +242,7 @@ export async function createOneOffJob(
     old ? [...old.filter((j) => j.id !== draft.id), cached] : old,
   )
   await enqueue({ table: 'jobs', kind: 'upsert', payload: { ...row } })
+  confirmToast('Job added')
 }
 
 /** Toggle or replace the on-site task checklist. */

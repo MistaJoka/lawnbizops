@@ -1,8 +1,10 @@
 import * as Sentry from '@sentry/react'
+import { useSyncExternalStore } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db, type OutboxOp, type SyncTable } from './db'
 import { supabase } from './supabase'
 import { queryClient } from './queryClient'
+import { toast } from './toast'
 
 /**
  * The offline write spine. Every mutation in the app goes through enqueue():
@@ -51,6 +53,40 @@ const INVALIDATE: Record<SyncTable, string[][]> = {
   tasks: [['tasks']],
 }
 
+/**
+ * Observable sync status for app-wide UI (the global sync chip + the "synced"
+ * toast). This is a READ-ONLY mirror of the outbox — it never changes how ops
+ * are written or drained, it only reflects what the queue is doing:
+ *  - idle     queue empty, nothing to do
+ *  - syncing  online with pending ops / a flush in progress
+ *  - offline  pending ops but no network
+ *  - error    at least one poison op parked in the Sync issues screen
+ */
+export type SyncStatus = 'idle' | 'syncing' | 'offline' | 'error'
+
+let syncStatus: SyncStatus = 'idle'
+const syncListeners = new Set<() => void>()
+
+function setSyncStatus(next: SyncStatus) {
+  if (next === syncStatus) return
+  const prev = syncStatus
+  syncStatus = next
+  // Edge "we just emptied the queue" → one reassuring toast, not one per op.
+  if (next === 'idle' && prev === 'syncing') toast.success('All changes synced')
+  for (const l of syncListeners) l()
+}
+
+/** Recompute status from the live queue + connectivity. */
+async function recomputeStatus(): Promise<void> {
+  const [pending, failed] = await Promise.all([
+    db.outbox.where('status').equals('pending').count(),
+    db.outbox.where('status').equals('failed').count(),
+  ])
+  if (failed > 0) setSyncStatus('error')
+  else if (pending === 0) setSyncStatus('idle')
+  else setSyncStatus(navigator.onLine ? 'syncing' : 'offline')
+}
+
 export async function enqueue(input: EnqueueInput): Promise<void> {
   await db.outbox.add({
     id: crypto.randomUUID(),
@@ -61,6 +97,7 @@ export async function enqueue(input: EnqueueInput): Promise<void> {
     status: 'pending',
     createdAt: new Date().toISOString(),
   } as OutboxOp)
+  void recomputeStatus()
   void flush()
 }
 
@@ -136,6 +173,7 @@ export async function flush(): Promise<void> {
 }
 
 async function drain(): Promise<void> {
+  setSyncStatus('syncing')
   const touched = new Set<SyncTable>()
   // Loop until the queue is empty or we halt on a retryable failure, so ops
   // enqueued while we were draining get picked up in the next pass.
@@ -191,6 +229,9 @@ async function drain(): Promise<void> {
       void queryClient.invalidateQueries({ queryKey: key })
     }
   }
+  // Reflect the post-drain reality: idle (emptied → "synced" toast), offline
+  // (halted with no network), or error (a poison op got parked this pass).
+  await recomputeStatus()
 }
 
 function scheduleRetry(attempts: number) {
@@ -202,6 +243,18 @@ function scheduleRetry(attempts: number) {
 /** Live count of pending outbox writes — drives the sync badge. */
 export function useOutboxPending(): number {
   return useLiveQuery(() => db.outbox.where('status').equals('pending').count(), [], 0)
+}
+
+/** Reactive sync status for the global sync chip. */
+export function useSyncStatus(): SyncStatus {
+  return useSyncExternalStore(
+    (cb) => {
+      syncListeners.add(cb)
+      return () => syncListeners.delete(cb)
+    },
+    () => syncStatus,
+    () => syncStatus,
+  )
 }
 
 /** Stop pending retry timers (tests, teardown). */
@@ -224,8 +277,12 @@ export async function discardFailed(seq: number): Promise<void> {
 /** Wire up sync triggers. Call once at app start. */
 export function initOutbox(): void {
   window.addEventListener('online', () => void flush())
+  // Losing the network doesn't trigger a flush, but the chip should still flip
+  // to "offline" immediately rather than waiting for the next write.
+  window.addEventListener('offline', () => void recomputeStatus())
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') void flush()
   })
+  void recomputeStatus()
   void flush()
 }

@@ -1,5 +1,6 @@
 import { Outlet, createFileRoute, redirect } from '@tanstack/react-router'
 import { TabBar } from '@/components/TabBar'
+import { SyncChip } from '@/components/SyncChip'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { appStateQuery } from '@/features/auth/hooks'
@@ -35,6 +36,7 @@ function AppLayout() {
     <div className="flex min-h-dvh flex-col">
       {/* Phone-first: one centered column on tablet/desktop instead of an
           edge-to-edge stretch. 28rem matches the FAB offset in Fab.tsx. */}
+      <SyncChip />
       <main className="mx-auto w-full max-w-md flex-1 pb-24">
         <Outlet />
       </main>

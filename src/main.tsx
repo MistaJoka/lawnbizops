@@ -8,6 +8,7 @@ import { CACHE_MAX_AGE_MS, dexiePersister, queryClient } from './lib/queryClient
 import { initOutbox } from './lib/outbox'
 import { maybeAutologin } from './lib/autologin' // DEV/TEST-ONLY — see autologin.ts
 import { DevPanel } from './dev/DevPanel' // DEV-ONLY — see below; delete with src/dev/
+import { ToastHost } from './components/Toast'
 import '@fontsource/archivo-narrow/latin-400.css'
 import '@fontsource/archivo-narrow/latin-600.css'
 import '@fontsource/archivo-narrow/latin-700.css'
@@ -59,6 +60,10 @@ async function bootstrap() {
       >
         <RouterProvider router={router} />
       </PersistQueryClientProvider>
+      {/* App-wide feedback host — toasts render above the FAB/TabBar from any
+          call site (toast.success(…)). Outside the providers so a router/query
+          error can still surface a toast. */}
+      <ToastHost />
       {/* DEV-ONLY dev tools (skip login, etc.). `import.meta.env.DEV` is false in
           production builds, so Vite strips this and src/dev/ from the bundle.
           To remove after launch: delete this block and the src/dev/ folder. */}

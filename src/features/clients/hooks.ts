@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
+import { confirmToast } from '@/lib/toast'
 import { logActivity } from '@/features/activities/hooks'
 import type { Tables } from '@/lib/database.types'
 
@@ -105,6 +106,7 @@ export async function saveClient(draft: ClientDraft): Promise<void> {
   queryClient.setQueryData<Client>(['clients', draft.id], merged)
 
   await enqueue({ table: 'clients', kind: 'upsert', payload: { ...draft } })
+  confirmToast(draft.archived_at ? 'Client archived' : 'Client saved')
 }
 
 /**
@@ -148,6 +150,7 @@ export async function setClientStage(client: Client, stage: ClientStage): Promis
     kind: 'stage_change',
     body: `Stage → ${stageLabel(stage)}`,
   })
+  confirmToast(`Moved to ${stageLabel(stage)}`)
 }
 
 export async function archiveClient(client: Client): Promise<void> {

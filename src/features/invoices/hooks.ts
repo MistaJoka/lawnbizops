@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
+import { confirmToast } from '@/lib/toast'
 import { localToday } from '@/lib/format'
 import { addDaysISO, parseLocalDate } from '@/lib/dates'
 import {
@@ -313,6 +314,7 @@ export async function createInvoiceFromJobs(input: CreateInvoiceInput): Promise<
       payload: { id: job.id, patch: { status: 'invoiced' } },
     })
   }
+  confirmToast('Invoice created')
   return id
 }
 
@@ -385,6 +387,7 @@ export async function recordPayment(input: RecordPaymentInput): Promise<void> {
       },
     },
   })
+  confirmToast('Payment recorded')
 }
 
 export async function markSent(id: string): Promise<void> {
@@ -394,6 +397,7 @@ export async function markSent(id: string): Promise<void> {
     kind: 'update',
     payload: { id, patch: { status: 'sent' } },
   })
+  confirmToast('Invoice marked sent')
 }
 
 /**
@@ -441,6 +445,7 @@ export async function voidInvoice(id: string): Promise<void> {
       },
     })
   }
+  confirmToast('Invoice voided')
 }
 
 export async function recordReminder(id: string): Promise<void> {
