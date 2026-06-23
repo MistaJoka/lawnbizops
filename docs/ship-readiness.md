@@ -29,7 +29,7 @@ status transition.
 - [x] Payments apply — `apply_payment` write path: balance + status flip (paid / partially_paid) — `recordPayment.test.ts`, 6 cases; behavior was already correct, no bug
 - [x] Invoices — create/send/void write paths and INV-n numbering expectations — `invoiceWrites.test.ts`, 8 cases (FIFO enqueue, number-null/no-timestamp payloads, void→job-restore); behavior already correct
 - [x] Clients — create/edit/archive write path — `clientWrites.test.ts`, 6 cases (name-sorted insert, clean upsert payload, archive drop, stage update + activity, same-stage no-op); behavior already correct
-- [ ] Jobs — status pipeline transitions beyond what `board/` already covers
+- [x] Jobs — status pipeline transitions beyond what `board/` already covers — `jobWrites.test.ts`, 5 cases (done stamps completed_at, cancel drops off kanban, patch payload clean, reschedule day-cache move); behavior already correct
 - [ ] Schedules — recurrence create/edit + materialization trigger
 - [ ] Tax — tax write paths and rounding at cents
 - [ ] Profitability — derived-number correctness on a known fixture
