@@ -22,6 +22,15 @@ import {
   type EstimateListRow,
 } from '@/features/estimates/hooks'
 import { EstimateStatusChip } from '@/features/estimates/EstimateStatusChip'
+import {
+  currentMonth,
+  expensesQueryOptions,
+  monthExpenseCents,
+  useExpenses,
+  type ExpenseRow,
+} from '@/features/expenses/hooks'
+import { categoryLabel } from '@/features/expenses/categories'
+import { useDashboard } from '@/features/dashboard/hooks'
 import { queryClient } from '@/lib/queryClient'
 import { formatCents, localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
@@ -33,6 +42,7 @@ export const Route = createFileRoute('/_authed/money/')({
     Promise.all([
       queryClient.prefetchQuery(invoiceBalancesQueryOptions),
       queryClient.prefetchQuery(estimatesQueryOptions),
+      queryClient.prefetchQuery(expensesQueryOptions),
     ]),
   component: MoneyScreen,
 })
@@ -52,41 +62,137 @@ function daysAgo(timestamp: string): string {
   return `${days} days ago`
 }
 
+const TAB_LABEL = {
+  invoices: 'Invoices',
+  estimates: 'Estimates',
+  expenses: 'Expenses',
+} as const
+
+type MoneyTab = keyof typeof TAB_LABEL
+
 function MoneyScreen() {
-  const [tab, setTab] = useState<'invoices' | 'estimates'>('invoices')
+  const [tab, setTab] = useState<MoneyTab>('invoices')
 
   return (
     <div className="px-4 pt-6">
       <div className="flex items-center justify-between gap-3">
         <h1 className="heading-stencil text-2xl text-khaki">Money</h1>
-        <Link to="/dashboard" className="label-caps text-blaze">
-          Dashboard
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link to="/money/reports" className="label-caps text-blaze">
+            Reports
+          </Link>
+          <Link to="/dashboard" className="label-caps text-blaze">
+            Dashboard
+          </Link>
+        </div>
       </div>
 
+      <MonthHeader />
+
       <div className="mt-4 flex rounded-lg border border-edge bg-panel p-1">
-        {(['invoices', 'estimates'] as const).map((t) => (
+        {(['invoices', 'estimates', 'expenses'] as const).map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            className={`heading-stencil flex-1 rounded-md px-4 py-3 text-sm ${
+            className={`heading-stencil flex-1 rounded-md px-2 py-3 text-sm ${
               tab === t ? 'bg-blaze text-canvas' : 'text-faded'
             }`}
           >
-            {t === 'invoices' ? 'Invoices' : 'Estimates'}
+            {TAB_LABEL[t]}
           </button>
         ))}
       </div>
 
-      {tab === 'estimates' ? <EstimatesTab /> : <InvoicesTab />}
+      {tab === 'invoices' && <InvoicesTab />}
+      {tab === 'estimates' && <EstimatesTab />}
+      {tab === 'expenses' && <ExpensesTab />}
 
-      {tab === 'estimates' ? (
-        <Fab to="/estimates/new" label="Estimate" />
-      ) : (
-        <Fab to="/invoices/new" label="Invoice" />
-      )}
+      {tab === 'invoices' && <Fab to="/invoices/new" label="Invoice" />}
+      {tab === 'estimates' && <Fab to="/estimates/new" label="Estimate" />}
+      {tab === 'expenses' && <Fab to="/expenses/new" label="Expense" />}
     </div>
+  )
+}
+
+/** One-glance month-to-date money: Collected · Spent · Net. */
+function MonthHeader() {
+  const { data: metrics } = useDashboard()
+  const { data: expenses } = useExpenses()
+  const collected = metrics?.collected_cents ?? 0
+  const spent = monthExpenseCents(expenses, currentMonth())
+  const net = collected - spent
+
+  return (
+    <div className="mt-4 grid grid-cols-3 gap-2">
+      {[
+        { label: 'Collected', value: collected, tone: 'text-sand' },
+        { label: 'Spent', value: spent, tone: 'text-sand' },
+        { label: 'Net', value: net, tone: net < 0 ? 'text-alert' : 'text-go' },
+      ].map((cell) => (
+        <div
+          key={cell.label}
+          className="rounded-lg border border-edge bg-panel px-3 py-3"
+        >
+          <p className="heading-stencil text-[10px] text-faded">{cell.label}</p>
+          <p className={`heading-stencil mt-1 truncate text-lg ${cell.tone}`}>
+            {formatCents(cell.value)}
+          </p>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function ExpensesTab() {
+  const { data: expenses, isLoading } = useExpenses()
+
+  return (
+    <>
+      <ul className="mt-4 flex flex-col gap-2 pb-28">
+        {(expenses ?? []).map((expense) => (
+          <li key={expense.id}>
+            <ExpenseRow expense={expense} />
+          </li>
+        ))}
+      </ul>
+      {(expenses ?? []).length === 0 &&
+        (isLoading ? (
+          <div className="mt-4">
+            <SkeletonList count={5} />
+          </div>
+        ) : (
+          <EmptyState
+            glyph="🧾"
+            title="No expenses yet"
+            body="Log fuel, supplies, and equipment as you spend — they total up here and feed your P&L."
+          />
+        ))}
+    </>
+  )
+}
+
+function ExpenseRow({ expense }: { expense: ExpenseRow }) {
+  return (
+    <Link
+      to="/expenses/$expenseId"
+      params={{ expenseId: expense.id }}
+      className="block rounded-lg border border-edge bg-panel px-4 py-4"
+    >
+      <span className="flex items-center justify-between gap-2">
+        <span className="heading-stencil min-w-0 truncate text-sand">
+          {categoryLabel(expense.category)}
+        </span>
+        <span className="shrink-0 text-lg text-sand">
+          {formatCents(expense.amount_cents)}
+        </span>
+      </span>
+      <span className="mt-1 block truncate text-sm text-faded">
+        {formatShortDate(expense.spent_on)}
+        {expense.vendor && ` · ${expense.vendor}`}
+        {expense.client && ` · ${expense.client.name}`}
+      </span>
+    </Link>
   )
 }
 

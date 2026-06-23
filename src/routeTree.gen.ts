@@ -19,12 +19,14 @@ import { Route as AuthedPipelineRouteImport } from './routes/_authed/pipeline'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedBoardRouteImport } from './routes/_authed/board'
 import { Route as AuthedToolsIndexRouteImport } from './routes/_authed/tools/index'
+import { Route as AuthedTaxIndexRouteImport } from './routes/_authed/tax/index'
 import { Route as AuthedSettingsIndexRouteImport } from './routes/_authed/settings/index'
 import { Route as AuthedMoneyIndexRouteImport } from './routes/_authed/money/index'
 import { Route as AuthedInventoryIndexRouteImport } from './routes/_authed/inventory/index'
 import { Route as AuthedClientsIndexRouteImport } from './routes/_authed/clients/index'
 import { Route as AuthedToolsMulchRouteImport } from './routes/_authed/tools/mulch'
 import { Route as AuthedToolsGradeRouteImport } from './routes/_authed/tools/grade'
+import { Route as AuthedSettingsTaxRouteImport } from './routes/_authed/settings/tax'
 import { Route as AuthedSettingsSyncRouteImport } from './routes/_authed/settings/sync'
 import { Route as AuthedSettingsServicesRouteImport } from './routes/_authed/settings/services'
 import { Route as AuthedSettingsProfileRouteImport } from './routes/_authed/settings/profile'
@@ -34,16 +36,21 @@ import { Route as AuthedSettingsExportRouteImport } from './routes/_authed/setti
 import { Route as AuthedSettingsAutomationsRouteImport } from './routes/_authed/settings/automations'
 import { Route as AuthedSchedulesNewRouteImport } from './routes/_authed/schedules/new'
 import { Route as AuthedPropertiesNewRouteImport } from './routes/_authed/properties/new'
+import { Route as AuthedMoneyReportsRouteImport } from './routes/_authed/money/reports'
 import { Route as AuthedJobsNewRouteImport } from './routes/_authed/jobs/new'
 import { Route as AuthedJobsJobIdRouteImport } from './routes/_authed/jobs/$jobId'
 import { Route as AuthedInvoicesNewRouteImport } from './routes/_authed/invoices/new'
 import { Route as AuthedInvoicesInvoiceIdRouteImport } from './routes/_authed/invoices/$invoiceId'
+import { Route as AuthedExpensesNewRouteImport } from './routes/_authed/expenses/new'
+import { Route as AuthedExpensesExpenseIdRouteImport } from './routes/_authed/expenses/$expenseId'
 import { Route as AuthedEstimatesNewRouteImport } from './routes/_authed/estimates/new'
 import { Route as AuthedEstimatesEstimateIdRouteImport } from './routes/_authed/estimates/$estimateId'
 import { Route as AuthedClientsNewRouteImport } from './routes/_authed/clients/new'
 import { Route as AuthedClientsImportRouteImport } from './routes/_authed/clients/import'
 import { Route as AuthedPropertiesPropertyIdIndexRouteImport } from './routes/_authed/properties/$propertyId.index'
 import { Route as AuthedClientsClientIdIndexRouteImport } from './routes/_authed/clients/$clientId.index'
+import { Route as AuthedTaxPayeesNewRouteImport } from './routes/_authed/tax/payees.new'
+import { Route as AuthedTaxMileageNewRouteImport } from './routes/_authed/tax/mileage.new'
 import { Route as AuthedSchedulesScheduleIdEditRouteImport } from './routes/_authed/schedules/$scheduleId.edit'
 import { Route as AuthedPropertiesPropertyIdEditRouteImport } from './routes/_authed/properties/$propertyId.edit'
 import { Route as AuthedClientsClientIdEditRouteImport } from './routes/_authed/clients/$clientId.edit'
@@ -97,6 +104,11 @@ const AuthedToolsIndexRoute = AuthedToolsIndexRouteImport.update({
   path: '/tools/',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedTaxIndexRoute = AuthedTaxIndexRouteImport.update({
+  id: '/tax/',
+  path: '/tax/',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedSettingsIndexRoute = AuthedSettingsIndexRouteImport.update({
   id: '/settings/',
   path: '/settings/',
@@ -125,6 +137,11 @@ const AuthedToolsMulchRoute = AuthedToolsMulchRouteImport.update({
 const AuthedToolsGradeRoute = AuthedToolsGradeRouteImport.update({
   id: '/tools/grade',
   path: '/tools/grade',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedSettingsTaxRoute = AuthedSettingsTaxRouteImport.update({
+  id: '/settings/tax',
+  path: '/settings/tax',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedSettingsSyncRoute = AuthedSettingsSyncRouteImport.update({
@@ -174,6 +191,11 @@ const AuthedPropertiesNewRoute = AuthedPropertiesNewRouteImport.update({
   path: '/properties/new',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedMoneyReportsRoute = AuthedMoneyReportsRouteImport.update({
+  id: '/money/reports',
+  path: '/money/reports',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedJobsNewRoute = AuthedJobsNewRouteImport.update({
   id: '/jobs/new',
   path: '/jobs/new',
@@ -192,6 +214,16 @@ const AuthedInvoicesNewRoute = AuthedInvoicesNewRouteImport.update({
 const AuthedInvoicesInvoiceIdRoute = AuthedInvoicesInvoiceIdRouteImport.update({
   id: '/invoices/$invoiceId',
   path: '/invoices/$invoiceId',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedExpensesNewRoute = AuthedExpensesNewRouteImport.update({
+  id: '/expenses/new',
+  path: '/expenses/new',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedExpensesExpenseIdRoute = AuthedExpensesExpenseIdRouteImport.update({
+  id: '/expenses/$expenseId',
+  path: '/expenses/$expenseId',
   getParentRoute: () => AuthedRoute,
 } as any)
 const AuthedEstimatesNewRoute = AuthedEstimatesNewRouteImport.update({
@@ -227,6 +259,16 @@ const AuthedClientsClientIdIndexRoute =
     path: '/clients/$clientId/',
     getParentRoute: () => AuthedRoute,
   } as any)
+const AuthedTaxPayeesNewRoute = AuthedTaxPayeesNewRouteImport.update({
+  id: '/tax/payees/new',
+  path: '/tax/payees/new',
+  getParentRoute: () => AuthedRoute,
+} as any)
+const AuthedTaxMileageNewRoute = AuthedTaxMileageNewRouteImport.update({
+  id: '/tax/mileage/new',
+  path: '/tax/mileage/new',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedSchedulesScheduleIdEditRoute =
   AuthedSchedulesScheduleIdEditRouteImport.update({
     id: '/schedules/$scheduleId/edit',
@@ -259,10 +301,13 @@ export interface FileRoutesByFullPath {
   '/clients/new': typeof AuthedClientsNewRoute
   '/estimates/$estimateId': typeof AuthedEstimatesEstimateIdRoute
   '/estimates/new': typeof AuthedEstimatesNewRoute
+  '/expenses/$expenseId': typeof AuthedExpensesExpenseIdRoute
+  '/expenses/new': typeof AuthedExpensesNewRoute
   '/invoices/$invoiceId': typeof AuthedInvoicesInvoiceIdRoute
   '/invoices/new': typeof AuthedInvoicesNewRoute
   '/jobs/$jobId': typeof AuthedJobsJobIdRoute
   '/jobs/new': typeof AuthedJobsNewRoute
+  '/money/reports': typeof AuthedMoneyReportsRoute
   '/properties/new': typeof AuthedPropertiesNewRoute
   '/schedules/new': typeof AuthedSchedulesNewRoute
   '/settings/automations': typeof AuthedSettingsAutomationsRoute
@@ -272,16 +317,20 @@ export interface FileRoutesByFullPath {
   '/settings/profile': typeof AuthedSettingsProfileRoute
   '/settings/services': typeof AuthedSettingsServicesRoute
   '/settings/sync': typeof AuthedSettingsSyncRoute
+  '/settings/tax': typeof AuthedSettingsTaxRoute
   '/tools/grade': typeof AuthedToolsGradeRoute
   '/tools/mulch': typeof AuthedToolsMulchRoute
   '/clients/': typeof AuthedClientsIndexRoute
   '/inventory/': typeof AuthedInventoryIndexRoute
   '/money/': typeof AuthedMoneyIndexRoute
   '/settings/': typeof AuthedSettingsIndexRoute
+  '/tax/': typeof AuthedTaxIndexRoute
   '/tools/': typeof AuthedToolsIndexRoute
   '/clients/$clientId/edit': typeof AuthedClientsClientIdEditRoute
   '/properties/$propertyId/edit': typeof AuthedPropertiesPropertyIdEditRoute
   '/schedules/$scheduleId/edit': typeof AuthedSchedulesScheduleIdEditRoute
+  '/tax/mileage/new': typeof AuthedTaxMileageNewRoute
+  '/tax/payees/new': typeof AuthedTaxPayeesNewRoute
   '/clients/$clientId/': typeof AuthedClientsClientIdIndexRoute
   '/properties/$propertyId/': typeof AuthedPropertiesPropertyIdIndexRoute
 }
@@ -298,10 +347,13 @@ export interface FileRoutesByTo {
   '/clients/new': typeof AuthedClientsNewRoute
   '/estimates/$estimateId': typeof AuthedEstimatesEstimateIdRoute
   '/estimates/new': typeof AuthedEstimatesNewRoute
+  '/expenses/$expenseId': typeof AuthedExpensesExpenseIdRoute
+  '/expenses/new': typeof AuthedExpensesNewRoute
   '/invoices/$invoiceId': typeof AuthedInvoicesInvoiceIdRoute
   '/invoices/new': typeof AuthedInvoicesNewRoute
   '/jobs/$jobId': typeof AuthedJobsJobIdRoute
   '/jobs/new': typeof AuthedJobsNewRoute
+  '/money/reports': typeof AuthedMoneyReportsRoute
   '/properties/new': typeof AuthedPropertiesNewRoute
   '/schedules/new': typeof AuthedSchedulesNewRoute
   '/settings/automations': typeof AuthedSettingsAutomationsRoute
@@ -311,16 +363,20 @@ export interface FileRoutesByTo {
   '/settings/profile': typeof AuthedSettingsProfileRoute
   '/settings/services': typeof AuthedSettingsServicesRoute
   '/settings/sync': typeof AuthedSettingsSyncRoute
+  '/settings/tax': typeof AuthedSettingsTaxRoute
   '/tools/grade': typeof AuthedToolsGradeRoute
   '/tools/mulch': typeof AuthedToolsMulchRoute
   '/clients': typeof AuthedClientsIndexRoute
   '/inventory': typeof AuthedInventoryIndexRoute
   '/money': typeof AuthedMoneyIndexRoute
   '/settings': typeof AuthedSettingsIndexRoute
+  '/tax': typeof AuthedTaxIndexRoute
   '/tools': typeof AuthedToolsIndexRoute
   '/clients/$clientId/edit': typeof AuthedClientsClientIdEditRoute
   '/properties/$propertyId/edit': typeof AuthedPropertiesPropertyIdEditRoute
   '/schedules/$scheduleId/edit': typeof AuthedSchedulesScheduleIdEditRoute
+  '/tax/mileage/new': typeof AuthedTaxMileageNewRoute
+  '/tax/payees/new': typeof AuthedTaxPayeesNewRoute
   '/clients/$clientId': typeof AuthedClientsClientIdIndexRoute
   '/properties/$propertyId': typeof AuthedPropertiesPropertyIdIndexRoute
 }
@@ -339,10 +395,13 @@ export interface FileRoutesById {
   '/_authed/clients/new': typeof AuthedClientsNewRoute
   '/_authed/estimates/$estimateId': typeof AuthedEstimatesEstimateIdRoute
   '/_authed/estimates/new': typeof AuthedEstimatesNewRoute
+  '/_authed/expenses/$expenseId': typeof AuthedExpensesExpenseIdRoute
+  '/_authed/expenses/new': typeof AuthedExpensesNewRoute
   '/_authed/invoices/$invoiceId': typeof AuthedInvoicesInvoiceIdRoute
   '/_authed/invoices/new': typeof AuthedInvoicesNewRoute
   '/_authed/jobs/$jobId': typeof AuthedJobsJobIdRoute
   '/_authed/jobs/new': typeof AuthedJobsNewRoute
+  '/_authed/money/reports': typeof AuthedMoneyReportsRoute
   '/_authed/properties/new': typeof AuthedPropertiesNewRoute
   '/_authed/schedules/new': typeof AuthedSchedulesNewRoute
   '/_authed/settings/automations': typeof AuthedSettingsAutomationsRoute
@@ -352,16 +411,20 @@ export interface FileRoutesById {
   '/_authed/settings/profile': typeof AuthedSettingsProfileRoute
   '/_authed/settings/services': typeof AuthedSettingsServicesRoute
   '/_authed/settings/sync': typeof AuthedSettingsSyncRoute
+  '/_authed/settings/tax': typeof AuthedSettingsTaxRoute
   '/_authed/tools/grade': typeof AuthedToolsGradeRoute
   '/_authed/tools/mulch': typeof AuthedToolsMulchRoute
   '/_authed/clients/': typeof AuthedClientsIndexRoute
   '/_authed/inventory/': typeof AuthedInventoryIndexRoute
   '/_authed/money/': typeof AuthedMoneyIndexRoute
   '/_authed/settings/': typeof AuthedSettingsIndexRoute
+  '/_authed/tax/': typeof AuthedTaxIndexRoute
   '/_authed/tools/': typeof AuthedToolsIndexRoute
   '/_authed/clients/$clientId/edit': typeof AuthedClientsClientIdEditRoute
   '/_authed/properties/$propertyId/edit': typeof AuthedPropertiesPropertyIdEditRoute
   '/_authed/schedules/$scheduleId/edit': typeof AuthedSchedulesScheduleIdEditRoute
+  '/_authed/tax/mileage/new': typeof AuthedTaxMileageNewRoute
+  '/_authed/tax/payees/new': typeof AuthedTaxPayeesNewRoute
   '/_authed/clients/$clientId/': typeof AuthedClientsClientIdIndexRoute
   '/_authed/properties/$propertyId/': typeof AuthedPropertiesPropertyIdIndexRoute
 }
@@ -380,10 +443,13 @@ export interface FileRouteTypes {
     | '/clients/new'
     | '/estimates/$estimateId'
     | '/estimates/new'
+    | '/expenses/$expenseId'
+    | '/expenses/new'
     | '/invoices/$invoiceId'
     | '/invoices/new'
     | '/jobs/$jobId'
     | '/jobs/new'
+    | '/money/reports'
     | '/properties/new'
     | '/schedules/new'
     | '/settings/automations'
@@ -393,16 +459,20 @@ export interface FileRouteTypes {
     | '/settings/profile'
     | '/settings/services'
     | '/settings/sync'
+    | '/settings/tax'
     | '/tools/grade'
     | '/tools/mulch'
     | '/clients/'
     | '/inventory/'
     | '/money/'
     | '/settings/'
+    | '/tax/'
     | '/tools/'
     | '/clients/$clientId/edit'
     | '/properties/$propertyId/edit'
     | '/schedules/$scheduleId/edit'
+    | '/tax/mileage/new'
+    | '/tax/payees/new'
     | '/clients/$clientId/'
     | '/properties/$propertyId/'
   fileRoutesByTo: FileRoutesByTo
@@ -419,10 +489,13 @@ export interface FileRouteTypes {
     | '/clients/new'
     | '/estimates/$estimateId'
     | '/estimates/new'
+    | '/expenses/$expenseId'
+    | '/expenses/new'
     | '/invoices/$invoiceId'
     | '/invoices/new'
     | '/jobs/$jobId'
     | '/jobs/new'
+    | '/money/reports'
     | '/properties/new'
     | '/schedules/new'
     | '/settings/automations'
@@ -432,16 +505,20 @@ export interface FileRouteTypes {
     | '/settings/profile'
     | '/settings/services'
     | '/settings/sync'
+    | '/settings/tax'
     | '/tools/grade'
     | '/tools/mulch'
     | '/clients'
     | '/inventory'
     | '/money'
     | '/settings'
+    | '/tax'
     | '/tools'
     | '/clients/$clientId/edit'
     | '/properties/$propertyId/edit'
     | '/schedules/$scheduleId/edit'
+    | '/tax/mileage/new'
+    | '/tax/payees/new'
     | '/clients/$clientId'
     | '/properties/$propertyId'
   id:
@@ -459,10 +536,13 @@ export interface FileRouteTypes {
     | '/_authed/clients/new'
     | '/_authed/estimates/$estimateId'
     | '/_authed/estimates/new'
+    | '/_authed/expenses/$expenseId'
+    | '/_authed/expenses/new'
     | '/_authed/invoices/$invoiceId'
     | '/_authed/invoices/new'
     | '/_authed/jobs/$jobId'
     | '/_authed/jobs/new'
+    | '/_authed/money/reports'
     | '/_authed/properties/new'
     | '/_authed/schedules/new'
     | '/_authed/settings/automations'
@@ -472,16 +552,20 @@ export interface FileRouteTypes {
     | '/_authed/settings/profile'
     | '/_authed/settings/services'
     | '/_authed/settings/sync'
+    | '/_authed/settings/tax'
     | '/_authed/tools/grade'
     | '/_authed/tools/mulch'
     | '/_authed/clients/'
     | '/_authed/inventory/'
     | '/_authed/money/'
     | '/_authed/settings/'
+    | '/_authed/tax/'
     | '/_authed/tools/'
     | '/_authed/clients/$clientId/edit'
     | '/_authed/properties/$propertyId/edit'
     | '/_authed/schedules/$scheduleId/edit'
+    | '/_authed/tax/mileage/new'
+    | '/_authed/tax/payees/new'
     | '/_authed/clients/$clientId/'
     | '/_authed/properties/$propertyId/'
   fileRoutesById: FileRoutesById
@@ -565,6 +649,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedToolsIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/tax/': {
+      id: '/_authed/tax/'
+      path: '/tax'
+      fullPath: '/tax/'
+      preLoaderRoute: typeof AuthedTaxIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/settings/': {
       id: '/_authed/settings/'
       path: '/settings'
@@ -605,6 +696,13 @@ declare module '@tanstack/react-router' {
       path: '/tools/grade'
       fullPath: '/tools/grade'
       preLoaderRoute: typeof AuthedToolsGradeRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/settings/tax': {
+      id: '/_authed/settings/tax'
+      path: '/settings/tax'
+      fullPath: '/settings/tax'
+      preLoaderRoute: typeof AuthedSettingsTaxRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/settings/sync': {
@@ -670,6 +768,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedPropertiesNewRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/money/reports': {
+      id: '/_authed/money/reports'
+      path: '/money/reports'
+      fullPath: '/money/reports'
+      preLoaderRoute: typeof AuthedMoneyReportsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/jobs/new': {
       id: '/_authed/jobs/new'
       path: '/jobs/new'
@@ -696,6 +801,20 @@ declare module '@tanstack/react-router' {
       path: '/invoices/$invoiceId'
       fullPath: '/invoices/$invoiceId'
       preLoaderRoute: typeof AuthedInvoicesInvoiceIdRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/expenses/new': {
+      id: '/_authed/expenses/new'
+      path: '/expenses/new'
+      fullPath: '/expenses/new'
+      preLoaderRoute: typeof AuthedExpensesNewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/expenses/$expenseId': {
+      id: '/_authed/expenses/$expenseId'
+      path: '/expenses/$expenseId'
+      fullPath: '/expenses/$expenseId'
+      preLoaderRoute: typeof AuthedExpensesExpenseIdRouteImport
       parentRoute: typeof AuthedRoute
     }
     '/_authed/estimates/new': {
@@ -740,6 +859,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedClientsClientIdIndexRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/tax/payees/new': {
+      id: '/_authed/tax/payees/new'
+      path: '/tax/payees/new'
+      fullPath: '/tax/payees/new'
+      preLoaderRoute: typeof AuthedTaxPayeesNewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/tax/mileage/new': {
+      id: '/_authed/tax/mileage/new'
+      path: '/tax/mileage/new'
+      fullPath: '/tax/mileage/new'
+      preLoaderRoute: typeof AuthedTaxMileageNewRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/schedules/$scheduleId/edit': {
       id: '/_authed/schedules/$scheduleId/edit'
       path: '/schedules/$scheduleId/edit'
@@ -774,10 +907,13 @@ interface AuthedRouteChildren {
   AuthedClientsNewRoute: typeof AuthedClientsNewRoute
   AuthedEstimatesEstimateIdRoute: typeof AuthedEstimatesEstimateIdRoute
   AuthedEstimatesNewRoute: typeof AuthedEstimatesNewRoute
+  AuthedExpensesExpenseIdRoute: typeof AuthedExpensesExpenseIdRoute
+  AuthedExpensesNewRoute: typeof AuthedExpensesNewRoute
   AuthedInvoicesInvoiceIdRoute: typeof AuthedInvoicesInvoiceIdRoute
   AuthedInvoicesNewRoute: typeof AuthedInvoicesNewRoute
   AuthedJobsJobIdRoute: typeof AuthedJobsJobIdRoute
   AuthedJobsNewRoute: typeof AuthedJobsNewRoute
+  AuthedMoneyReportsRoute: typeof AuthedMoneyReportsRoute
   AuthedPropertiesNewRoute: typeof AuthedPropertiesNewRoute
   AuthedSchedulesNewRoute: typeof AuthedSchedulesNewRoute
   AuthedSettingsAutomationsRoute: typeof AuthedSettingsAutomationsRoute
@@ -787,16 +923,20 @@ interface AuthedRouteChildren {
   AuthedSettingsProfileRoute: typeof AuthedSettingsProfileRoute
   AuthedSettingsServicesRoute: typeof AuthedSettingsServicesRoute
   AuthedSettingsSyncRoute: typeof AuthedSettingsSyncRoute
+  AuthedSettingsTaxRoute: typeof AuthedSettingsTaxRoute
   AuthedToolsGradeRoute: typeof AuthedToolsGradeRoute
   AuthedToolsMulchRoute: typeof AuthedToolsMulchRoute
   AuthedClientsIndexRoute: typeof AuthedClientsIndexRoute
   AuthedInventoryIndexRoute: typeof AuthedInventoryIndexRoute
   AuthedMoneyIndexRoute: typeof AuthedMoneyIndexRoute
   AuthedSettingsIndexRoute: typeof AuthedSettingsIndexRoute
+  AuthedTaxIndexRoute: typeof AuthedTaxIndexRoute
   AuthedToolsIndexRoute: typeof AuthedToolsIndexRoute
   AuthedClientsClientIdEditRoute: typeof AuthedClientsClientIdEditRoute
   AuthedPropertiesPropertyIdEditRoute: typeof AuthedPropertiesPropertyIdEditRoute
   AuthedSchedulesScheduleIdEditRoute: typeof AuthedSchedulesScheduleIdEditRoute
+  AuthedTaxMileageNewRoute: typeof AuthedTaxMileageNewRoute
+  AuthedTaxPayeesNewRoute: typeof AuthedTaxPayeesNewRoute
   AuthedClientsClientIdIndexRoute: typeof AuthedClientsClientIdIndexRoute
   AuthedPropertiesPropertyIdIndexRoute: typeof AuthedPropertiesPropertyIdIndexRoute
 }
@@ -811,10 +951,13 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedClientsNewRoute: AuthedClientsNewRoute,
   AuthedEstimatesEstimateIdRoute: AuthedEstimatesEstimateIdRoute,
   AuthedEstimatesNewRoute: AuthedEstimatesNewRoute,
+  AuthedExpensesExpenseIdRoute: AuthedExpensesExpenseIdRoute,
+  AuthedExpensesNewRoute: AuthedExpensesNewRoute,
   AuthedInvoicesInvoiceIdRoute: AuthedInvoicesInvoiceIdRoute,
   AuthedInvoicesNewRoute: AuthedInvoicesNewRoute,
   AuthedJobsJobIdRoute: AuthedJobsJobIdRoute,
   AuthedJobsNewRoute: AuthedJobsNewRoute,
+  AuthedMoneyReportsRoute: AuthedMoneyReportsRoute,
   AuthedPropertiesNewRoute: AuthedPropertiesNewRoute,
   AuthedSchedulesNewRoute: AuthedSchedulesNewRoute,
   AuthedSettingsAutomationsRoute: AuthedSettingsAutomationsRoute,
@@ -824,16 +967,20 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedSettingsProfileRoute: AuthedSettingsProfileRoute,
   AuthedSettingsServicesRoute: AuthedSettingsServicesRoute,
   AuthedSettingsSyncRoute: AuthedSettingsSyncRoute,
+  AuthedSettingsTaxRoute: AuthedSettingsTaxRoute,
   AuthedToolsGradeRoute: AuthedToolsGradeRoute,
   AuthedToolsMulchRoute: AuthedToolsMulchRoute,
   AuthedClientsIndexRoute: AuthedClientsIndexRoute,
   AuthedInventoryIndexRoute: AuthedInventoryIndexRoute,
   AuthedMoneyIndexRoute: AuthedMoneyIndexRoute,
   AuthedSettingsIndexRoute: AuthedSettingsIndexRoute,
+  AuthedTaxIndexRoute: AuthedTaxIndexRoute,
   AuthedToolsIndexRoute: AuthedToolsIndexRoute,
   AuthedClientsClientIdEditRoute: AuthedClientsClientIdEditRoute,
   AuthedPropertiesPropertyIdEditRoute: AuthedPropertiesPropertyIdEditRoute,
   AuthedSchedulesScheduleIdEditRoute: AuthedSchedulesScheduleIdEditRoute,
+  AuthedTaxMileageNewRoute: AuthedTaxMileageNewRoute,
+  AuthedTaxPayeesNewRoute: AuthedTaxPayeesNewRoute,
   AuthedClientsClientIdIndexRoute: AuthedClientsClientIdIndexRoute,
   AuthedPropertiesPropertyIdIndexRoute: AuthedPropertiesPropertyIdIndexRoute,
 }

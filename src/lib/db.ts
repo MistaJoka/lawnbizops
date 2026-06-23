@@ -14,10 +14,13 @@ export type SyncTable =
   | 'invoices'
   | 'invoice_items'
   | 'payments'
+  | 'expenses'
   | 'photos'
   | 'inventory_items'
   | 'activities'
   | 'tasks'
+  | 'mileage_logs'
+  | 'vendors_1099'
 
 export interface OutboxOp {
   /** Auto-increment — FIFO order. */

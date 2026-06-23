@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { JobChecklist } from '@/features/jobs/JobChecklist'
 import { setJobStatus, useJob } from '@/features/jobs/hooks'
+import { useExpensesForJob } from '@/features/expenses/hooks'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { JobStepper } from '@/components/JobStepper'
 import { SkeletonDetail } from '@/components/Skeleton'
@@ -87,6 +88,12 @@ function JobDetailScreen() {
           {formatCents(job.price_cents)}
         </p>
       </div>
+
+      <JobEconomics
+        jobId={jobId}
+        clientId={client?.id ?? null}
+        priceCents={job.price_cents}
+      />
 
       <JobActions job={job} />
 
@@ -178,6 +185,64 @@ function JobDetailScreen() {
           <DangerButton onClick={() => void handleCancel()}>Cancel job</DangerButton>
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * Job economics — billed price vs costs tagged to this job. Revenue here is the
+ * job's billed price (cash-basis can't attribute payments to a job); costs are
+ * the expenses tagged to it. Cheap: reuses useExpensesForJob, no RPC.
+ */
+function JobEconomics({
+  jobId,
+  clientId,
+  priceCents,
+}: {
+  jobId: string
+  clientId: string | null
+  priceCents: number
+}) {
+  const { data: expenses } = useExpensesForJob(jobId)
+  const cost = (expenses ?? []).reduce((sum, e) => sum + e.amount_cents, 0)
+  const profit = priceCents - cost
+
+  return (
+    <div className="card-surface mt-4 p-4">
+      <div className="flex items-center justify-between">
+        <p className="label-caps text-faded">Job economics</p>
+        <Link
+          to="/expenses/new"
+          search={{ jobId, clientId: clientId ?? undefined }}
+          className="label-caps text-blaze"
+        >
+          + Log expense
+        </Link>
+      </div>
+      <div className="mt-3 grid grid-cols-3 gap-2">
+        <div>
+          <p className="heading-stencil text-[10px] text-faded">Billed</p>
+          <p className="heading-stencil mt-1 truncate text-lg text-sand">
+            {formatCents(priceCents)}
+          </p>
+        </div>
+        <div>
+          <p className="heading-stencil text-[10px] text-faded">Costs</p>
+          <p className="heading-stencil mt-1 truncate text-lg text-sand">
+            {formatCents(cost)}
+          </p>
+        </div>
+        <div>
+          <p className="heading-stencil text-[10px] text-faded">Profit</p>
+          <p
+            className={`heading-stencil mt-1 truncate text-lg ${
+              profit < 0 ? 'text-alert' : 'text-go'
+            }`}
+          >
+            {formatCents(profit)}
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

@@ -7,7 +7,7 @@ import type { Tables } from '@/lib/database.types'
 
 export type Photo = Tables<'photos'>
 
-export type PhotoEntityType = 'job' | 'estimate'
+export type PhotoEntityType = 'job' | 'estimate' | 'expense'
 
 export interface PhotoWithUrl extends Photo {
   /** Signed display URL (private bucket) — null when signing failed. */
