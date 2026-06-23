@@ -31,7 +31,7 @@ status transition.
 - [x] Clients — create/edit/archive write path — `clientWrites.test.ts`, 6 cases (name-sorted insert, clean upsert payload, archive drop, stage update + activity, same-stage no-op); behavior already correct
 - [x] Jobs — status pipeline transitions beyond what `board/` already covers — `jobWrites.test.ts`, 5 cases (done stamps completed_at, cancel drops off kanban, patch payload clean, reschedule day-cache move); behavior already correct
 - [x] Schedules — recurrence create/edit + materialization trigger — `scheduleWrites.test.ts`, 6 cases (save→materialize_jobs vs edit→resync_schedule, clean payload, pause/resume, delete FIFO jobs-before-schedule); behavior already correct
-- [ ] Tax — tax write paths and rounding at cents
+- [x] Tax — tax write paths and rounding at cents — `taxWrites.test.ts`, 6 cases (mileage/set-aside rounding + negative floor, mileage & 1099 create/delete clean payloads, name-sorted insert); behavior already correct
 - [ ] Profitability — derived-number correctness on a known fixture
 - [ ] Inventory — stock adjust + reorder-level write path
 
