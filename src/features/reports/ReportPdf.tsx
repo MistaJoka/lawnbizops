@@ -1,0 +1,167 @@
+import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
+import { formatCents } from '@/lib/format'
+import type { BusinessSettings } from '@/features/invoices/hooks'
+import type { Pnl } from './hooks'
+
+/** A labeled total row, used for the category / method / aging breakdowns. */
+export interface ReportRow {
+  label: string
+  total_cents: number
+}
+
+export interface ReportData {
+  rangeLabel: string
+  pnl: Pnl
+  categories: ReportRow[]
+  methods: ReportRow[]
+  aging: ReportRow[]
+}
+
+/** Client-facing P&L PDF — clean white paper, matching the invoice style. */
+const styles = StyleSheet.create({
+  page: {
+    backgroundColor: '#ffffff',
+    color: '#1a1a1a',
+    fontSize: 10,
+    fontFamily: 'Helvetica',
+    paddingVertical: 48,
+    paddingHorizontal: 56,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 32,
+  },
+  logo: { width: 64, height: 64, objectFit: 'contain', marginBottom: 8 },
+  businessName: { fontSize: 18, fontFamily: 'Helvetica-Bold', marginBottom: 4 },
+  businessLine: { color: '#555555', marginBottom: 2 },
+  title: {
+    fontSize: 22,
+    fontFamily: 'Helvetica-Bold',
+    color: '#2d5016',
+    textAlign: 'right',
+  },
+  metaLine: { textAlign: 'right', color: '#555555', marginTop: 3 },
+  section: { marginBottom: 20 },
+  sectionLabel: {
+    fontSize: 8,
+    color: '#888888',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 6,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#dddddd',
+    paddingVertical: 5,
+  },
+  rowLabel: { color: '#333333' },
+  pnlRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 5,
+  },
+  netRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    borderTopWidth: 1.5,
+    borderTopColor: '#1a1a1a',
+    marginTop: 4,
+    paddingTop: 8,
+  },
+  netText: { fontSize: 14, fontFamily: 'Helvetica-Bold' },
+  empty: { color: '#888888', paddingVertical: 4 },
+  footer: {
+    position: 'absolute',
+    bottom: 40,
+    left: 56,
+    right: 56,
+    textAlign: 'center',
+    color: '#888888',
+    fontSize: 9,
+  },
+})
+
+function Breakdown({ label, rows }: { label: string; rows: ReportRow[] }) {
+  return (
+    <View style={styles.section}>
+      <Text style={styles.sectionLabel}>{label}</Text>
+      {rows.length === 0 ? (
+        <Text style={styles.empty}>None in this period.</Text>
+      ) : (
+        rows.map((r) => (
+          <View key={r.label} style={styles.row}>
+            <Text style={styles.rowLabel}>{r.label}</Text>
+            <Text>{formatCents(r.total_cents)}</Text>
+          </View>
+        ))
+      )}
+    </View>
+  )
+}
+
+export function ReportPdf({
+  data,
+  settings,
+  logoDataUrl,
+}: {
+  data: ReportData
+  settings: BusinessSettings | null
+  logoDataUrl?: string
+}) {
+  const businessName = settings?.business_name || 'LawnBizOps'
+  const { pnl } = data
+
+  return (
+    <Document>
+      <Page size="LETTER" style={styles.page}>
+        <View style={styles.headerRow}>
+          <View>
+            {logoDataUrl ? <Image src={logoDataUrl} style={styles.logo} /> : null}
+            <Text style={styles.businessName}>{businessName}</Text>
+            {settings?.address ? (
+              <Text style={styles.businessLine}>{settings.address}</Text>
+            ) : null}
+            {settings?.phone ? (
+              <Text style={styles.businessLine}>{settings.phone}</Text>
+            ) : null}
+            {settings?.email ? (
+              <Text style={styles.businessLine}>{settings.email}</Text>
+            ) : null}
+          </View>
+          <View>
+            <Text style={styles.title}>PROFIT & LOSS</Text>
+            <Text style={styles.metaLine}>{data.rangeLabel}</Text>
+            <Text style={styles.metaLine}>Cash basis</Text>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionLabel}>Summary</Text>
+          <View style={styles.pnlRow}>
+            <Text style={styles.rowLabel}>Income (collected)</Text>
+            <Text>{formatCents(pnl.income_cents)}</Text>
+          </View>
+          <View style={styles.pnlRow}>
+            <Text style={styles.rowLabel}>Expenses</Text>
+            <Text>-{formatCents(pnl.expense_cents)}</Text>
+          </View>
+          <View style={styles.netRow}>
+            <Text style={styles.netText}>Net</Text>
+            <Text style={styles.netText}>{formatCents(pnl.net_cents)}</Text>
+          </View>
+        </View>
+
+        <Breakdown label="Expenses by category" rows={data.categories} />
+        <Breakdown label="Income by method" rows={data.methods} />
+        <Breakdown label="Accounts receivable (open, by age)" rows={data.aging} />
+
+        <Text style={styles.footer}>
+          Generated by {businessName} · cash-basis figures for the period shown.
+        </Text>
+      </Page>
+    </Document>
+  )
+}

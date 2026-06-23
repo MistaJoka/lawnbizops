@@ -96,6 +96,10 @@ export type Database = {
           auto_followup_days: number
           auto_overdue_days: number
           auto_overdue_reminder: boolean
+          business_entity: string
+          mileage_rate_cents: number
+          quarterly_set_aside_pct: number
+          tax_id: string
           business_name: string
           created_at: string
           default_due_days: number
@@ -119,6 +123,10 @@ export type Database = {
           auto_followup_days?: number
           auto_overdue_days?: number
           auto_overdue_reminder?: boolean
+          business_entity?: string
+          mileage_rate_cents?: number
+          quarterly_set_aside_pct?: number
+          tax_id?: string
           business_name?: string
           created_at?: string
           default_due_days?: number
@@ -142,6 +150,10 @@ export type Database = {
           auto_followup_days?: number
           auto_overdue_days?: number
           auto_overdue_reminder?: boolean
+          business_entity?: string
+          mileage_rate_cents?: number
+          quarterly_set_aside_pct?: number
+          tax_id?: string
           business_name?: string
           created_at?: string
           default_due_days?: number
@@ -336,6 +348,79 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount_cents: number
+          category: string
+          client_id: string | null
+          created_at: string
+          id: string
+          job_id: string | null
+          note: string
+          org_id: string
+          payment_method: string
+          payee_id: string | null
+          spent_on: string
+          updated_at: string
+          user_id: string | null
+          vendor: string
+        }
+        Insert: {
+          amount_cents?: number
+          category?: string
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          note?: string
+          org_id?: string
+          payment_method?: string
+          payee_id?: string | null
+          spent_on?: string
+          updated_at?: string
+          user_id?: string | null
+          vendor?: string
+        }
+        Update: {
+          amount_cents?: number
+          category?: string
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          note?: string
+          org_id?: string
+          payment_method?: string
+          payee_id?: string | null
+          spent_on?: string
+          updated_at?: string
+          user_id?: string | null
+          vendor?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -654,6 +739,67 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "memberships_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mileage_logs: {
+        Row: {
+          client_id: string | null
+          created_at: string
+          drove_on: string
+          id: string
+          job_id: string | null
+          miles: number
+          org_id: string
+          purpose: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string
+          drove_on?: string
+          id?: string
+          job_id?: string | null
+          miles?: number
+          org_id?: string
+          purpose?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string
+          drove_on?: string
+          id?: string
+          job_id?: string | null
+          miles?: number
+          org_id?: string
+          purpose?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mileage_logs_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mileage_logs_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mileage_logs_org_id_fkey"
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -1163,6 +1309,53 @@ export type Database = {
           },
         ]
       }
+      vendors_1099: {
+        Row: {
+          address: string
+          created_at: string
+          email: string
+          id: string
+          name: string
+          org_id: string
+          tax_id: string
+          track_1099: boolean
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          address?: string
+          created_at?: string
+          email?: string
+          id?: string
+          name: string
+          org_id?: string
+          tax_id?: string
+          track_1099?: boolean
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          org_id?: string
+          tax_id?: string
+          track_1099?: boolean
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendors_1099_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       invoice_balances: {
@@ -1212,6 +1405,16 @@ export type Database = {
         Returns: undefined
       }
       automation_sweep: { Args: never; Returns: number }
+      client_profitability: {
+        Args: { p_end: string; p_start: string }
+        Returns: {
+          client_id: string
+          cost_cents: number
+          name: string
+          profit_cents: number
+          revenue_cents: number
+        }[]
+      }
       current_org: { Args: never; Returns: string }
       dashboard_metrics: {
         Args: {
@@ -1234,8 +1437,35 @@ export type Database = {
           quoted: number
         }[]
       }
+      expenses_by_category: {
+        Args: { p_end: string; p_start: string }
+        Returns: { category: string; total_cents: number }[]
+      }
+      income_by_method: {
+        Args: { p_end: string; p_start: string }
+        Returns: { method: string; total_cents: number }[]
+      }
+      job_profitability: {
+        Args: { p_end: string; p_start: string }
+        Returns: {
+          client_id: string
+          cost_cents: number
+          job_id: string
+          profit_cents: number
+          revenue_cents: number
+          title: string
+        }[]
+      }
       materialize_jobs: { Args: { through_date: string }; Returns: number }
       materialize_jobs_all: { Args: never; Returns: number }
+      pnl_summary: {
+        Args: { p_end: string; p_start: string }
+        Returns: {
+          income_cents: number
+          expense_cents: number
+          net_cents: number
+        }[]
+      }
       resync_schedule: {
         Args: { p_schedule_id: string; through_date: string }
         Returns: number

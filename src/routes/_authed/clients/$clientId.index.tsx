@@ -8,6 +8,8 @@ import {
 } from '@/features/clients/hooks'
 import { formatAddress, useProperties } from '@/features/properties/hooks'
 import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
+import { useClientProfitability } from '@/features/profitability/hooks'
+import { presetRange } from '@/features/reports/range'
 import { ActivityTimeline } from '@/components/ActivityTimeline'
 import { SkeletonDetail } from '@/components/Skeleton'
 import { confirm } from '@/lib/confirm'
@@ -117,6 +119,8 @@ function ClientDetailScreen() {
         </Link>
       )}
 
+      <ClientEconomics clientId={clientId} />
+
       <h2 className="heading-stencil mt-8 text-lg text-khaki">Follow-ups</h2>
       <div className="mt-2">
         <ClientFollowUps clientId={clientId} />
@@ -169,6 +173,55 @@ function ClientDetailScreen() {
       >
         Archive client
       </button>
+    </div>
+  )
+}
+
+/**
+ * Client economics, year to date. Revenue is COLLECTED (payments) — true
+ * cash-basis at the client level; costs are expenses tagged to the client.
+ * Reuses the shared client_profitability RPC (cached across client screens).
+ */
+function ClientEconomics({ clientId }: { clientId: string }) {
+  const range = presetRange('year')
+  const { data: rows } = useClientProfitability(range)
+  const row = (rows ?? []).find((r) => r.client_id === clientId)
+  const revenue = row?.revenue_cents ?? 0
+  const cost = row?.cost_cents ?? 0
+  const profit = revenue - cost
+
+  return (
+    <div className="card-surface mt-8 p-4">
+      <div className="flex items-center justify-between">
+        <p className="label-caps text-faded">Profit · year to date</p>
+        <Link to="/expenses/new" search={{ clientId }} className="label-caps text-blaze">
+          + Log expense
+        </Link>
+      </div>
+      <div className="mt-3 grid grid-cols-3 gap-2">
+        <div>
+          <p className="heading-stencil text-[10px] text-faded">Collected</p>
+          <p className="heading-stencil mt-1 truncate text-lg text-sand">
+            {formatCents(revenue)}
+          </p>
+        </div>
+        <div>
+          <p className="heading-stencil text-[10px] text-faded">Costs</p>
+          <p className="heading-stencil mt-1 truncate text-lg text-sand">
+            {formatCents(cost)}
+          </p>
+        </div>
+        <div>
+          <p className="heading-stencil text-[10px] text-faded">Profit</p>
+          <p
+            className={`heading-stencil mt-1 truncate text-lg ${
+              profit < 0 ? 'text-alert' : 'text-go'
+            }`}
+          >
+            {formatCents(profit)}
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

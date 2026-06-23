@@ -47,10 +47,13 @@ const INVALIDATE: Record<SyncTable, string[][]> = {
   invoices: [['invoices']],
   invoice_items: [['invoices']],
   payments: [['payments'], ['invoices']],
+  expenses: [['expenses'], ['profitability'], ['reports']],
   photos: [['photos']],
   inventory_items: [['inventory_items']],
   activities: [['activities'], ['clients']],
   tasks: [['tasks']],
+  mileage_logs: [['mileage_logs'], ['tax']],
+  vendors_1099: [['vendors_1099'], ['tax']],
 }
 
 /**

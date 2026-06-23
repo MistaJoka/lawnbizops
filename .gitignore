@@ -40,4 +40,4 @@ supabase/.temp
 /playwright/.cache/
 /coverage/
 /.stryker-tmp/
-reports/
+/reports/

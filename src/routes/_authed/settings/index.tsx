@@ -65,6 +65,10 @@ function SettingsScreen() {
           <span className="text-lg text-sand">Payments</span>
           <span className="text-faded">→</span>
         </Link>
+        <Link to="/tax" className={rowClass}>
+          <span className="text-lg text-sand">Taxes</span>
+          <span className="text-faded">→</span>
+        </Link>
         <Link to="/settings/export" className={rowClass}>
           <span className="text-lg text-sand">Export data</span>
           <span className="text-faded">→</span>

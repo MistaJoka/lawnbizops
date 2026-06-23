@@ -33,9 +33,14 @@ test('Start → Done → Invoice → Void restores the job to Done (reversibilit
   await expect(page).toHaveURL(/\/invoices\//)
   await expect(page.getByText(/draft/i)).toBeVisible()
 
-  // Void the invoice (confirm dialog) → the compensating inverse
-  page.once('dialog', (d) => void d.accept())
+  // Void the invoice via the themed confirm dialog → the compensating inverse.
+  // (window.confirm was replaced by an in-DOM ConfirmDialog, so drive the sheet
+  // rather than a native dialog event.)
   await page.getByRole('button', { name: /void invoice/i }).click()
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: /void invoice/i })
+    .click()
   await expect(page).toHaveURL(/\/money/)
 
   // Reversibility: the job is billable again, back in the Done lane
