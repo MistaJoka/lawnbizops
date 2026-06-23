@@ -39,7 +39,7 @@ status transition.
 
 - [x] `src/lib/geocode.ts` — OSM Nominatim parse + failure/empty handling — `geocode.test.ts`, 6 cases (parse first match, query build, non-ok/empty/non-finite/throw all → null); behavior already correct
 - [x] `src/lib/db.ts` — Dexie schema/outbox table shape — `db.test.ts`, 5 cases (lawnbizops db + outbox/kv tables, seq auto-increment + kv key, status index, FIFO insertion order, pending-by-status query); behavior already correct
-- [ ] `src/lib/preferences.ts` — read/write/default behavior
+- [x] `src/lib/preferences.ts` — read/write/default behavior — `preferences.test.ts`, 6 cases (defaults, forward-compatible merge, corrupt-JSON fallback, fresh-object isolation, persist+return, successive-patch merge); behavior already correct
 
 ## P1 — Frontend / UX health (audit per route, one route per iteration)
 
