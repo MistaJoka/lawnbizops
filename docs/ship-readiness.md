@@ -32,8 +32,8 @@ status transition.
 - [x] Jobs — status pipeline transitions beyond what `board/` already covers — `jobWrites.test.ts`, 5 cases (done stamps completed_at, cancel drops off kanban, patch payload clean, reschedule day-cache move); behavior already correct
 - [x] Schedules — recurrence create/edit + materialization trigger — `scheduleWrites.test.ts`, 6 cases (save→materialize_jobs vs edit→resync_schedule, clean payload, pause/resume, delete FIFO jobs-before-schedule); behavior already correct
 - [x] Tax — tax write paths and rounding at cents — `taxWrites.test.ts`, 6 cases (mileage/set-aside rounding + negative floor, mileage & 1099 create/delete clean payloads, name-sorted insert); behavior already correct
-- [ ] Profitability — derived-number correctness on a known fixture
-- [ ] Inventory — stock adjust + reorder-level write path
+- [→] Profitability — moved to "Needs local Supabase stack" below: the derivation is the SQL RPC `job_profitability`/`client_profitability` (migration 0028), not client code, so it can't be a gated client unit test
+- [x] Inventory — stock adjust + reorder-level write path — `inventoryWrites.test.ts`, 6 cases (stockLevel critical/low/in_stock thresholds, name-sorted upsert clean payload, quantity adjust floored at zero); behavior already correct
 
 ## P1 — Critical libs without tests
 
@@ -75,6 +75,17 @@ used, no hardcoded colors. Add the missing state or fix the token; write a note.
 
 - [ ] Enable leaked-password protection in Supabase Auth (config; matters once auth is on)
 - [ ] Decide server-side schedule sweep (Edge Function vs client `materialize_jobs`) — write a short ADR note, don't build yet
+
+## ⏸ Needs local Supabase stack (SQL fixture tests — out of the client loop)
+
+Server-side money math lives in SQL RPCs/views; correctness needs pgTAP fixture
+tests run against `supabase start` / `db reset`, which `npm test` can't gate.
+Batch these into one supervised local-stack session rather than the client loop.
+
+- [ ] Profitability — `job_profitability` (billed) + `client_profitability` (collected) on a seeded fixture
+- [ ] P&L / cash-basis accounting derivations (migration 0028+)
+- [ ] `apply_payment` balance/status recompute (the RPC body, not the client cache)
+- [ ] `materialize_jobs` / `resync_schedule` recurrence output on a seeded schedule
 
 ## 🔒 SUPERVISED — Phase E go-live cutover (NOT loop work)
 
