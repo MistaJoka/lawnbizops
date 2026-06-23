@@ -30,7 +30,7 @@ status transition.
 - [x] Invoices — create/send/void write paths and INV-n numbering expectations — `invoiceWrites.test.ts`, 8 cases (FIFO enqueue, number-null/no-timestamp payloads, void→job-restore); behavior already correct
 - [x] Clients — create/edit/archive write path — `clientWrites.test.ts`, 6 cases (name-sorted insert, clean upsert payload, archive drop, stage update + activity, same-stage no-op); behavior already correct
 - [x] Jobs — status pipeline transitions beyond what `board/` already covers — `jobWrites.test.ts`, 5 cases (done stamps completed_at, cancel drops off kanban, patch payload clean, reschedule day-cache move); behavior already correct
-- [ ] Schedules — recurrence create/edit + materialization trigger
+- [x] Schedules — recurrence create/edit + materialization trigger — `scheduleWrites.test.ts`, 6 cases (save→materialize_jobs vs edit→resync_schedule, clean payload, pause/resume, delete FIFO jobs-before-schedule); behavior already correct
 - [ ] Tax — tax write paths and rounding at cents
 - [ ] Profitability — derived-number correctness on a known fixture
 - [ ] Inventory — stock adjust + reorder-level write path
