@@ -27,7 +27,7 @@ UUID id, **no** `user_id`/`created_at`/`updated_at` in the payload, and correct
 status transition.
 
 - [x] Payments apply — `apply_payment` write path: balance + status flip (paid / partially_paid) — `recordPayment.test.ts`, 6 cases; behavior was already correct, no bug
-- [ ] Invoices — create/send/void write paths and INV-n numbering expectations
+- [x] Invoices — create/send/void write paths and INV-n numbering expectations — `invoiceWrites.test.ts`, 8 cases (FIFO enqueue, number-null/no-timestamp payloads, void→job-restore); behavior already correct
 - [ ] Clients — create/edit/archive write path
 - [ ] Jobs — status pipeline transitions beyond what `board/` already covers
 - [ ] Schedules — recurrence create/edit + materialization trigger
