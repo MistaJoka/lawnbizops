@@ -37,7 +37,7 @@ status transition.
 
 ## P1 — Critical libs without tests
 
-- [ ] `src/lib/geocode.ts` — OSM Nominatim parse + failure/empty handling
+- [x] `src/lib/geocode.ts` — OSM Nominatim parse + failure/empty handling — `geocode.test.ts`, 6 cases (parse first match, query build, non-ok/empty/non-finite/throw all → null); behavior already correct
 - [ ] `src/lib/db.ts` — Dexie schema/outbox table shape
 - [ ] `src/lib/preferences.ts` — read/write/default behavior
 
