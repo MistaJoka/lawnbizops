@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { addDaysISO, formatClockTime } from './dates'
+import {
+  addDaysISO,
+  formatClockTime,
+  formatShortDate,
+  materializeHorizon,
+  relativeTime,
+} from './dates'
+import { localToday } from './format'
 
 describe('formatClockTime', () => {
   it('formats afternoon times', () => {
@@ -24,5 +31,30 @@ describe('addDaysISO', () => {
   })
   it('handles leap-year February', () => {
     expect(addDaysISO('2028-02-28', 1)).toBe('2028-02-29')
+  })
+})
+
+describe('formatShortDate', () => {
+  it('formats a YYYY-MM-DD as "Wkd Mon D" with no commas', () => {
+    // 2026-06-18 is a Thursday in local time.
+    expect(formatShortDate('2026-06-18')).toBe('Thu Jun 18')
+  })
+})
+
+describe('relativeTime', () => {
+  it('reads "just now" for a moment ago and empty for garbage', () => {
+    expect(relativeTime(new Date(Date.now() - 1000).toISOString())).toBe('just now')
+    expect(relativeTime('not-a-date')).toBe('')
+  })
+  it('reports hours for an earlier-today timestamp', () => {
+    expect(relativeTime(new Date(Date.now() - 3 * 3600 * 1000).toISOString())).toMatch(
+      /^\d+h ago$/,
+    )
+  })
+})
+
+describe('materializeHorizon', () => {
+  it('is 56 days past local today', () => {
+    expect(materializeHorizon()).toBe(addDaysISO(localToday(), 56))
   })
 })
