@@ -47,7 +47,7 @@ For each `src/routes/_authed/*`: confirm loading, empty, and error states exist;
 tap targets are glove-sized; dark-theme tokens (bg-canvas/panel, text-sand/faded)
 used, no hardcoded colors. Add the missing state or fix the token; write a note.
 
-- [ ] dashboard
+- [x] dashboard — audited by source (live preview blocked: sandbox has no Supabase egress). Clean: loading state present, empty=zeros, tap targets are full-card Links + `h-touch` header, all theme tokens correct, no hardcoded colors. Query-error handling intentionally deferred to the app-level boundary (consistent with every route — none read `isError`). No code change.
 - [ ] clients (list + detail)
 - [ ] jobs / board / pipeline
 - [ ] estimates
@@ -62,9 +62,9 @@ used, no hardcoded colors. Add the missing state or fix the token; write a note.
 
 ## P1 — Resilience
 
-- [ ] App-level error boundary renders a recoverable fallback (test it)
+- [ ] App-level error boundary renders a recoverable fallback (test it). **Concrete finding (preview, backend unreachable):** cold start with no Supabase egress shows a fully BLANK screen — no spinner/error/offline message. Root cause: `_authed.tsx` `beforeLoad` awaits `supabase.auth.getSession()` (line 18) unguarded, and the route has no `errorComponent`/pending UI. The `app_state()` RPC already "fails open" (line 26–27) but getSession does not. Add a route `errorComponent` + a pending fallback so a dead-zone cold start degrades to a recoverable screen, not blank.
 - [ ] Outbox failure surfaces to the user (poison-op quarantine has visible UX)
-- [ ] Offline cold-start path verified (cache persister + outbox replay)
+- [ ] Offline cold-start path verified (cache persister + outbox replay) — **note:** ties to the blank-screen finding above; the bootstrap gate must tolerate no-network at first paint (this app's whole premise is dead-zone field work).
 
 ## P2 — DB hygiene (defer index pruning until prod has data)
 
