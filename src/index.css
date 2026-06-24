@@ -189,9 +189,24 @@ body {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  /* Belt-and-suspenders: the custom keyframes above are gated, but inline
+     Tailwind utilities (active:scale-*, transition-transform, the looping
+     animate-pulse on the sync dot) are not — so neutralize all animation and
+     transition timing globally. Static transforms (e.g. the toggle knob's
+     position) are untouched; only the *movement over time* is removed. */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Keep the intentional soft opacity fade (no movement) — !important so it
+     wins over the universal reset above. */
   .anim-slide-up,
   .anim-toast-in {
-    animation: fade-in 120ms ease-out;
+    animation: fade-in 120ms ease-out !important;
   }
   /* Static placeholder tone — no sweeping shimmer for reduced-motion users. */
   .shimmer {
