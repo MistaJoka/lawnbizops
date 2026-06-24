@@ -19,7 +19,10 @@ export function Toggle({
         id={id}
         type="button"
         role="switch"
-        aria-checked={checked}
+        // Coerce so a role="switch" always carries aria-checked — a bare boolean
+        // prop can arrive undefined (e.g. partial data) and React would then omit
+        // the attribute, leaving the switch state unreadable to screen readers.
+        aria-checked={Boolean(checked)}
         onClick={() => onChange(!checked)}
         className={`relative h-6 w-12 shrink-0 rounded-full border-2 transition-colors ${
           checked ? 'border-blaze bg-blaze' : 'border-edge bg-surface-highest'

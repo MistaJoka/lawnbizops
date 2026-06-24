@@ -76,7 +76,7 @@ function TaxScreen() {
         ) : (
           <p className="mt-2 text-sm text-faded">
             Set a % in{' '}
-            <Link to="/settings/tax" className="text-blaze">
+            <Link to="/settings/tax" className="text-blaze underline">
               Tax setup
             </Link>{' '}
             to estimate quarterly taxes.

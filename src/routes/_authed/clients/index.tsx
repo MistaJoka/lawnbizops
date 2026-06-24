@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { Fab } from '@/components/Fab'
 import { SkeletonList } from '@/components/Skeleton'
 import { EmptyState } from '@/components/EmptyState'
@@ -16,7 +16,6 @@ export const Route = createFileRoute('/_authed/clients/')({
 })
 
 function ClientsScreen() {
-  const navigate = useNavigate()
   const { data: clients, isLoading, isError, refetch } = useClients()
   const [search, setSearch] = useState('')
 
@@ -48,57 +47,44 @@ function ClientsScreen() {
 
       <ul className="mt-4 flex flex-col gap-2">
         {filtered.map((client) => (
-          <li key={client.id}>
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() =>
-                void navigate({
-                  to: '/clients/$clientId',
-                  params: { clientId: client.id },
-                })
-              }
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  void navigate({
-                    to: '/clients/$clientId',
-                    params: { clientId: client.id },
-                  })
-                }
-              }}
-              className="flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-edge bg-panel px-4 py-3"
+          // Stretched-link pattern: the card Link covers the whole row via an
+          // ::after overlay, while the tel/sms actions sit above it as siblings.
+          // This keeps the full card tappable without nesting interactive
+          // controls inside another (a11y: nested-interactive).
+          <li
+            key={client.id}
+            className="relative flex items-center justify-between gap-3 rounded-lg border border-edge bg-panel px-4 py-3"
+          >
+            <Link
+              to="/clients/$clientId"
+              params={{ clientId: client.id }}
+              className="min-w-0 after:absolute after:inset-0"
             >
-              <span className="min-w-0">
-                <span className="block truncate text-base font-medium text-sand">
-                  {client.name}
-                </span>
-                {client.phone && (
-                  <span className="block truncate text-sm text-faded">
-                    {client.phone}
-                  </span>
-                )}
+              <span className="block truncate text-base font-medium text-sand">
+                {client.name}
               </span>
               {client.phone && (
-                <span className="flex shrink-0 items-center gap-2">
-                  <a
-                    href={`tel:${client.phone}`}
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label={`Call ${client.name}`}
-                    className="tap-active grid h-touch w-touch place-items-center rounded-lg border border-edge text-base"
-                  >
-                    📞
-                  </a>
-                  <a
-                    href={`sms:${client.phone}`}
-                    onClick={(e) => e.stopPropagation()}
-                    aria-label={`Text ${client.name}`}
-                    className="tap-active grid h-touch w-touch place-items-center rounded-lg border border-edge text-base"
-                  >
-                    💬
-                  </a>
-                </span>
+                <span className="block truncate text-sm text-faded">{client.phone}</span>
               )}
-            </div>
+            </Link>
+            {client.phone && (
+              <span className="relative flex shrink-0 items-center gap-2">
+                <a
+                  href={`tel:${client.phone}`}
+                  aria-label={`Call ${client.name}`}
+                  className="tap-active grid h-touch w-touch place-items-center rounded-lg border border-edge text-base"
+                >
+                  📞
+                </a>
+                <a
+                  href={`sms:${client.phone}`}
+                  aria-label={`Text ${client.name}`}
+                  className="tap-active grid h-touch w-touch place-items-center rounded-lg border border-edge text-base"
+                >
+                  💬
+                </a>
+              </span>
+            )}
           </li>
         ))}
       </ul>

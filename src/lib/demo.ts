@@ -864,6 +864,12 @@ function buildData(): DemoData {
       default_due_days: 15,
       logo_path: null,
       onboarded_at: ts(-118),
+      // Automation flags — mirror the migration 0020 column defaults so demo
+      // toggles render with a real on/off state (not undefined).
+      auto_followup_after_job: false,
+      auto_followup_days: 3,
+      auto_overdue_reminder: false,
+      auto_overdue_days: 7,
     },
   ]
 

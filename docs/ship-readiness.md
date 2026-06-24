@@ -47,13 +47,20 @@ For each `src/routes/_authed/*`: confirm loading, empty, and error states exist;
 tap targets are glove-sized; dark-theme tokens (bg-canvas/panel, text-sand/faded)
 used, no hardcoded colors. Add the missing state or fix the token; write a note.
 
-> **Automated backing (added 2026-06-24):** `e2e/demo/routes.spec.ts` (run with
-> `npm run test:e2e:demo`, gated in CI as `e2e-demo`) now renders **every**
-> param-free authed route in DEMO mode — no Supabase/Docker/egress — and asserts
-> each paints its expected content without crashing the error boundary or
-> throwing to console. This is the "does the screen render?" half of the audit as
-> permanent regression; the per-route manual passes below still cover the
-> qualitative checks (tap-target size, token usage, loading/empty polish).
+> **Automated backing (added 2026-06-24):** `e2e/demo/` (run with
+> `npm run test:e2e:demo`, gated in CI as `e2e-demo`) now exercises **every**
+> param-free authed route in DEMO mode — no Supabase/Docker/egress:
+> - `routes.spec.ts` — each screen paints its expected content without crashing
+>   the error boundary or throwing to console ("does it render?").
+> - `a11y.spec.ts` — an axe scan per screen, gated on critical/serious. Its first
+>   run caught 4 real defects, now fixed: nested-interactive on the clients list
+>   (tel/sms links nested in the card link → stretched-link pattern), a
+>   role="switch" missing aria-checked (Toggle hardened), color-contrast on the
+>   tools "coming soon" cards (dropped opacity dimming), and a color-only inline
+>   link on the tax screen (added underline).
+>
+> The per-route manual passes below still cover the qualitative checks (tap-target
+> size, token usage, loading/empty polish) the smoke can't judge.
 
 - [x] dashboard — audited by source (live preview blocked: sandbox has no Supabase egress). Clean: loading state present, empty=zeros, tap targets are full-card Links + `h-touch` header, all theme tokens correct, no hardcoded colors. Query-error handling intentionally deferred to the app-level boundary (consistent with every route — none read `isError`). No code change.
       _⏸ PAUSED (user decision): the preview sandbox has no Supabase egress, so these

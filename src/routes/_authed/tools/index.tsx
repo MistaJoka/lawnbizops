@@ -58,9 +58,12 @@ function ToolsScreen() {
         ))}
 
         {comingSoon.map((tool) => (
+          // No opacity dimming: it blends the badge/label below the WCAG
+          // contrast threshold. The muted styling + "Coming soon" label carry
+          // the de-emphasis instead.
           <div
             key={tool.title}
-            className="card-surface flex min-h-32 flex-col justify-between p-4 opacity-60"
+            className="card-surface flex min-h-32 flex-col justify-between p-4"
           >
             <span className="status-badge self-end rounded bg-surface-highest px-2 py-1 text-faded">
               {tool.badge}
