@@ -55,16 +55,20 @@ used, no hardcoded colors. Add the missing state or fix the token; write a note.
 >
 > - `routes.spec.ts` — each screen paints its content without crashing the error
 >   boundary or throwing to console ("does it render?").
-> - `a11y.spec.ts` — an axe scan per screen, gated on critical/serious. Scans run
->   with animations neutralized so contrast is judged on the settled state, not a
->   transient fade frame. Its first run caught 4 real defects, now fixed:
->   nested-interactive on the clients list (tel/sms links nested in the card link
->   → stretched-link pattern), a role="switch" missing aria-checked (Toggle
->   hardened), color-contrast on the tools "coming soon" cards (dropped opacity
->   dimming), and a color-only inline link on the tax screen (added underline).
+> - `a11y.spec.ts` — an axe scan per screen, gated on critical/serious, plus
+>   WCAG 2.2 **target-size** (the automated check for the "big glove-friendly tap
+>   targets" requirement — passes clean across all 41 screens, so it now locks
+>   that in). Scans run with animations neutralized (contrast judged on the
+>   settled state, not a transient fade) and the dev-only DevPanel hidden (it
+>   overlaps the Today tab and would otherwise trip target-size). Its first run
+>   caught 4 real defects, now fixed: nested-interactive on the clients list
+>   (tel/sms links nested in the card link → stretched-link pattern), a
+>   role="switch" missing aria-checked (Toggle hardened), color-contrast on the
+>   tools "coming soon" cards (dropped opacity dimming), and a color-only inline
+>   link on the tax screen (added underline).
 >
-> The per-route manual passes below still cover the qualitative checks (tap-target
-> size, token usage, loading/empty polish) the smoke can't judge.
+> The per-route manual passes below still cover the remaining qualitative checks
+> (token usage, loading/empty polish) the smoke can't judge.
 
 - [x] dashboard — audited by source (live preview blocked: sandbox has no Supabase egress). Clean: loading state present, empty=zeros, tap targets are full-card Links + `h-touch` header, all theme tokens correct, no hardcoded colors. Query-error handling intentionally deferred to the app-level boundary (consistent with every route — none read `isError`). No code change.
       _⏸ PAUSED (user decision): the preview sandbox has no Supabase egress, so these

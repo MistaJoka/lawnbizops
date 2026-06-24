@@ -47,7 +47,7 @@ export function DevPanel() {
   if (!import.meta.env.DEV) return null
 
   return (
-    <div className="fixed bottom-4 left-4 z-[60]">
+    <div data-dev-panel className="fixed bottom-4 left-4 z-[60]">
       {open && (
         <div
           style={{ borderColor: ACCENT }}
