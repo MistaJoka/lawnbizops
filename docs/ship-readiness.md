@@ -48,19 +48,23 @@ tap targets are glove-sized; dark-theme tokens (bg-canvas/panel, text-sand/faded
 used, no hardcoded colors. Add the missing state or fix the token; write a note.
 
 - [x] dashboard — audited by source (live preview blocked: sandbox has no Supabase egress). Clean: loading state present, empty=zeros, tap targets are full-card Links + `h-touch` header, all theme tokens correct, no hardcoded colors. Query-error handling intentionally deferred to the app-level boundary (consistent with every route — none read `isError`). No code change.
-- [ ] clients (list + detail)
-- [ ] jobs / board / pipeline
-- [ ] estimates
-- [ ] invoices
-- [ ] money (payments)
-- [ ] schedule / schedules
-- [ ] expenses
-- [ ] tax
-- [ ] inventory
-- [ ] properties
-- [ ] settings
+      _⏸ PAUSED (user decision): the preview sandbox has no Supabase egress, so these
+      can only be audited by source, not verified live (no proof of smoothness/speed).
+      Loop pivoted to Resilience first; resume these once preview backend access works._
 
-## P1 — Resilience
+- [⏸] clients (list + detail)
+- [⏸] jobs / board / pipeline
+- [⏸] estimates
+- [⏸] invoices
+- [⏸] money (payments)
+- [⏸] schedule / schedules
+- [⏸] expenses
+- [⏸] tax
+- [⏸] inventory
+- [⏸] properties
+- [⏸] settings
+
+## P1 — Resilience (loop's active section)
 
 - [ ] App-level error boundary renders a recoverable fallback (test it). **Concrete finding (preview, backend unreachable):** cold start with no Supabase egress shows a fully BLANK screen — no spinner/error/offline message. Root cause: `_authed.tsx` `beforeLoad` awaits `supabase.auth.getSession()` (line 18) unguarded, and the route has no `errorComponent`/pending UI. The `app_state()` RPC already "fails open" (line 26–27) but getSession does not. Add a route `errorComponent` + a pending fallback so a dead-zone cold start degrades to a recoverable screen, not blank.
 - [ ] Outbox failure surfaces to the user (poison-op quarantine has visible UX)
