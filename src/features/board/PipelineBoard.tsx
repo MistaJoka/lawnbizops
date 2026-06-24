@@ -85,7 +85,7 @@ function KanbanColumn({
   const over = wipLevel(lane.id, count) === 'over'
   return (
     <section
-      className={`flex w-[82vw] max-w-sm shrink-0 snap-center flex-col rounded-xl border-2 bg-surface-low p-3 ${lane.tint}`}
+      className={`flex w-[82vw] max-w-sm shrink-0 snap-center flex-col rounded-lg border-2 bg-surface-low p-3 ${lane.tint}`}
     >
       <div className="mb-3 flex items-center justify-between">
         <h2 className="heading-stencil text-sm text-sand">{lane.title}</h2>

@@ -125,7 +125,7 @@ function PropertyDetailScreen() {
       <Link
         to="/schedules/new"
         search={{ propertyId }}
-        className="heading-stencil mt-4 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-canvas"
+        className="heading-stencil mt-4 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-on-cta"
       >
         + Add schedule
       </Link>
@@ -232,7 +232,7 @@ function ServicePriceRow({
           />
           <button
             onClick={() => void save()}
-            className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-canvas"
+            className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta"
           >
             Set
           </button>

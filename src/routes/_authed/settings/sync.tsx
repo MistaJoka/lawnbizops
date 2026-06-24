@@ -71,7 +71,7 @@ function SyncScreen() {
           type="button"
           disabled={syncing}
           onClick={() => void handleSyncNow()}
-          className="heading-stencil tap-active mt-3 block w-full rounded-lg bg-blaze px-4 py-3 text-canvas disabled:opacity-50"
+          className="heading-stencil tap-active mt-3 block w-full rounded-lg bg-blaze px-4 py-3 text-on-cta disabled:opacity-50"
         >
           {syncing ? 'Syncing…' : 'Sync now'}
         </button>
@@ -99,7 +99,7 @@ function SyncScreen() {
                 <button
                   type="button"
                   onClick={() => void retryFailed(op.seq)}
-                  className="heading-stencil flex-1 rounded-lg bg-blaze px-4 py-3 text-canvas"
+                  className="heading-stencil flex-1 rounded-lg bg-blaze px-4 py-3 text-on-cta"
                 >
                   Retry
                 </button>

@@ -26,7 +26,7 @@ export function PrimaryButton(props: React.ButtonHTMLAttributes<HTMLButtonElemen
   return (
     <button
       {...props}
-      className="heading-stencil tap-active min-h-touch w-full rounded-lg bg-blaze px-4 py-4 text-lg text-on-cta disabled:opacity-50"
+      className="heading-stencil tap-active min-h-touch w-full rounded-lg bg-blaze px-4 py-3 text-lg text-on-cta disabled:opacity-50"
     />
   )
 }

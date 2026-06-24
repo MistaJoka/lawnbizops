@@ -8,6 +8,7 @@ import {
   type ClientStage,
 } from '@/features/clients/hooks'
 import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
+import { confirm } from '@/lib/confirm'
 import { formatCents } from '@/lib/format'
 
 export const Route = createFileRoute('/_authed/pipeline')({
@@ -19,6 +20,16 @@ const TINT: Record<ClientStage, string> = {
   quoted: 'border-khaki',
   active: 'border-go',
   dormant: 'border-edge',
+}
+
+/** Confirm before the one-tap forward move — an accidental advance is awkward
+ *  to walk back from the board (the segmented control on the detail screen is
+ *  the easy-undo path). */
+async function advance(client: Client, to: ClientStage) {
+  const label = CLIENT_STAGES.find((s) => s.value === to)?.label ?? to
+  if (await confirm({ title: `Move to ${label}?`, confirmLabel: 'Move' })) {
+    await setClientStage(client, to)
+  }
 }
 
 function PipelineScreen() {
@@ -49,7 +60,7 @@ function PipelineScreen() {
           return (
             <section
               key={stage.value}
-              className={`flex w-[82vw] max-w-sm shrink-0 snap-center flex-col rounded-xl border-2 bg-surface-low p-3 ${TINT[stage.value]}`}
+              className={`flex w-[82vw] max-w-sm shrink-0 snap-center flex-col rounded-lg border-2 bg-surface-low p-3 ${TINT[stage.value]}`}
             >
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="heading-stencil text-sm text-sand">{stage.label}</h2>
@@ -107,14 +118,14 @@ function PipelineCard({ client, balance }: { client: Client; balance: number }) 
           <a
             href={`tel:${client.phone}`}
             aria-label={`Call ${client.name}`}
-            className="tap-active grid h-10 flex-1 place-items-center rounded-md border-2 border-edge text-base text-sand"
+            className="tap-active grid h-10 flex-1 place-items-center rounded-lg border-2 border-edge text-base text-sand"
           >
             📞
           </a>
           <a
             href={`sms:${client.phone}`}
             aria-label={`Text ${client.name}`}
-            className="tap-active grid h-10 flex-1 place-items-center rounded-md border-2 border-edge text-base text-sand"
+            className="tap-active grid h-10 flex-1 place-items-center rounded-lg border-2 border-edge text-base text-sand"
           >
             💬
           </a>
@@ -124,7 +135,7 @@ function PipelineCard({ client, balance }: { client: Client; balance: number }) 
       {advanceTo && (
         <button
           type="button"
-          onClick={() => void setClientStage(client, advanceTo)}
+          onClick={() => void advance(client, advanceTo)}
           className="heading-stencil tap-active mt-2 w-full rounded-lg border-2 border-edge py-2 text-xs text-sand"
         >
           Advance →

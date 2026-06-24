@@ -7,6 +7,7 @@ import {
   useJobsForRange,
 } from '@/features/jobs/hooks'
 import { StatusChip } from '@/features/jobs/JobActions'
+import { QueryError } from '@/components/QueryError'
 import { queryClient } from '@/lib/queryClient'
 import { formatCents, localToday } from '@/lib/format'
 import { addDaysISO, formatClockTime, formatShortDate, parseLocalDate } from '@/lib/dates'
@@ -39,7 +40,7 @@ function ScheduleScreen() {
   const days = Array.from({ length: 7 }, (_, i) => addDaysISO(today, i))
 
   const { data: weekJobs } = useJobsForRange(today, days[6])
-  const { data: dayJobs, isLoading } = useJobsForDate(selected)
+  const { data: dayJobs, isLoading, isError, refetch } = useJobsForDate(selected)
 
   const countByDate = new Map<string, number>()
   for (const job of weekJobs ?? []) {
@@ -66,7 +67,7 @@ function ScheduleScreen() {
               key={d}
               to="/schedule"
               search={{ date: d }}
-              className={`tap-active flex shrink-0 snap-center flex-col items-center justify-center rounded-xl border-2 transition-transform ${
+              className={`tap-active flex shrink-0 snap-center flex-col items-center justify-center rounded-lg border-2 transition-transform ${
                 isSelected
                   ? 'h-24 w-20 scale-105 border-khaki bg-blaze text-on-cta shadow-lg'
                   : 'h-20 w-16 border-edge bg-surface-high text-sand hover:bg-surface-highest'
@@ -124,7 +125,11 @@ function ScheduleScreen() {
           ))}
         </ul>
 
-        {!isLoading && (dayJobs ?? []).length === 0 && (
+        {isError && (dayJobs?.length ?? 0) === 0 && (
+          <QueryError onRetry={() => void refetch()} />
+        )}
+
+        {!isLoading && !isError && (dayJobs ?? []).length === 0 && (
           <p className="mt-12 text-center text-faded">Nothing scheduled this day.</p>
         )}
       </section>

@@ -14,8 +14,10 @@ export function ConfirmHost() {
 
   // The store value is referentially stable until a new confirm() supersedes it,
   // so this fires exactly once per opened dialog (and the guard skips the close).
+  // Only destructive dialogs buzz the caution pattern — a routine confirm (skip
+  // a job, advance a stage) shouldn't feel like a warning.
   useEffect(() => {
-    if (req) haptics.warning()
+    if (req?.destructive) haptics.warning()
   }, [req])
 
   if (!req) return null

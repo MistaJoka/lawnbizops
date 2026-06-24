@@ -136,7 +136,7 @@ function EstimateDetailScreen() {
           {client.phone && (
             <a
               href={`tel:${client.phone}`}
-              className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-canvas"
+              className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta"
             >
               📞 Call
             </a>
@@ -218,7 +218,7 @@ function EstimateDetailScreen() {
                 type="button"
                 disabled={detail.linkedInvoiceId !== null || converting}
                 onClick={() => void handleConvertToInvoice()}
-                className="heading-stencil w-full rounded-lg bg-blaze px-4 py-4 text-lg text-canvas disabled:opacity-50"
+                className="heading-stencil w-full rounded-lg bg-blaze px-4 py-4 text-lg text-on-cta disabled:opacity-50"
               >
                 Convert to invoice
               </button>

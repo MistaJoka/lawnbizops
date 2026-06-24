@@ -61,7 +61,11 @@ function QuickAddPicker({ onDone }: { onDone: () => void }) {
             key={t.property.id}
             onClick={() => void pick(t)}
             disabled={saving !== null}
-            className="tap-active min-h-touch flex items-center justify-between gap-3 rounded-lg border-2 border-edge bg-panel px-4 py-3 text-left disabled:opacity-50"
+            className={`tap-active min-h-touch flex items-center justify-between gap-3 rounded-lg border-2 bg-panel px-4 py-3 text-left transition-opacity ${
+              saving === t.property.id
+                ? 'border-blaze'
+                : 'border-edge disabled:opacity-50'
+            }`}
           >
             <span className="min-w-0">
               <span className="block truncate font-display text-lg font-semibold text-sand">

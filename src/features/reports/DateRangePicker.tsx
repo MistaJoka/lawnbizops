@@ -28,8 +28,8 @@ export function DateRangePicker({
               setPreset(p.key)
               onChange(presetRange(p.key))
             }}
-            className={`heading-stencil flex-1 rounded-md px-2 py-2 text-xs ${
-              preset === p.key ? 'bg-blaze text-canvas' : 'text-faded'
+            className={`heading-stencil flex-1 rounded-lg px-2 py-2 text-xs ${
+              preset === p.key ? 'bg-blaze text-on-cta' : 'text-faded'
             }`}
           >
             {p.label}
@@ -38,8 +38,8 @@ export function DateRangePicker({
         <button
           type="button"
           onClick={() => setPreset('custom')}
-          className={`heading-stencil flex-1 rounded-md px-2 py-2 text-xs ${
-            preset === 'custom' ? 'bg-blaze text-canvas' : 'text-faded'
+          className={`heading-stencil flex-1 rounded-lg px-2 py-2 text-xs ${
+            preset === 'custom' ? 'bg-blaze text-on-cta' : 'text-faded'
           }`}
         >
           Custom

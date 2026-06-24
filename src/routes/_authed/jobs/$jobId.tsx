@@ -329,7 +329,7 @@ function PhotosSection({ jobId }: { jobId: string }) {
                   🖼
                 </span>
               )}
-              <span className="absolute bottom-0 right-0 rounded-tl bg-black/60 px-1 py-0.5 text-[10px] text-white">
+              <span className="absolute bottom-0 right-0 rounded-tl bg-scrim px-1 py-0.5 text-[10px] text-white">
                 ✕
               </span>
             </button>

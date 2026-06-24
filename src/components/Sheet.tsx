@@ -51,7 +51,7 @@ export function Sheet({
 
   return (
     <div
-      className="anim-fade-in fixed inset-0 z-50 flex flex-col justify-end bg-black/60"
+      className="anim-fade-in fixed inset-0 z-50 flex flex-col justify-end bg-scrim"
       role="dialog"
       aria-modal="true"
       aria-label={labelledBy ? undefined : title}
@@ -66,7 +66,7 @@ export function Sheet({
       <div
         ref={panelRef}
         tabIndex={-1}
-        className="anim-slide-up rounded-t-2xl border-t-2 border-edge bg-canvas px-edge pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))] outline-none"
+        className="anim-slide-up rounded-t-2xl border-t-2 border-edge bg-canvas px-edge pt-4 pb-safe outline-none"
       >
         {title && (
           <div className="mb-3 flex items-center justify-between">

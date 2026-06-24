@@ -206,7 +206,7 @@ function NewInvoiceScreen() {
         </div>
       </div>
 
-      <div className="sticky bottom-[72px] z-30 -mx-edge border-t-2 border-edge bg-canvas px-edge py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <div className="sticky bottom-tabbar z-30 -mx-edge border-t-2 border-edge bg-canvas px-edge py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <PrimaryButton disabled={!canCreate} onClick={() => void handleCreate()}>
           Create invoice
         </PrimaryButton>
@@ -235,7 +235,7 @@ function JobCheckRow({
       <span
         aria-hidden
         className={`heading-stencil flex h-6 w-6 shrink-0 items-center justify-center rounded border ${
-          checked ? 'border-blaze bg-blaze text-canvas' : 'border-edge text-transparent'
+          checked ? 'border-blaze bg-blaze text-on-cta' : 'border-edge text-transparent'
         }`}
       >
         ✓

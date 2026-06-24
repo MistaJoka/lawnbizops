@@ -85,13 +85,13 @@ function ClientDetailScreen() {
         <div className="mt-4 grid grid-cols-2 gap-3">
           <a
             href={`tel:${client.phone}`}
-            className="heading-stencil rounded-lg bg-blaze px-4 py-4 text-center text-lg text-canvas"
+            className="heading-stencil tap-active rounded-lg bg-blaze px-4 py-4 text-center text-lg text-on-cta"
           >
             📞 Call
           </a>
           <a
             href={`sms:${client.phone}`}
-            className="heading-stencil rounded-lg border border-edge bg-panel px-4 py-4 text-center text-lg text-sand"
+            className="heading-stencil tap-active rounded-lg border border-edge bg-panel px-4 py-4 text-center text-lg text-sand"
           >
             💬 Text
           </a>
@@ -162,7 +162,7 @@ function ClientDetailScreen() {
       <Link
         to="/properties/new"
         search={{ clientId }}
-        className="heading-stencil mt-4 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-canvas"
+        className="heading-stencil mt-4 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-on-cta"
       >
         + Add property
       </Link>
@@ -238,7 +238,7 @@ function StageControl({ client }: { client: Client }) {
             type="button"
             aria-pressed={active}
             onClick={() => void setClientStage(client, stage.value)}
-            className={`label-caps tap-active min-h-touch flex-1 rounded-md px-2 py-2 text-xs ${
+            className={`label-caps tap-active min-h-touch flex-1 rounded-lg px-2 py-2 text-xs ${
               active ? 'bg-blaze text-on-cta' : 'text-faded'
             }`}
           >

@@ -1,6 +1,7 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ScheduleForm } from '@/features/schedules/ScheduleForm'
 import { confirm } from '@/lib/confirm'
+import { toast } from '@/lib/toast'
 import {
   deleteSchedule,
   saveSchedule,
@@ -49,7 +50,7 @@ function EditScheduleScreen() {
       await deleteSchedule(schedule)
       void navigate({ to: '/properties/$propertyId', params: { propertyId } })
     } catch {
-      window.alert('Could not reach the server — go online to delete a schedule.')
+      toast.error('Could not reach the server — go online to delete a schedule.')
     }
   }
 

@@ -3,6 +3,7 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Fab } from '@/components/Fab'
 import { SkeletonList } from '@/components/Skeleton'
 import { EmptyState } from '@/components/EmptyState'
+import { QueryError } from '@/components/QueryError'
 import { clientsQueryOptions, useClients } from '@/features/clients/hooks'
 import { queryClient } from '@/lib/queryClient'
 
@@ -16,7 +17,7 @@ export const Route = createFileRoute('/_authed/clients/')({
 
 function ClientsScreen() {
   const navigate = useNavigate()
-  const { data: clients, isLoading } = useClients()
+  const { data: clients, isLoading, isError, refetch } = useClients()
   const [search, setSearch] = useState('')
 
   const filtered = (clients ?? []).filter((c) =>
@@ -83,7 +84,7 @@ function ClientsScreen() {
                     href={`tel:${client.phone}`}
                     onClick={(e) => e.stopPropagation()}
                     aria-label={`Call ${client.name}`}
-                    className="grid h-11 w-11 place-items-center rounded-lg border border-edge text-base"
+                    className="tap-active grid h-touch w-touch place-items-center rounded-lg border border-edge text-base"
                   >
                     📞
                   </a>
@@ -91,7 +92,7 @@ function ClientsScreen() {
                     href={`sms:${client.phone}`}
                     onClick={(e) => e.stopPropagation()}
                     aria-label={`Text ${client.name}`}
-                    className="grid h-11 w-11 place-items-center rounded-lg border border-edge text-base"
+                    className="tap-active grid h-touch w-touch place-items-center rounded-lg border border-edge text-base"
                   >
                     💬
                   </a>
@@ -102,6 +103,10 @@ function ClientsScreen() {
         ))}
       </ul>
 
+      {isError && (clients?.length ?? 0) === 0 && (
+        <QueryError onRetry={() => void refetch()} />
+      )}
+
       {isLoading && filtered.length === 0 && (
         <div className="mt-2">
           <SkeletonList count={6} />
@@ -109,6 +114,7 @@ function ClientsScreen() {
       )}
 
       {!isLoading &&
+        !isError &&
         filtered.length === 0 &&
         (search ? (
           <EmptyState

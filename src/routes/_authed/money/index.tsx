@@ -4,6 +4,7 @@ import { Fab } from '@/components/Fab'
 import { Sheet } from '@/components/Sheet'
 import { SkeletonList } from '@/components/Skeleton'
 import { EmptyState } from '@/components/EmptyState'
+import { QueryError } from '@/components/QueryError'
 import {
   AGING_BUCKETS,
   AGING_COLOR,
@@ -95,8 +96,8 @@ function MoneyScreen() {
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            className={`heading-stencil flex-1 rounded-md px-2 py-3 text-sm ${
-              tab === t ? 'bg-blaze text-canvas' : 'text-faded'
+            className={`heading-stencil flex-1 rounded-lg px-2 py-3 text-sm ${
+              tab === t ? 'bg-blaze text-on-cta' : 'text-faded'
             }`}
           >
             {TAB_LABEL[t]}
@@ -145,7 +146,7 @@ function MonthHeader() {
 }
 
 function ExpensesTab() {
-  const { data: expenses, isLoading } = useExpenses()
+  const { data: expenses, isLoading, isError, refetch } = useExpenses()
 
   return (
     <>
@@ -157,7 +158,9 @@ function ExpensesTab() {
         ))}
       </ul>
       {(expenses ?? []).length === 0 &&
-        (isLoading ? (
+        (isError ? (
+          <QueryError onRetry={() => void refetch()} />
+        ) : isLoading ? (
           <div className="mt-4">
             <SkeletonList count={5} />
           </div>
@@ -197,7 +200,7 @@ function ExpenseRow({ expense }: { expense: ExpenseRow }) {
 }
 
 function InvoicesTab() {
-  const { data: invoices, isLoading } = useInvoiceBalances()
+  const { data: invoices, isLoading, isError, refetch } = useInvoiceBalances()
   const [nudgeOpen, setNudgeOpen] = useState(false)
   const today = localToday()
 
@@ -258,7 +261,9 @@ function InvoicesTab() {
         ))}
       </ul>
       {(invoices ?? []).length === 0 &&
-        (isLoading ? (
+        (isError ? (
+          <QueryError onRetry={() => void refetch()} />
+        ) : isLoading ? (
           <div className="mt-4">
             <SkeletonList count={5} />
           </div>
@@ -327,7 +332,7 @@ function NudgeSheet({
 }
 
 function EstimatesTab() {
-  const { data: estimates, isLoading } = useEstimates()
+  const { data: estimates, isLoading, isError, refetch } = useEstimates()
 
   return (
     <>
@@ -339,7 +344,9 @@ function EstimatesTab() {
         ))}
       </ul>
       {(estimates ?? []).length === 0 &&
-        (isLoading ? (
+        (isError ? (
+          <QueryError onRetry={() => void refetch()} />
+        ) : isLoading ? (
           <div className="mt-4">
             <SkeletonList count={5} />
           </div>

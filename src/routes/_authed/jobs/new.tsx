@@ -237,7 +237,7 @@ function NewJobScreen() {
         </Field>
       </div>
 
-      <div className="sticky bottom-[72px] z-30 -mx-edge mt-4 border-t-2 border-edge bg-canvas px-edge py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <div className="sticky bottom-tabbar z-30 -mx-edge mt-4 border-t-2 border-edge bg-canvas px-edge py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <PrimaryButton
           disabled={!propertyId || !date || saving}
           onClick={() => void handleSave()}

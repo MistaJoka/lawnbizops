@@ -14,7 +14,7 @@ export function CardQuickActions({ actions }: { actions: QuickAction[] }) {
     // stopPropagation is defensive — actions are siblings of the body link.
     <div className="mt-2 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
       {actions.map((a) => {
-        const cls = `tap-active flex h-10 min-w-10 items-center justify-center rounded-md border-2 border-edge px-2 text-base ${
+        const cls = `tap-active flex h-touch min-w-touch items-center justify-center rounded-lg border-2 border-edge px-2 text-base ${
           a.tone ? TONE[a.tone] : 'text-sand'
         }`
         return a.href ? (

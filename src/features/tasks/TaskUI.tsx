@@ -18,7 +18,7 @@ function TaskRow({ task, clientName }: { task: Task; clientName?: string }) {
         type="button"
         aria-label="Mark done"
         onClick={() => void toggleTaskDone(task)}
-        className="tap-active flex h-7 w-7 shrink-0 items-center justify-center rounded-md border-2 border-edge"
+        className="tap-active flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 border-edge"
       />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sand">{task.title}</p>

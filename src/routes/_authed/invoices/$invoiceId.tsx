@@ -20,6 +20,7 @@ import { invoiceFilename, shareInvoicePdf } from '@/features/invoices/share'
 import { Field, PrimaryButton, Select, TextInput, DangerButton } from '@/components/Field'
 import { SkeletonDetail } from '@/components/Skeleton'
 import { confirm } from '@/lib/confirm'
+import { toast } from '@/lib/toast'
 import { formatCents, localToday, parseDollarsToCents } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
@@ -77,9 +78,12 @@ function InvoiceDetailScreen() {
 
   async function handleReverse(payment: Payment) {
     if (
-      !window.confirm(
-        `Reverse this ${formatCents(payment.amount_cents)} payment? An offsetting line is recorded — nothing is deleted.`,
-      )
+      !(await confirm({
+        title: `Reverse this ${formatCents(payment.amount_cents)} payment?`,
+        body: 'An offsetting line is recorded — nothing is deleted.',
+        confirmLabel: 'Reverse payment',
+        destructive: true,
+      }))
     )
       return
     await reversePayment(payment)
@@ -129,7 +133,7 @@ function InvoiceDetailScreen() {
       }
     } else {
       await navigator.clipboard.writeText(text)
-      window.alert('Message copied')
+      toast.info('Message copied')
     }
     await recordReminder(detail.invoice.id)
   }
@@ -181,7 +185,7 @@ function InvoiceDetailScreen() {
           {client.phone && (
             <a
               href={`tel:${client.phone}`}
-              className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-canvas"
+              className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta"
             >
               📞 Call
             </a>
@@ -346,21 +350,28 @@ function PaymentSheet({
   const [date, setDate] = useState(localToday())
   const [note, setNote] = useState('')
   const [amountError, setAmountError] = useState(false)
+  const [saving, setSaving] = useState(false)
 
   async function handleSave() {
+    if (saving) return
     const cents = parseDollarsToCents(dollars)
     if (cents === null || cents <= 0) {
       setAmountError(true)
       return
     }
-    await recordPayment({
-      invoiceId: detail.invoice.id,
-      amountCents: cents,
-      method,
-      paidAt: date,
-      note,
-    })
-    onDone()
+    setSaving(true)
+    try {
+      await recordPayment({
+        invoiceId: detail.invoice.id,
+        amountCents: cents,
+        method,
+        paidAt: date,
+        note,
+      })
+      onDone()
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -406,16 +417,18 @@ function PaymentSheet({
           <button
             type="button"
             onClick={onDone}
-            className="heading-stencil flex-1 rounded-lg border border-edge px-4 py-4 text-sand"
+            disabled={saving}
+            className="heading-stencil tap-active flex-1 rounded-lg border border-edge px-4 py-4 text-sand disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={() => void handleSave()}
-            className="heading-stencil flex-1 rounded-lg bg-blaze px-4 py-4 text-lg text-canvas"
+            disabled={saving}
+            className="heading-stencil tap-active flex-1 rounded-lg bg-blaze px-4 py-4 text-lg text-on-cta disabled:opacity-50"
           >
-            Save
+            {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
       </div>

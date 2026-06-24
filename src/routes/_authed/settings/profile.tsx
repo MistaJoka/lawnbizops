@@ -88,6 +88,8 @@ function ProfileForm({ initial }: { initial: BusinessSettings | null }) {
       <Field label="Phone">
         <TextInput
           type="tel"
+          inputMode="tel"
+          autoComplete="tel"
           placeholder="(305) 555-0100"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
@@ -96,6 +98,8 @@ function ProfileForm({ initial }: { initial: BusinessSettings | null }) {
       <Field label="Email">
         <TextInput
           type="email"
+          inputMode="email"
+          autoComplete="email"
           placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}

@@ -31,6 +31,18 @@
   --spacing-touch: 3rem;
   --spacing-edge: 1rem;
   --spacing-gutter: 0.75rem;
+  --spacing-tabbar: 4.5rem;
+}
+
+/* Safe-area-aware bottom padding for sheets / bottom-anchored overlays.
+   env() can't live in a --spacing-* token, so it's a hand-written utility. */
+@utility pb-safe {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+
+/* Single named overlay scrim — replaces scattered bg-black/60. */
+@utility bg-scrim {
+  background-color: rgb(0 0 0 / 0.6);
 }
 
 html {

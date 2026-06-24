@@ -12,6 +12,7 @@ import { PipelineBoard } from '@/features/board/PipelineBoard'
 import { QuickAddSheet } from '@/features/board/QuickAddJob'
 import { Fab } from '@/components/Fab'
 import { SkeletonList } from '@/components/Skeleton'
+import { QueryError } from '@/components/QueryError'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { formatCents, localToday } from '@/lib/format'
@@ -93,7 +94,7 @@ function TodayScreen() {
             <button
               key={v}
               onClick={() => choose(v)}
-              className={`heading-stencil tap-active rounded-md px-3 py-1.5 text-sm ${
+              className={`heading-stencil tap-active rounded-lg px-3 py-1.5 text-sm ${
                 view === v ? 'bg-blaze text-on-cta' : 'text-faded'
               }`}
             >
@@ -117,7 +118,7 @@ function TodayScreen() {
 /** Drive-order route: nearest-neighbor stops + one-tap multi-stop Maps link. */
 function RouteView({ onQuickAdd }: { onQuickAdd: () => void }) {
   const today = localToday()
-  const { data: jobs, isLoading } = useJobsForDate(today)
+  const { data: jobs, isLoading, isError, refetch } = useJobsForDate(today)
   const [origin, setOrigin] = useState<LatLng | null>(null)
   const alertsOn = loadPreferences().inventoryAlerts
   const { data: inventory } = useInventory(alertsOn)
@@ -203,13 +204,17 @@ function RouteView({ onQuickAdd }: { onQuickAdd: () => void }) {
         ))}
       </section>
 
+      {isError && (jobs?.length ?? 0) === 0 && (
+        <QueryError onRetry={() => void refetch()} />
+      )}
+
       {isLoading && ordered.length === 0 && (
         <div className="px-edge pt-2">
           <SkeletonList count={4} variant="card" />
         </div>
       )}
 
-      {!isLoading && ordered.length === 0 && (
+      {!isLoading && !isError && ordered.length === 0 && (
         <div className="flex flex-col items-center gap-3 px-edge py-16 text-center">
           <p className="text-lg text-faded">
             {finished.length > 0 ? 'All done for today.' : 'No jobs on the books yet.'}

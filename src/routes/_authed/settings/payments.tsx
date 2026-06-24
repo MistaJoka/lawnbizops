@@ -69,7 +69,7 @@ function PaymentsScreen() {
                   type="button"
                   disabled={busy}
                   onClick={() => void setProvider(provider.value)}
-                  className="heading-stencil tap-active mt-3 block w-full rounded-lg bg-blaze px-4 py-3 text-canvas disabled:opacity-50"
+                  className="heading-stencil tap-active mt-3 block w-full rounded-lg bg-blaze px-4 py-3 text-on-cta disabled:opacity-50"
                 >
                   Set up
                 </button>

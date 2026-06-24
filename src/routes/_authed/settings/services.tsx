@@ -63,7 +63,7 @@ function ServicesScreen() {
             setEditingId(null)
             setAdding(true)
           }}
-          className="heading-stencil mt-6 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-canvas"
+          className="heading-stencil mt-6 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-on-cta"
         >
           + Add service
         </button>

@@ -1,7 +1,22 @@
 import { useState } from 'react'
+import {
+  StatusChip as SharedStatusChip,
+  type StatusVariant,
+} from '@/components/StatusChip'
+import { confirm } from '@/lib/confirm'
+import { toast } from '@/lib/toast'
 import { rescheduleJob, setJobStatus, type JobWithContext } from '@/features/jobs/hooks'
 
-const STATUS_LABEL: Record<string, string> = {
+const VARIANT: Record<string, StatusVariant> = {
+  scheduled: 'info',
+  in_progress: 'progress',
+  done: 'success',
+  skipped: 'neutral',
+  canceled: 'neutral',
+  invoiced: 'success',
+}
+
+const LABEL: Record<string, string> = {
   scheduled: 'To do',
   in_progress: 'In progress',
   done: 'Done',
@@ -10,24 +25,15 @@ const STATUS_LABEL: Record<string, string> = {
   invoiced: 'Invoiced',
 }
 
-const STATUS_COLOR: Record<string, string> = {
-  scheduled: 'bg-olive text-sand',
-  in_progress: 'bg-blaze text-on-cta',
-  done: 'bg-go text-canvas',
-  skipped: 'bg-surface-highest text-faded',
-  canceled: 'bg-surface-highest text-faded',
-  invoiced: 'bg-go text-canvas',
+function jobStatusVariant(status: string): StatusVariant {
+  return VARIANT[status] ?? 'neutral'
 }
 
 export function StatusChip({ status }: { status: string }) {
   return (
-    <span
-      className={`status-badge shrink-0 rounded px-2 py-0.5 ${
-        STATUS_COLOR[status] ?? 'bg-surface-highest text-faded'
-      }`}
-    >
-      {STATUS_LABEL[status] ?? status}
-    </span>
+    <SharedStatusChip variant={jobStatusVariant(status)}>
+      {LABEL[status] ?? status}
+    </SharedStatusChip>
   )
 }
 
@@ -39,6 +45,7 @@ export function StatusChip({ status }: { status: string }) {
 export function JobActions({ job }: { job: JobWithContext }) {
   const [open, setOpen] = useState(false)
   const [moving, setMoving] = useState(false)
+  const [moveBusy, setMoveBusy] = useState(false)
   const [moveDate, setMoveDate] = useState(job.scheduled_date)
 
   if (job.status !== 'scheduled' && job.status !== 'in_progress') return null
@@ -46,6 +53,32 @@ export function JobActions({ job }: { job: JobWithContext }) {
   const scheduled = job.status === 'scheduled'
   const primaryLabel = scheduled ? '▶ Start' : '✓ Done'
   const primary = () => void setJobStatus(job, scheduled ? 'in_progress' : 'done')
+
+  async function skip() {
+    if (
+      !(await confirm({
+        title: 'Skip this job?',
+        body: 'Marks it skipped (rain / no-show). You can reopen it later.',
+        confirmLabel: 'Skip',
+      }))
+    )
+      return
+    await setJobStatus(job, 'skipped')
+  }
+
+  async function move() {
+    if (!moveDate || moveBusy) return
+    setMoveBusy(true)
+    try {
+      await rescheduleJob(job, moveDate)
+      setMoving(false)
+      setOpen(false)
+    } catch {
+      toast.error('Could not move job — try again')
+    } finally {
+      setMoveBusy(false)
+    }
+  }
 
   return (
     <div onClick={(e) => e.stopPropagation()}>
@@ -75,7 +108,7 @@ export function JobActions({ job }: { job: JobWithContext }) {
               ✓ Mark done
             </OverflowButton>
           )}
-          <OverflowButton onClick={() => void setJobStatus(job, 'skipped')}>
+          <OverflowButton onClick={() => void skip()}>
             Skip (rain / no-show)
           </OverflowButton>
           <OverflowButton onClick={() => setMoving((m) => !m)}>
@@ -87,19 +120,16 @@ export function JobActions({ job }: { job: JobWithContext }) {
                 type="date"
                 value={moveDate}
                 onChange={(e) => setMoveDate(e.target.value)}
+                disabled={moveBusy}
                 aria-label="New date"
-                className="w-full rounded-lg border-2 border-edge bg-canvas px-4 py-3 text-lg text-sand focus:border-blaze focus:ring-2 focus:ring-blaze/20 focus:outline-none"
+                className="w-full rounded-lg border-2 border-edge bg-canvas px-4 py-3 text-lg text-sand focus:border-blaze focus:ring-2 focus:ring-blaze/20 focus:outline-none disabled:opacity-50"
               />
               <button
-                onClick={() => {
-                  if (!moveDate) return
-                  void rescheduleJob(job, moveDate)
-                  setMoving(false)
-                  setOpen(false)
-                }}
-                className="heading-stencil tap-active shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta"
+                onClick={() => void move()}
+                disabled={moveBusy}
+                className="heading-stencil tap-active shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta disabled:opacity-50"
               >
-                Go
+                {moveBusy ? '…' : 'Go'}
               </button>
             </div>
           )}

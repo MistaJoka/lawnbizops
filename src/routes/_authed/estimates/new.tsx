@@ -225,7 +225,7 @@ function NewEstimateScreen() {
         </div>
       </div>
 
-      <div className="sticky bottom-[72px] z-30 -mx-edge border-t-2 border-edge bg-canvas px-edge py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+      <div className="sticky bottom-tabbar z-30 -mx-edge border-t-2 border-edge bg-canvas px-edge py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
         <PrimaryButton disabled={!canCreate} onClick={() => void handleCreate()}>
           Create estimate
         </PrimaryButton>
