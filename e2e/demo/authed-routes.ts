@@ -41,3 +41,27 @@ export const AUTHED_ROUTES: AuthedRoute[] = [
   { path: '/settings/export', heading: /export/i },
   { path: '/settings/sync', heading: /sync/i },
 ]
+
+// Detail/edit routes ($id params), resolved with canonical ids from the demo
+// seed fixture (src/lib/demo.ts). These are the data-dense screens where money
+// and status render — the highest-value targets for render + a11y regression.
+// If the seed ids change, these fail loudly and the constants get updated.
+export type DetailRoute = { path: string; label: string }
+
+export const DETAIL_ROUTES: DetailRoute[] = [
+  { path: '/clients/cccccccc-0000-4000-a000-000000000001', label: 'client detail' },
+  { path: '/clients/cccccccc-0000-4000-a000-000000000001/edit', label: 'client edit' },
+  { path: '/properties/bbbbbbbb-0000-4000-a000-000000000001', label: 'property detail' },
+  {
+    path: '/properties/bbbbbbbb-0000-4000-a000-000000000001/edit',
+    label: 'property edit',
+  },
+  { path: '/jobs/dddddddd-0000-4000-a000-000000000001', label: 'job detail' },
+  { path: '/invoices/ffffffff-0000-4000-a000-000000000001', label: 'invoice detail' },
+  { path: '/estimates/eeeeeeee-0000-4000-a000-000000000001', label: 'estimate detail' },
+  { path: '/expenses/a1100000-0000-4000-a000-000000000000', label: 'expense detail' },
+  {
+    path: '/schedules/66666666-0000-4000-a000-000000000000/edit',
+    label: 'schedule edit',
+  },
+]

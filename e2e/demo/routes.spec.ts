@@ -1,5 +1,5 @@
 import { test, expect, type Page, type ConsoleMessage } from '@playwright/test'
-import { AUTHED_ROUTES } from './authed-routes'
+import { AUTHED_ROUTES, DETAIL_ROUTES } from './authed-routes'
 
 // Drives the app in DEMO mode and visits every param-free authed route — the
 // manual "audit each route" punch list (docs/ship-readiness.md, P1 Frontend/UX)
@@ -53,6 +53,28 @@ for (const { path, heading, text } of AUTHED_ROUTES) {
     await assertNotCrashed(page)
 
     expect(errors, `console errors on ${path}:\n${errors.join('\n')}`).toEqual([])
+  })
+}
+
+for (const { path, label } of DETAIL_ROUTES) {
+  test(`renders ${label}`, async ({ page }) => {
+    const errors = trackErrors(page)
+
+    await page.goto(path)
+
+    // Data-dense detail/edit screens: assert the entity actually rendered
+    // (non-trivial content) rather than a brittle per-entity heading, and that
+    // it didn't crash or throw.
+    await assertNotCrashed(page)
+    await expect
+      .poll(async () => (await page.locator('main').innerText()).trim().length, {
+        message: `${label} (${path}) rendered empty`,
+      })
+      .toBeGreaterThan(20)
+
+    expect(errors, `console errors on ${label} (${path}):\n${errors.join('\n')}`).toEqual(
+      [],
+    )
   })
 }
 

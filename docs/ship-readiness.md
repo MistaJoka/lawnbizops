@@ -49,15 +49,19 @@ used, no hardcoded colors. Add the missing state or fix the token; write a note.
 
 > **Automated backing (added 2026-06-24):** `e2e/demo/` (run with
 > `npm run test:e2e:demo`, gated in CI as `e2e-demo`) now exercises **every**
-> param-free authed route in DEMO mode — no Supabase/Docker/egress:
-> - `routes.spec.ts` — each screen paints its expected content without crashing
->   the error boundary or throwing to console ("does it render?").
-> - `a11y.spec.ts` — an axe scan per screen, gated on critical/serious. Its first
->   run caught 4 real defects, now fixed: nested-interactive on the clients list
->   (tel/sms links nested in the card link → stretched-link pattern), a
->   role="switch" missing aria-checked (Toggle hardened), color-contrast on the
->   tools "coming soon" cards (dropped opacity dimming), and a color-only inline
->   link on the tax screen (added underline).
+> authed route — param-free screens _and_ the data-dense detail/edit screens
+> (client/property/job/invoice/estimate/expense detail, schedule edit, resolved
+> with canonical demo-seed ids) — in DEMO mode, no Supabase/Docker/egress:
+>
+> - `routes.spec.ts` — each screen paints its content without crashing the error
+>   boundary or throwing to console ("does it render?").
+> - `a11y.spec.ts` — an axe scan per screen, gated on critical/serious. Scans run
+>   with animations neutralized so contrast is judged on the settled state, not a
+>   transient fade frame. Its first run caught 4 real defects, now fixed:
+>   nested-interactive on the clients list (tel/sms links nested in the card link
+>   → stretched-link pattern), a role="switch" missing aria-checked (Toggle
+>   hardened), color-contrast on the tools "coming soon" cards (dropped opacity
+>   dimming), and a color-only inline link on the tax screen (added underline).
 >
 > The per-route manual passes below still cover the qualitative checks (tap-target
 > size, token usage, loading/empty polish) the smoke can't judge.
