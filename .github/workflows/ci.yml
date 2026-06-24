@@ -96,6 +96,29 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
+  # Backend-free render smoke: drives the app in DEMO mode (VITE_DEMO=1, the
+  # in-memory fake backend) and visits every authed route, asserting each paints
+  # its content without crashing into the error boundary or throwing to console.
+  # No Supabase/Docker — fast, and the only e2e that can run in a sandbox.
+  e2e-demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:demo
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-demo-report
+          path: playwright-report/
+          retention-days: 7
+
   # Mutation testing on the scoped pure-logic files (route/csv/dates/format/
   # recurrence/board). Catches assertions that pass but don't actually pin
   # behaviour — it already found 2 real gaps once. Gated by the `break`

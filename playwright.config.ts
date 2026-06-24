@@ -5,6 +5,8 @@ import { defineConfig, devices } from '@playwright/test'
 // database — determinism over speed. global-setup re-seeds for a known state.
 export default defineConfig({
   testDir: './e2e',
+  // The backend-free demo smoke suite has its own config (playwright.demo.config.ts).
+  testIgnore: '**/demo/**',
   fullyParallel: false,
   workers: 1,
   forbidOnly: !!process.env.CI,

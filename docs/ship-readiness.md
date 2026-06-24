@@ -47,6 +47,14 @@ For each `src/routes/_authed/*`: confirm loading, empty, and error states exist;
 tap targets are glove-sized; dark-theme tokens (bg-canvas/panel, text-sand/faded)
 used, no hardcoded colors. Add the missing state or fix the token; write a note.
 
+> **Automated backing (added 2026-06-24):** `e2e/demo/routes.spec.ts` (run with
+> `npm run test:e2e:demo`, gated in CI as `e2e-demo`) now renders **every**
+> param-free authed route in DEMO mode — no Supabase/Docker/egress — and asserts
+> each paints its expected content without crashing the error boundary or
+> throwing to console. This is the "does the screen render?" half of the audit as
+> permanent regression; the per-route manual passes below still cover the
+> qualitative checks (tap-target size, token usage, loading/empty polish).
+
 - [x] dashboard — audited by source (live preview blocked: sandbox has no Supabase egress). Clean: loading state present, empty=zeros, tap targets are full-card Links + `h-touch` header, all theme tokens correct, no hardcoded colors. Query-error handling intentionally deferred to the app-level boundary (consistent with every route — none read `isError`). No code change.
       _⏸ PAUSED (user decision): the preview sandbox has no Supabase egress, so these
       can only be audited by source, not verified live (no proof of smoothness/speed).

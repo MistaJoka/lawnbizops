@@ -17,6 +17,7 @@
     "format:check": "prettier --check .",
     "preview": "vite preview",
     "test:e2e": "playwright test",
+    "test:e2e:demo": "playwright test --config playwright.demo.config.ts",
     "dev:demo": "VITE_DEMO=1 vite"
   },
   "dependencies": {
