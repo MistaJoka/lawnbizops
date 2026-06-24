@@ -9,8 +9,8 @@ Enrich the top status strip ([`DevStripe.tsx`](../../../src/components/DevStripe
 while keeping it a **pure system-status strip** — no business/operational data.
 Two additions:
 
-1. **Last-sync time** — surface *how stale* the local data is, especially when
-   offline. Today the bar shows sync *state* ("Synced") but never *when*.
+1. **Last-sync time** — surface _how stale_ the local data is, especially when
+   offline. Today the bar shows sync _state_ ("Synced") but never _when_.
 2. **Tap-to-expand detail** — a popover with the underlying sync facts (last
    sync, pending, failed, oldest queued), so the strip stays thin but gains
    depth on demand.
@@ -93,14 +93,14 @@ Behavior / a11y:
 
 Popover rows (each rendered only when it has a value):
 
-| Row | Value | Shown when |
-|-----|-------|-----------|
-| State | full label (`Synced` / `Syncing` / `Offline` / `Sync issue`) | always |
-| Last sync | `shortAgo(lastSyncedAt)`; `Never` if no record | always |
-| Pending | `N` queued writes | `pending > 0` |
-| Failed | `N` | `failed > 0` |
-| Oldest queued | age of oldest pending write | `pending > 0` **and** timestamp available |
-| Action | `Reload to update` / `Review sync issue →` (`/settings/sync`) | update-ready / error |
+| Row           | Value                                                         | Shown when                                |
+| ------------- | ------------------------------------------------------------- | ----------------------------------------- |
+| State         | full label (`Synced` / `Syncing` / `Offline` / `Sync issue`)  | always                                    |
+| Last sync     | `shortAgo(lastSyncedAt)`; `Never` if no record                | always                                    |
+| Pending       | `N` queued writes                                             | `pending > 0`                             |
+| Failed        | `N`                                                           | `failed > 0`                              |
+| Oldest queued | age of oldest pending write                                   | `pending > 0` **and** timestamp available |
+| Action        | `Reload to update` / `Review sync issue →` (`/settings/sync`) | update-ready / error                      |
 
 The update + error actions move **into** the popover, so those states reach
 their action in two taps. Acceptable since neither reload nor sync-review is
@@ -135,14 +135,14 @@ Follow the existing convention: test the pure functions, not the JSX.
 
 ## Components & Boundaries
 
-| Unit | Responsibility | Depends on |
-|------|----------------|-----------|
-| `syncClock.ts` | persist + broadcast `lastSyncedAt` | `localStorage`, outbox success path |
-| `format.shortAgo` | format a timestamp as a short relative string | none (pure) |
-| `statusBar.statusView` | compact pill view (now incl. age suffix) | pure inputs |
-| `statusBar.statusDetail` | ordered popover rows | pure inputs |
-| `outbox` hooks | expose failed count + oldest pending | Dexie live queries |
-| `DevStripe` | render strip + popover, tick interval, focus mgmt | all of the above |
+| Unit                     | Responsibility                                    | Depends on                          |
+| ------------------------ | ------------------------------------------------- | ----------------------------------- |
+| `syncClock.ts`           | persist + broadcast `lastSyncedAt`                | `localStorage`, outbox success path |
+| `format.shortAgo`        | format a timestamp as a short relative string     | none (pure)                         |
+| `statusBar.statusView`   | compact pill view (now incl. age suffix)          | pure inputs                         |
+| `statusBar.statusDetail` | ordered popover rows                              | pure inputs                         |
+| `outbox` hooks           | expose failed count + oldest pending              | Dexie live queries                  |
+| `DevStripe`              | render strip + popover, tick interval, focus mgmt | all of the above                    |
 
 ## Risks / Open Items
 

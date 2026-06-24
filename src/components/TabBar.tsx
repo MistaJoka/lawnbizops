@@ -17,15 +17,18 @@ export function TabBar() {
       className="fixed inset-x-0 bottom-0 z-50 border-t-2 border-edge bg-surface-low"
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="mx-auto flex h-tabbar w-full max-w-md items-center justify-around px-2">
+      <div className="mx-auto flex h-tabbar w-full max-w-md items-center gap-1 px-1">
         {tabs.map(({ to, label, icon: Icon }) => (
+          // Equal-width tabs (flex-1) so all five fit and stay evenly aligned on
+          // narrow phones — the long labels (SCHEDULE/SETTINGS) overflowed at
+          // 375px with the old px-3 + 12px label-caps.
           <Link
             key={to}
             to={to}
-            className="tap-active flex flex-col items-center justify-center rounded-lg px-3 py-1 text-faded transition-transform duration-75 active:scale-95"
+            className="tap-active flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg px-1 py-1.5 text-faded transition-transform duration-75 active:scale-95"
             activeProps={{
               className:
-                'tap-active flex flex-col items-center justify-center rounded-lg bg-blaze px-4 py-1 text-on-cta transition-transform duration-75 active:scale-95',
+                'tap-active flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg bg-blaze px-1 py-1.5 text-on-cta transition-transform duration-75 active:scale-95',
             }}
             activeOptions={{ exact: to === '/' }}
           >
@@ -38,7 +41,11 @@ export function TabBar() {
                 />
               )}
             </span>
-            <span className="label-caps mt-0.5">{label}</span>
+            {/* Tab-scale label: smaller + tighter tracking than label-caps so the
+                widest words fit a fifth of a narrow viewport without clipping. */}
+            <span className="font-mono text-[10px] leading-none font-bold tracking-[0.04em] uppercase">
+              {label}
+            </span>
           </Link>
         ))}
       </div>
