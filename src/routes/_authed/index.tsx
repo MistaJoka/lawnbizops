@@ -369,10 +369,14 @@ function TodayJobCard({
           {p?.client?.name ?? 'Job'}
         </h3>
 
-        <p className="mt-1 flex items-center gap-1 truncate text-muted">
+        {/* truncate must live on the single text span, not the flex row — on a
+            flex container it hard-clips with no ellipsis. Icon stays fixed. */}
+        <p className="mt-1 flex items-center gap-1 text-muted">
           <LocationIcon />
-          {[p?.label, p?.city].filter(Boolean).join(' · ')}
-          {job.title && <span> — {job.title}</span>}
+          <span className="min-w-0 truncate">
+            {[p?.label, p?.city].filter(Boolean).join(' · ')}
+            {job.title && ` — ${job.title}`}
+          </span>
         </p>
 
         <div className="mt-2 flex items-center gap-3">
