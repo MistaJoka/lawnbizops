@@ -51,6 +51,10 @@ used, no hardcoded colors. Add the missing state or fix the token; write a note.
       _⏸ PAUSED (user decision): the preview sandbox has no Supabase egress, so these
       can only be audited by source, not verified live (no proof of smoothness/speed).
       Loop pivoted to Resilience first; resume these once preview backend access works._
+      _✅ UNBLOCKED: **demo mode** (`npm run dev:demo`, i.e. `VITE_DEMO=1`) swaps in
+      an in-memory fake backend (`src/lib/demo.ts`) seeded from `seed.sql`, so every
+      authed screen now renders live with no egress/Docker. These route audits can
+      resume against the demo preview. Demo data tree-shakes out of prod builds._
 
 - [⏸] clients (list + detail)
 - [⏸] jobs / board / pipeline
@@ -66,7 +70,7 @@ used, no hardcoded colors. Add the missing state or fix the token; write a note.
 
 ## P1 — Resilience (loop's active section)
 
-- [x] App-level error boundary renders a recoverable fallback (test it). **Done:** the true root cause was deeper than `_authed.beforeLoad` — `main.tsx` `bootstrap()` awaited `maybeAutologin()` *before* the first render, and a network rejection (offline) or hang (stored-but-expired token refresh vs. dead backend) meant `render()` never ran (observed: `rootChildCount: 0`). Fixes: `maybeAutologin` swallows auth failures + bounds the wait with a timeout race (TDD — reject/anon-reject/hang); root route `errorComponent` = `AppErrorFallback` (recoverable offline screen + Reload, tested); router `defaultPendingComponent` ("Connecting…") for a slow gate. Verified in preview: a no-session cold start now renders `/login` + the top bar, not blank.
+- [x] App-level error boundary renders a recoverable fallback (test it). **Done:** the true root cause was deeper than `_authed.beforeLoad` — `main.tsx` `bootstrap()` awaited `maybeAutologin()` _before_ the first render, and a network rejection (offline) or hang (stored-but-expired token refresh vs. dead backend) meant `render()` never ran (observed: `rootChildCount: 0`). Fixes: `maybeAutologin` swallows auth failures + bounds the wait with a timeout race (TDD — reject/anon-reject/hang); root route `errorComponent` = `AppErrorFallback` (recoverable offline screen + Reload, tested); router `defaultPendingComponent` ("Connecting…") for a slow gate. Verified in preview: a no-session cold start now renders `/login` + the top bar, not blank.
 - [~] Outbox failure surfaces to the user (poison-op quarantine has visible UX) — **partial:** the top status bar now shows `● Sync issue` (alert) linking to `/settings/sync` whenever `useSyncStatus()` is `error`, so a parked poison op is always glanceable + tappable to recovery. Remaining: per-resource in-context surfacing on the affected record.
 - [~] Offline cold-start path verified (cache persister + outbox replay) — **partial:** the bootstrap gate now tolerates no-network at first paint (timeout race + error/pending fallbacks above), so a dead-zone cold start paints instead of blanking. Remaining: end-to-end verify the cache-persister rehydrate + outbox replay against a real backend once preview egress works (item #2 below).
 
