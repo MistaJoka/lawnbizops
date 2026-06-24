@@ -8,6 +8,8 @@ import { useSyncExternalStore } from 'react'
 import { Link } from '@tanstack/react-router'
 import buildInfo from 'virtual:build-info'
 import { useOutboxPending, useSyncStatus } from '@/lib/outbox'
+import { applyUpdate, useUpdateReady } from '@/lib/pwaUpdate'
+import { statusView } from '@/lib/statusBar'
 
 const { version, sha, dirty, committedAt } = buildInfo
 
@@ -59,48 +61,40 @@ export function DevStripe() {
   )
 }
 
-// One compact cluster: a connection dot (online/offline) + the save/sync word
-// + a live unsynced count that stays visible the whole time writes are queued,
-// not just when offline.
+// One compact cluster, in priority order:
+//   • Update  — a newer deployed build is staged (tap to load the latest)
+//   • Sync issue / Offline / Syncing / Synced — connection + save state, with a
+//     live unsynced count while writes are queued.
 function SyncStat() {
   const online = useOnline()
   const status = useSyncStatus()
   const pending = useOutboxPending()
+  const updateReady = useUpdateReady()
 
-  let dot = 'bg-go' // green = connected & clear
-  let text = 'text-faded'
-  let label = 'Synced'
-  let showCount = false
-
-  if (status === 'error') {
-    dot = 'bg-alert'
-    text = 'text-alert'
-    label = 'Sync issue'
-  } else if (!online) {
-    dot = 'bg-faded' // offline is normal for a field tool — calm, not alarming
-    label = pending > 0 ? 'Saved' : 'Offline'
-    showCount = pending > 0
-  } else if (status === 'syncing' || pending > 0) {
-    dot = 'bg-go animate-pulse'
-    text = 'text-khaki'
-    label = 'Syncing'
-    showCount = pending > 0
-  }
+  const v = statusView({ updateReady, online, status, pending })
 
   const body = (
-    <span className={`flex shrink-0 items-center gap-1.5 ${text}`}>
-      <span className={`h-1.5 w-1.5 rounded-full ${dot}`} />
-      {label}
-      {showCount && <span className="text-faded">· {pending}</span>}
+    <span className={`flex shrink-0 items-center gap-1.5 ${v.text}`}>
+      <span className={`h-1.5 w-1.5 rounded-full ${v.dot}`} />
+      {v.label}
+      {v.count != null && <span className="text-faded">· {v.count}</span>}
     </span>
   )
 
-  // A parked poison op is the one state worth tapping — route to its recovery.
-  return status === 'error' ? (
-    <Link to="/settings/sync" aria-label="Sync issue — review">
-      {body}
-    </Link>
-  ) : (
-    body
-  )
+  // Update → activate the staged build + reload. Sync error → route to recovery.
+  if (v.kind === 'update') {
+    return (
+      <button type="button" onClick={applyUpdate} aria-label="Update available — reload">
+        {body}
+      </button>
+    )
+  }
+  if (v.kind === 'error') {
+    return (
+      <Link to="/settings/sync" aria-label="Sync issue — review">
+        {body}
+      </Link>
+    )
+  }
+  return body
 }

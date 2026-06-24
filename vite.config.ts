@@ -58,7 +58,11 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // 'prompt' (not autoUpdate) so a new deploy doesn't swap in silently — the
+      // top bar surfaces an "Update" the moment it's staged, and the user taps to
+      // load it. We register the SW manually (main.tsx) to hook that callback.
+      registerType: 'prompt',
+      injectRegister: false,
       // App shell only — Supabase data caching is TanStack Query's job, never the SW's.
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],

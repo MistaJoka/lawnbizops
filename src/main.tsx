@@ -5,7 +5,9 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import * as Sentry from '@sentry/react'
 import { routeTree } from './routeTree.gen'
 import { CACHE_MAX_AGE_MS, dexiePersister, queryClient } from './lib/queryClient'
+import { registerSW } from 'virtual:pwa-register'
 import { initOutbox } from './lib/outbox'
+import { markUpdateReady } from './lib/pwaUpdate'
 import { maybeAutologin } from './lib/autologin' // DEV/TEST-ONLY — see autologin.ts
 import { DevPanel } from './dev/DevPanel' // DEV-ONLY — see below; delete with src/dev/
 import { ToastHost } from './components/Toast'
@@ -24,6 +26,22 @@ if (sentryDsn) {
 }
 
 initOutbox()
+
+// Register the service worker and surface a staged new build to the top bar.
+// onNeedRefresh fires when a deploy is precached and waiting; markUpdateReady
+// flips the bar to "Update", and tapping it runs updateSW(true) → reload into
+// the new version. Poll every 60s so a push-to-main shows up without a manual
+// reload while the app is open. No-op in dev (SW disabled).
+const updateSW = registerSW({
+  onNeedRefresh() {
+    markUpdateReady(() => void updateSW(true))
+  },
+  onRegisteredSW(_swUrl, registration) {
+    if (registration) {
+      setInterval(() => void registration.update(), 60_000)
+    }
+  },
+})
 
 const router = createRouter({
   routeTree,
