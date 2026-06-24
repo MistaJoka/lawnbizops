@@ -77,4 +77,19 @@ describe('savePreferences', () => {
     expect(prefs.pushNotifications).toBe(true) // earlier change survives
     expect(prefs.todayView).toBe('route')
   })
+
+  it('returns merged prefs without throwing when setItem fails (e.g. private mode)', () => {
+    // Private-browsing / disabled-storage: setItem throws SecurityError/QuotaExceededError.
+    const throwing = memStorage()
+    throwing.setItem = () => {
+      throw new DOMException('write blocked', 'SecurityError')
+    }
+    vi.stubGlobal('localStorage', throwing)
+
+    let saved: ReturnType<typeof savePreferences> | undefined
+    expect(() => {
+      saved = savePreferences({ pushNotifications: true })
+    }).not.toThrow()
+    expect(saved?.pushNotifications).toBe(true) // in-memory state still updates
+  })
 })

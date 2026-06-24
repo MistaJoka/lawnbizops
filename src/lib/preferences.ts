@@ -31,6 +31,11 @@ export function loadPreferences(): AppPreferences {
 
 export function savePreferences(patch: Partial<AppPreferences>): AppPreferences {
   const next = { ...loadPreferences(), ...patch }
-  localStorage.setItem(KEY, JSON.stringify(next))
+  try {
+    localStorage.setItem(KEY, JSON.stringify(next))
+  } catch {
+    // Private-browsing / disabled-storage: setItem can throw
+    // (SecurityError / QuotaExceededError). Degrade to in-memory only.
+  }
   return next
 }
