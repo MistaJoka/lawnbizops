@@ -90,4 +90,34 @@ describe('maybeAutologin', () => {
     expect(auth.signInAnonymously).not.toHaveBeenCalled()
     expect(auth.signInWithPassword).not.toHaveBeenCalled()
   })
+
+  // Dead-zone cold start: the network is unreachable, so getSession's token
+  // refresh rejects. maybeAutologin runs *before* the first render in main.tsx —
+  // if it throws, render never happens and the screen is blank. It must always
+  // resolve so the app still boots (and falls through to the login/offline path).
+  it('does not throw when getSession rejects (offline cold start)', async () => {
+    vi.stubEnv('VITE_GUEST_MODE', '1')
+    auth.getSession.mockRejectedValue(new TypeError('Failed to fetch'))
+    await expect(maybeAutologin()).resolves.toBeUndefined()
+  })
+
+  it('does not throw when anonymous sign-in rejects (offline guest)', async () => {
+    vi.stubEnv('VITE_GUEST_MODE', '1')
+    auth.signInAnonymously.mockRejectedValue(new TypeError('Failed to fetch'))
+    await expect(maybeAutologin()).resolves.toBeUndefined()
+  })
+
+  // Worse than a clean rejection: a stored-but-expired token makes getSession
+  // *hang* on a token refresh that retries against an unreachable backend. Since
+  // this blocks the first render, maybeAutologin must give up after a bound and
+  // resolve, so the app paints (router → login/offline) instead of staying blank.
+  it(
+    'resolves within the timeout even if auth hangs (dead-zone cold start)',
+    { timeout: 1000 },
+    async () => {
+      vi.stubEnv('VITE_GUEST_MODE', '1')
+      auth.getSession.mockReturnValue(new Promise(() => {})) // never settles
+      await expect(maybeAutologin(20)).resolves.toBeUndefined()
+    },
+  )
 })

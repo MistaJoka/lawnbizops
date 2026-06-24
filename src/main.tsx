@@ -36,6 +36,15 @@ const router = createRouter({
   // owns data freshness, so the router itself shouldn't re-cache loader data.
   defaultPreload: 'intent',
   defaultPreloadStaleTime: 0,
+  // A slow auth gate (e.g. a flaky cold start where `_authed` beforeLoad waits
+  // on the network) shows this after ~1s instead of a blank screen. Fast loads
+  // from cache never reach it. The root component still renders the top bar
+  // around it, so build/version + sync status stay visible.
+  defaultPendingComponent: () => (
+    <div className="flex min-h-dvh items-center justify-center">
+      <p className="label-caps animate-pulse text-faded">Connecting…</p>
+    </div>
+  ),
 })
 
 declare module '@tanstack/react-router' {

@@ -44,7 +44,24 @@ export function autologinCredentials(
  * the _authed guard sees a live session and skips the login screen. Best-effort:
  * any failure (bad creds, offline) just falls through to the normal login flow.
  */
-export async function maybeAutologin(): Promise<void> {
+/**
+ * Runs before the first render in main.tsx. A dead-zone cold start makes the
+ * auth calls fail in the two nastiest ways: a clean *rejection* (offline), or a
+ * *hang* when a stored-but-expired token refreshes against an unreachable
+ * backend. Either blocks the first paint and leaves the screen blank. So this
+ * bounds the wait: resolve on success, on failure, OR after `timeoutMs` — the
+ * app always boots and the router shows the login/offline path. Any sign-in
+ * still in flight finishes in the background.
+ */
+export async function maybeAutologin(timeoutMs = 2500): Promise<void> {
+  // Late failure must not become an unhandled rejection once the race resolves.
+  const boot = authBootstrap().catch((e) => {
+    console.warn('[autologin] auth unreachable at boot (offline?) — booting anyway:', e)
+  })
+  await Promise.race([boot, new Promise<void>((r) => setTimeout(r, timeoutMs))])
+}
+
+async function authBootstrap(): Promise<void> {
   const { data } = await supabase.auth.getSession()
   if (data.session) return
 
