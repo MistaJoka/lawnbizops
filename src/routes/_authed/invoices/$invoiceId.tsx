@@ -142,10 +142,16 @@ function InvoiceDetailScreen() {
 
   async function handleVoid() {
     if (!detail) return
+    // Voiding doesn't reverse recorded payments — warn so collected revenue
+    // isn't left counting money against a voided invoice.
+    const body =
+      paid > 0
+        ? `This invoice has ${formatCents(paid)} in recorded payments. Voiding won’t reverse them — reverse each payment first if the money didn’t actually come in.`
+        : 'It stays on the books as a record but stops counting toward what you’re owed.'
     if (
       !(await confirm({
         title: 'Void this invoice?',
-        body: 'It stays on the books as a record but stops counting toward what you’re owed.',
+        body,
         confirmLabel: 'Void invoice',
         destructive: true,
       }))
