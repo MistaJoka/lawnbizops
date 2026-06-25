@@ -32,7 +32,7 @@ const FALLBACK_CENTER: [number, number] = [27.9944, -81.7603] // central Florida
 // Numbered, glove-friendly pin as a divIcon (no external image asset, so it
 // survives bundling). Selected pin uses the blaze CTA color.
 function numberedIcon(seq: number, selected: boolean): L.DivIcon {
-  const bg = selected ? 'var(--color-blaze, #e25822)' : 'var(--color-panel, #1c1c1c)'
+  const bg = selected ? 'var(--color-blaze, #ff6b00)' : 'var(--color-panel, #1e2023)'
   return L.divIcon({
     className: '',
     html: `<div style="width:32px;height:32px;border-radius:9999px;border:2px solid #d8c9a8;background:${bg};color:#f2ead6;font:700 14px/28px ui-monospace,monospace;text-align:center">${seq}</div>`,
@@ -43,11 +43,15 @@ function numberedIcon(seq: number, selected: boolean): L.DivIcon {
 
 function FitBounds({ stops, origin }: { stops: RouteStop[]; origin: LatLng | null }) {
   const map = useMap()
+  const boundsKey =
+    stops.map((s) => `${s.lat},${s.lng}`).join('|') +
+    (origin ? `@${origin.lat},${origin.lng}` : '')
   useEffect(() => {
     const pts: [number, number][] = stops.map((s) => [s.lat, s.lng])
     if (origin) pts.push([origin.lat, origin.lng])
     if (pts.length > 0) map.fitBounds(L.latLngBounds(pts), { padding: [40, 40] })
-  }, [map, stops, origin])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, boundsKey])
   return null
 }
 

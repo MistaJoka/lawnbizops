@@ -60,10 +60,14 @@ export function DispatchScreen() {
   const pinned = useMemo(() => ordered.filter((j) => jobPos(j) !== null), [ordered])
   const unpinned = useMemo(() => ordered.filter((j) => jobPos(j) === null), [ordered])
 
-  const stops: RouteStop[] = pinned.map((j, i) => {
-    const p = jobPos(j)!
-    return { id: j.id, lat: p.lat, lng: p.lng, label: jobLabel(j), seq: i + 1 }
-  })
+  const stops: RouteStop[] = useMemo(
+    () =>
+      pinned.map((j, i) => {
+        const p = jobPos(j)!
+        return { id: j.id, lat: p.lat, lng: p.lng, label: jobLabel(j), seq: i + 1 }
+      }),
+    [pinned],
+  )
 
   // Best-effort road upgrade. Re-run when the pinned set/order changes.
   const stopKey = stops.map((s) => `${s.lat},${s.lng}`).join('|')
