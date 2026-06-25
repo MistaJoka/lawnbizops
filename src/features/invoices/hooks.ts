@@ -29,6 +29,29 @@ export const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
   { value: 'other', label: 'Other' },
 ]
 
+// Most operators get paid the same way every time. Remember the last method
+// (device-local — it's a per-device habit, not org data) and default to it so
+// the payment form doesn't re-ask for the obvious answer.
+const LAST_METHOD_KEY = 'lbo:lastPaymentMethod'
+
+export function getLastPaymentMethod(): PaymentMethod {
+  try {
+    const v = localStorage.getItem(LAST_METHOD_KEY)
+    if (v && PAYMENT_METHODS.some((m) => m.value === v)) return v as PaymentMethod
+  } catch {
+    /* localStorage unavailable (private mode / SSR) — fall through */
+  }
+  return 'cash'
+}
+
+export function rememberPaymentMethod(method: PaymentMethod): void {
+  try {
+    localStorage.setItem(LAST_METHOD_KEY, method)
+  } catch {
+    /* ignore */
+  }
+}
+
 /** A row from the invoice_balances view, joined with the client's name/phone. */
 export interface InvoiceBalance {
   invoice_id: string

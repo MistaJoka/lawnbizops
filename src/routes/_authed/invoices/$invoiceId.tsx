@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   PAYMENT_METHODS,
+  getLastPaymentMethod,
+  rememberPaymentMethod,
   invoiceTotalCents,
   lineTotalCents,
   markSent,
@@ -346,7 +348,7 @@ function PaymentSheet({
   onDone: () => void
 }) {
   const [dollars, setDollars] = useState((balance / 100).toFixed(2))
-  const [method, setMethod] = useState<PaymentMethod>('cash')
+  const [method, setMethod] = useState<PaymentMethod>(getLastPaymentMethod())
   const [date, setDate] = useState(localToday())
   const [note, setNote] = useState('')
   const [amountError, setAmountError] = useState(false)
@@ -368,6 +370,7 @@ function PaymentSheet({
         paidAt: date,
         note,
       })
+      rememberPaymentMethod(method)
       onDone()
     } finally {
       setSaving(false)
