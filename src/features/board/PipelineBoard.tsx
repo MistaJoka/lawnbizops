@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import {
   LANES,
@@ -36,10 +37,42 @@ const laneDomId = (id: LaneId) => `board-lane-${id}`
 export function PipelineBoard() {
   const { lanes, isLoading } = usePipelineBoard()
   const summaries = laneSummaries(lanes)
+  const rowRef = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState<LaneId>(LANES[0].id)
+
+  // Scroll-spy: highlight the nav tile for whichever lane sits nearest the
+  // viewport center, so you always know where you are in the horizontally-
+  // scrolled board. A scroll listener (vs IntersectionObserver) is deterministic
+  // and also fires on the programmatic jump that sets scrollLeft.
+  useEffect(() => {
+    const row = rowRef.current
+    if (!row) return
+    const onScroll = () => {
+      const rowRect = row.getBoundingClientRect()
+      const mid = rowRect.width / 2
+      let best = LANES[0].id
+      let bestDist = Infinity
+      for (const lane of LANES) {
+        const el = document.getElementById(laneDomId(lane.id))
+        if (!el) continue
+        const r = el.getBoundingClientRect()
+        const center = r.left - rowRect.left + r.width / 2
+        const dist = Math.abs(center - mid)
+        if (dist < bestDist) {
+          bestDist = dist
+          best = lane.id
+        }
+      }
+      setActive(best)
+    }
+    onScroll()
+    row.addEventListener('scroll', onScroll, { passive: true })
+    return () => row.removeEventListener('scroll', onScroll)
+  }, [])
 
   function scrollToLane(id: LaneId) {
     const el = document.getElementById(laneDomId(id))
-    const row = el?.parentElement
+    const row = rowRef.current
     if (!el || !row) return
     // Center the lane horizontally in the scroll row. scrollIntoView won't move
     // an overflow-x container reliably, so set scrollLeft directly.
@@ -48,12 +81,18 @@ export function PipelineBoard() {
     // Instant, not smooth: smooth scrollTo is unreliable on a scroll-snap (snap-x)
     // container — the snap cancels the animation. A direct jump always lands.
     row.scrollLeft = Math.max(0, target)
+    // Update the highlight directly: a programmatic scrollLeft change doesn't
+    // reliably fire 'scroll', and we already know the destination.
+    setActive(id)
   }
 
   return (
     <div className="flex flex-col">
-      <LaneNav summaries={summaries} onJump={scrollToLane} />
-      <div className="scroll-hide flex snap-x items-start gap-3 overflow-x-auto px-edge pt-1 pb-4">
+      <LaneNav summaries={summaries} active={active} onJump={scrollToLane} />
+      <div
+        ref={rowRef}
+        className="scroll-hide flex snap-x items-start gap-3 overflow-x-auto px-edge pt-1 pb-4"
+      >
         {LANES.map((lane) => (
           <KanbanColumn
             key={lane.id}
@@ -106,22 +145,28 @@ export function PipelineBoard() {
  */
 function LaneNav({
   summaries,
+  active,
   onJump,
 }: {
   summaries: Record<LaneId, LaneSummary>
+  active: LaneId
   onJump: (id: LaneId) => void
 }) {
   return (
     <div className="grid grid-cols-3 gap-2 px-edge pt-4">
       {LANES.map((lane) => {
         const s = summaries[lane.id]
+        const isActive = lane.id === active
         return (
           <button
             key={lane.id}
             type="button"
             onClick={() => onJump(lane.id)}
             aria-label={`${lane.title}: ${s.count} item${s.count === 1 ? '' : 's'}, ${formatCents(s.valueCents)}. Jump to lane.`}
-            className={`tap-active rounded-lg border-2 bg-surface-low px-2 py-1.5 text-left ${lane.tint}`}
+            aria-current={isActive ? 'true' : undefined}
+            className={`tap-active rounded-lg border-2 px-2 py-1.5 text-left transition-colors ${lane.tint} ${
+              isActive ? 'bg-surface-high' : 'bg-surface-low'
+            }`}
           >
             <span className="label-caps block truncate text-[10px] text-faded">
               {lane.short ?? lane.title}
