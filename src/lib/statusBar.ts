@@ -1,4 +1,5 @@
 import type { SyncStatus } from './outbox'
+import { shortAgo } from './format'
 
 // Pure mapping for the top bar's right-hand status cluster. Kept out of the
 // component (which imports the virtual build-info module) so it's unit-testable.
@@ -16,6 +17,8 @@ export interface StatusView {
   count: number | null
   /** Whether tapping it does something (apply update / go to sync recovery). */
   tappable: boolean
+  /** Whether the pill appends a "· <age>" staleness suffix after the label. */
+  showAge: boolean
 }
 
 export interface StatusInput {
@@ -36,6 +39,7 @@ export function statusView(s: StatusInput): StatusView {
       text: 'text-blaze',
       count: null,
       tappable: true,
+      showAge: false,
     }
   }
   if (s.status === 'error') {
@@ -46,6 +50,7 @@ export function statusView(s: StatusInput): StatusView {
       text: 'text-alert',
       count: null,
       tappable: true,
+      showAge: false,
     }
   }
   if (!s.online) {
@@ -57,6 +62,7 @@ export function statusView(s: StatusInput): StatusView {
       text: 'text-faded',
       count: s.pending > 0 ? s.pending : null,
       tappable: false,
+      showAge: s.pending === 0,
     }
   }
   if (s.status === 'syncing' || s.pending > 0) {
@@ -67,6 +73,7 @@ export function statusView(s: StatusInput): StatusView {
       text: 'text-khaki',
       count: s.pending > 0 ? s.pending : null,
       tappable: false,
+      showAge: false,
     }
   }
   return {
@@ -76,5 +83,43 @@ export function statusView(s: StatusInput): StatusView {
     text: 'text-faded',
     count: null,
     tappable: false,
+    showAge: true,
   }
+}
+
+export interface DetailRow {
+  label: string
+  value: string
+}
+
+export interface StatusDetailInput {
+  view: StatusView
+  lastSyncedAt: number | null
+  pending: number
+  failed: number
+  /** Epoch ms of the oldest pending op, or null. */
+  oldest: number | null
+  /** Injected clock so this stays pure and testable. */
+  now: number
+}
+
+/**
+ * Ordered text rows for the tap-to-expand sync popover. State + Last sync are
+ * always present; backlog/failure rows appear only when they carry a value. The
+ * action control (Reload / Review) is rendered by the component, not here.
+ */
+export function statusDetail(s: StatusDetailInput): DetailRow[] {
+  const rows: DetailRow[] = [
+    { label: 'State', value: s.view.label },
+    {
+      label: 'Last sync',
+      value: s.lastSyncedAt == null ? 'Never' : shortAgo(s.lastSyncedAt, s.now),
+    },
+  ]
+  if (s.pending > 0) rows.push({ label: 'Pending', value: String(s.pending) })
+  if (s.failed > 0) rows.push({ label: 'Failed', value: String(s.failed) })
+  if (s.pending > 0 && s.oldest != null) {
+    rows.push({ label: 'Oldest queued', value: shortAgo(s.oldest, s.now) })
+  }
+  return rows
 }
