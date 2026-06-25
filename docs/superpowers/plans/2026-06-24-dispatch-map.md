@@ -37,10 +37,12 @@
 ## Task 1: `routing.ts` — OSRM routing seam
 
 **Files:**
+
 - Create: `src/lib/routing.ts`
 - Test: `src/lib/routing.test.ts`
 
 **Interfaces:**
+
 - Consumes: `LatLng` from `@/lib/route` (`{ lat: number; lng: number }`).
 - Produces:
   - `interface RouteLeg { miles: number; minutes: number }`
@@ -48,22 +50,32 @@
   - `function fetchRoadRoute(ordered: LatLng[]): Promise<RouteResult | null>` — never throws; returns `null` on offline/HTTP-error/parse-error/fewer-than-2-stops.
 
 **Reference — OSRM response shape** (`GET /route/v1/driving/{lng},{lat};{lng},{lat}?overview=full&geometries=geojson&annotations=false`):
+
 ```json
 {
   "code": "Ok",
-  "routes": [{
-    "distance": 5000.0,
-    "duration": 600.0,
-    "geometry": { "coordinates": [[-81.5,28.5],[-81.4,28.6]] },
-    "legs": [{ "distance": 5000.0, "duration": 600.0 }]
-  }]
+  "routes": [
+    {
+      "distance": 5000.0,
+      "duration": 600.0,
+      "geometry": {
+        "coordinates": [
+          [-81.5, 28.5],
+          [-81.4, 28.6]
+        ]
+      },
+      "legs": [{ "distance": 5000.0, "duration": 600.0 }]
+    }
+  ]
 }
 ```
+
 Units: `distance` is meters, `duration` is seconds, geometry coords are `[lng, lat]`. Convert: miles = meters / 1609.344, minutes = seconds / 60.
 
 - [ ] **Step 1: Write the failing tests**
 
 Create `src/lib/routing.test.ts`:
+
 ```ts
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { fetchRoadRoute } from './routing'
@@ -82,7 +94,12 @@ const OSRM_OK = {
     {
       distance: 1609.344,
       duration: 120,
-      geometry: { coordinates: [[-81.5, 28.5], [-81.4, 28.6]] },
+      geometry: {
+        coordinates: [
+          [-81.5, 28.5],
+          [-81.4, 28.6],
+        ],
+      },
       legs: [{ distance: 1609.344, duration: 120 }],
     },
   ],
@@ -147,6 +164,7 @@ Expected: FAIL — `fetchRoadRoute` not found / module `./routing` missing.
 - [ ] **Step 3: Write the implementation**
 
 Create `src/lib/routing.ts`:
+
 ```ts
 import type { LatLng } from './route'
 
@@ -187,9 +205,7 @@ interface OsrmResponse {
  * (offline, rate-limit, error, <2 stops) so callers fall back to haversine.
  * Never throws.
  */
-export async function fetchRoadRoute(
-  ordered: LatLng[],
-): Promise<RouteResult | null> {
+export async function fetchRoadRoute(ordered: LatLng[]): Promise<RouteResult | null> {
   if (ordered.length < 2) return null
   const coords = ordered.map((p) => `${p.lng},${p.lat}`).join(';')
   const url = new URL(OSRM_BASE + coords)
@@ -233,11 +249,13 @@ git commit -m "feat(routing): OSRM road-route seam with haversine-safe null fall
 ## Task 2: `RouteMap.tsx` — presentational Leaflet map
 
 **Files:**
+
 - Create: `src/components/RouteMap.tsx`
 - Test: `src/components/RouteMap.test.tsx`
 - Modify: `package.json` (add deps)
 
 **Interfaces:**
+
 - Consumes: `LatLng` from `@/lib/route`.
 - Produces:
   - `interface RouteStop { id: string; lat: number; lng: number; label: string; seq: number }`
@@ -247,15 +265,18 @@ git commit -m "feat(routing): OSRM road-route seam with haversine-safe null fall
 - [ ] **Step 1: Install map dependencies**
 
 Run:
+
 ```bash
 npm install leaflet@^1.9.4 react-leaflet@^5.0.0
 npm install -D @types/leaflet
 ```
+
 Expected: added to `package.json`, lockfile updated, no peer-dep errors (react-leaflet 5 targets React 19, which this repo uses).
 
 - [ ] **Step 2: Write the failing render test**
 
 Create `src/components/RouteMap.test.tsx`. Mock `react-leaflet` (jsdom can't lay out a real Leaflet canvas) so we can assert structure:
+
 ```tsx
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
@@ -364,9 +385,17 @@ Expected: FAIL — module `./RouteMap` missing.
 - [ ] **Step 4: Write the component**
 
 Create `src/components/RouteMap.tsx`:
+
 ```tsx
 import { useEffect } from 'react'
-import { MapContainer, TileLayer, Marker, CircleMarker, Polyline, useMap } from 'react-leaflet'
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  CircleMarker,
+  Polyline,
+  useMap,
+} from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import type { LatLng } from '@/lib/route'
@@ -411,7 +440,13 @@ function FitBounds({ stops, origin }: { stops: RouteStop[]; origin: LatLng | nul
   return null
 }
 
-export function RouteMap({ stops, origin, geometry, selectedId, onSelect }: RouteMapProps) {
+export function RouteMap({
+  stops,
+  origin,
+  geometry,
+  selectedId,
+  onSelect,
+}: RouteMapProps) {
   const linePts: [number, number][] = geometry
     ? geometry.map((p) => [p.lat, p.lng])
     : stops.map((s) => [s.lat, s.lng])
@@ -429,7 +464,10 @@ export function RouteMap({ stops, origin, geometry, selectedId, onSelect }: Rout
       />
       <FitBounds stops={stops} origin={origin} />
       {linePts.length >= 2 && (
-        <Polyline positions={linePts} pathOptions={{ color: '#e25822', weight: 4, opacity: 0.8 }} />
+        <Polyline
+          positions={linePts}
+          pathOptions={{ color: '#e25822', weight: 4, opacity: 0.8 }}
+        />
       )}
       {origin && (
         <CircleMarker
@@ -469,15 +507,18 @@ git commit -m "feat(map): Leaflet RouteMap with numbered pins, route line, GPS o
 ## Task 3: `dispatch.tsx` screen + Today entry-point link
 
 **Files:**
+
 - Create: `src/routes/_authed/dispatch.tsx`
 - Test: `src/routes/_authed/dispatch.test.tsx`
 - Modify: `src/routes/_authed/index.tsx` (add a "Map" link in the Route view)
 
 **Interfaces:**
+
 - Consumes: `useJobsForDate`, `jobsForDateQueryOptions`, `JobWithContext` from `@/features/jobs/hooks`; `orderByNearestNeighbor`, `googleMapsRouteUrl`, `haversineMiles`, `LatLng` from `@/lib/route`; `fetchRoadRoute`, `RouteResult` from `@/lib/routing`; `RouteMap`, `RouteStop` from `@/components/RouteMap`; `localToday` from `@/lib/format`; `loadPreferences` from `@/lib/preferences`; `EmptyState` from `@/components/EmptyState`; `QueryError` from `@/components/QueryError`.
 - Produces: the `/_authed/dispatch` file route.
 
 **Composition rules:**
+
 - `jobPos(job)` → `LatLng | null` from `job.property` (same shape as `index.tsx:40`): pinned only when `property.lat` and `property.lng` are both non-null. Reproduce this small helper locally (it is private to `index.tsx`).
 - Active jobs = status `scheduled` or `in_progress`. Order them with `orderByNearestNeighbor(origin, active, jobPos)`.
 - Build `RouteStop[]` from the **pinned** ordered jobs only, assigning `seq` 1..N in order; `label` = `job.property?.label ?? job.property?.client?.name ?? 'Job'`.
@@ -488,6 +529,7 @@ git commit -m "feat(map): Leaflet RouteMap with numbered pins, route line, GPS o
 - [ ] **Step 1: Write the failing screen test**
 
 Create `src/routes/_authed/dispatch.test.tsx`. Mock the map and the jobs hook so the screen logic is testable without Leaflet or a backend:
+
 ```tsx
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
@@ -524,7 +566,13 @@ describe('DispatchScreen', () => {
 
   it('lists unpinned active jobs under a "not on map" heading', () => {
     mockJobs.mockReturnValue({
-      data: [{ id: 'c', status: 'scheduled', property: { label: 'NoGeo', lat: null, lng: null } }],
+      data: [
+        {
+          id: 'c',
+          status: 'scheduled',
+          property: { label: 'NoGeo', lat: null, lng: null },
+        },
+      ],
       isLoading: false,
       isError: false,
     })
@@ -549,6 +597,7 @@ Expected: FAIL — module `./dispatch` missing / `DispatchScreen` not exported.
 - [ ] **Step 3: Write the screen**
 
 Create `src/routes/_authed/dispatch.tsx`:
+
 ```tsx
 import { useEffect, useMemo, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
@@ -605,9 +654,7 @@ export function DispatchScreen() {
 
   const active = useMemo(
     () =>
-      (jobs ?? []).filter(
-        (j) => j.status === 'scheduled' || j.status === 'in_progress',
-      ),
+      (jobs ?? []).filter((j) => j.status === 'scheduled' || j.status === 'in_progress'),
     [jobs],
   )
 
@@ -693,7 +740,9 @@ export function DispatchScreen() {
                   <button
                     onClick={() => setSelectedId(s.id)}
                     className={`tap-active flex w-full items-center justify-between rounded-lg border-2 px-4 py-3 text-left ${
-                      s.id === selectedId ? 'border-blaze bg-panel' : 'border-edge bg-panel'
+                      s.id === selectedId
+                        ? 'border-blaze bg-panel'
+                        : 'border-edge bg-panel'
                     }`}
                   >
                     <span className="text-sm text-sand">
@@ -740,14 +789,16 @@ Expected: PASS (3 tests).
 - [ ] **Step 5: Add the entry-point link in the Today Route view**
 
 In `src/routes/_authed/index.tsx`, find the "Open route in Maps" anchor block inside `RouteView` (around line 170, the `{mapsUrl && pinnedStops.length >= 1 && (` block). Immediately **after** that closing `)}`, add a link to the new screen:
+
 ```tsx
-      <Link
-        to="/dispatch"
-        className="heading-stencil tap-active mx-edge mt-4 flex items-center justify-center rounded-lg border-2 border-edge bg-panel py-3 text-sm text-sand"
-      >
-        Open map view
-      </Link>
+<Link
+  to="/dispatch"
+  className="heading-stencil tap-active mx-edge mt-4 flex items-center justify-center rounded-lg border-2 border-edge bg-panel py-3 text-sm text-sand"
+>
+  Open map view
+</Link>
 ```
+
 `Link` is already imported in `index.tsx` (line 2). Place this so it renders whether or not `mapsUrl` exists (it gives access to the map even when no stops are pinned yet).
 
 - [ ] **Step 6: Run the full verification gate**
@@ -771,6 +822,7 @@ git commit -m "feat(dispatch): map screen wiring active jobs, road route, Maps h
 ## Self-Review
 
 **Spec coverage:**
+
 - In-app map with pins in drive order → Task 2 (`RouteMap`) + Task 3 (composition). ✓
 - Real road routing when online → Task 1 (`fetchRoadRoute`) + Task 3 (effect + leg labels). ✓
 - Live location (GPS origin) → Task 3 geolocation effect + `CircleMarker` in Task 2. ✓

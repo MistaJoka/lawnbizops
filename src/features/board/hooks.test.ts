@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bucketBoard, resolveQuickAddDefaults, wipLevel } from './hooks'
+import { bucketBoard, laneSummaries, resolveQuickAddDefaults, wipLevel } from './hooks'
 import type { JobWithContext } from '@/features/jobs/hooks'
 import type { EstimateListRow } from '@/features/estimates/hooks'
 import type { InvoiceBalance } from '@/features/invoices/hooks'
@@ -57,6 +57,47 @@ describe('bucketBoard', () => {
     })
     expect(lanes.ar).toHaveLength(0)
     expect(lanes.paid).toHaveLength(1)
+  })
+})
+
+describe('laneSummaries', () => {
+  it('counts and sums each lane by its natural money field', () => {
+    const s = laneSummaries({
+      quote: [
+        { id: 'e1', total_cents: 500000 } as EstimateListRow,
+        { id: 'e2', total_cents: 340000 } as EstimateListRow,
+      ],
+      scheduled: [
+        { id: 'j1', price_cents: 6500 } as JobWithContext,
+        { id: 'j2', price_cents: 6000 } as JobWithContext,
+      ],
+      in_progress: [{ id: 'j3', price_cents: 12000 } as JobWithContext],
+      done: [{ id: 'j4', price_cents: 8000 } as JobWithContext],
+      ar: [
+        { invoice_id: 'i1', balance_cents: 26000 } as InvoiceBalance,
+        { invoice_id: 'i2', balance_cents: 22500 } as InvoiceBalance,
+      ],
+      paid: [{ invoice_id: 'i3', total_cents: 45000 } as InvoiceBalance],
+    })
+    expect(s.quote).toEqual({ count: 2, valueCents: 840000 })
+    expect(s.scheduled).toEqual({ count: 2, valueCents: 12500 })
+    expect(s.in_progress).toEqual({ count: 1, valueCents: 12000 })
+    expect(s.done).toEqual({ count: 1, valueCents: 8000 })
+    expect(s.ar).toEqual({ count: 2, valueCents: 48500 }) // outstanding balance
+    expect(s.paid).toEqual({ count: 1, valueCents: 45000 }) // collected total
+  })
+
+  it('is zero for empty lanes', () => {
+    const s = laneSummaries({
+      quote: [],
+      scheduled: [],
+      in_progress: [],
+      done: [],
+      ar: [],
+      paid: [],
+    })
+    expect(s.quote).toEqual({ count: 0, valueCents: 0 })
+    expect(s.ar).toEqual({ count: 0, valueCents: 0 })
   })
 })
 

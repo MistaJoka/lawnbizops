@@ -23,15 +23,17 @@ export type LaneId = 'quote' | 'scheduled' | 'in_progress' | 'done' | 'ar' | 'pa
 export interface LaneDef {
   id: LaneId
   title: string
+  /** Compact label for the lane navigator chip (defaults to title). */
+  short?: string
   tint: string
 }
 
 export const LANES: LaneDef[] = [
   { id: 'quote', title: 'Quote', tint: 'border-outline' },
-  { id: 'scheduled', title: 'Scheduled', tint: 'border-edge' },
-  { id: 'in_progress', title: 'In progress', tint: 'border-khaki' },
+  { id: 'scheduled', title: 'Scheduled', short: 'Sched', tint: 'border-edge' },
+  { id: 'in_progress', title: 'In progress', short: 'Active', tint: 'border-khaki' },
   { id: 'done', title: 'Done', tint: 'border-go' },
-  { id: 'ar', title: 'Invoiced · A/R', tint: 'border-blaze' },
+  { id: 'ar', title: 'Invoiced · A/R', short: 'A/R', tint: 'border-blaze' },
   { id: 'paid', title: 'Paid', tint: 'border-go' },
 ]
 
@@ -90,6 +92,51 @@ export const WIP_CAPS: Partial<Record<LaneId, number>> = {
 export function wipLevel(lane: LaneId, count: number): 'ok' | 'over' {
   const cap = WIP_CAPS[lane]
   return cap !== undefined && count > cap ? 'over' : 'ok'
+}
+
+// ---------------------------------------------------------------------------
+// Lane summaries — count + dollar value per lane, for the board's at-a-glance
+// pipeline navigator and lane-header totals. Pure → unit-tested. Each lane sums
+// the natural money field: quotes = estimate totals, the job lanes = job prices,
+// A/R = outstanding balance, Paid = invoice totals (collected).
+// ---------------------------------------------------------------------------
+
+export interface LaneSummary {
+  count: number
+  valueCents: number
+}
+
+function sumBy<T>(arr: T[], pick: (x: T) => number): number {
+  return arr.reduce((s, x) => s + (pick(x) || 0), 0)
+}
+
+export function laneSummaries(lanes: BoardLanes): Record<LaneId, LaneSummary> {
+  return {
+    quote: {
+      count: lanes.quote.length,
+      valueCents: sumBy(lanes.quote, (e) => e.total_cents),
+    },
+    scheduled: {
+      count: lanes.scheduled.length,
+      valueCents: sumBy(lanes.scheduled, (j) => j.price_cents),
+    },
+    in_progress: {
+      count: lanes.in_progress.length,
+      valueCents: sumBy(lanes.in_progress, (j) => j.price_cents),
+    },
+    done: {
+      count: lanes.done.length,
+      valueCents: sumBy(lanes.done, (j) => j.price_cents),
+    },
+    ar: {
+      count: lanes.ar.length,
+      valueCents: sumBy(lanes.ar, (i) => i.balance_cents),
+    },
+    paid: {
+      count: lanes.paid.length,
+      valueCents: sumBy(lanes.paid, (i) => i.total_cents),
+    },
+  }
 }
 
 // ---------------------------------------------------------------------------

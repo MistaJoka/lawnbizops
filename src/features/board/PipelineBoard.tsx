@@ -1,5 +1,13 @@
 import { Link, useNavigate } from '@tanstack/react-router'
-import { LANES, usePipelineBoard, wipLevel, type LaneDef } from './hooks'
+import {
+  LANES,
+  laneSummaries,
+  usePipelineBoard,
+  wipLevel,
+  type LaneDef,
+  type LaneId,
+  type LaneSummary,
+} from './hooks'
 import { QuickAddRow } from './QuickAddJob'
 import { CardQuickActions } from './CardQuickActions'
 import { SkeletonCard } from '@/components/Skeleton'
@@ -20,81 +28,157 @@ import {
   useBusinessSettings,
   type InvoiceBalance,
 } from '@/features/invoices/hooks'
-import { formatCents, localToday } from '@/lib/format'
+import { formatCents, formatCentsShort, localToday } from '@/lib/format'
 import { formatClockTime, formatShortDate } from '@/lib/dates'
+
+const laneDomId = (id: LaneId) => `board-lane-${id}`
 
 export function PipelineBoard() {
   const { lanes, isLoading } = usePipelineBoard()
+  const summaries = laneSummaries(lanes)
+
+  function scrollToLane(id: LaneId) {
+    const el = document.getElementById(laneDomId(id))
+    const row = el?.parentElement
+    if (!el || !row) return
+    // Center the lane horizontally in the scroll row. scrollIntoView won't move
+    // an overflow-x container reliably, so set scrollLeft directly.
+    const offset = el.getBoundingClientRect().left - row.getBoundingClientRect().left
+    const target = row.scrollLeft + offset - (row.clientWidth - el.clientWidth) / 2
+    // Instant, not smooth: smooth scrollTo is unreliable on a scroll-snap (snap-x)
+    // container — the snap cancels the animation. A direct jump always lands.
+    row.scrollLeft = Math.max(0, target)
+  }
 
   return (
-    <div className="scroll-hide flex snap-x gap-3 overflow-x-auto px-edge py-4">
-      {LANES.map((lane) => (
-        <KanbanColumn
-          key={lane.id}
-          lane={lane}
-          count={lanes[lane.id].length}
-          loading={isLoading}
-        >
-          {lane.id === 'quote' &&
-            lanes.quote.map((est) => <QuoteCard key={est.id} estimate={est} />)}
+    <div className="flex flex-col">
+      <LaneNav summaries={summaries} onJump={scrollToLane} />
+      <div className="scroll-hide flex snap-x items-start gap-3 overflow-x-auto px-edge pt-1 pb-4">
+        {LANES.map((lane) => (
+          <KanbanColumn
+            key={lane.id}
+            lane={lane}
+            summary={summaries[lane.id]}
+            loading={isLoading}
+          >
+            {lane.id === 'quote' &&
+              lanes.quote.map((est) => <QuoteCard key={est.id} estimate={est} />)}
 
-          {lane.id === 'scheduled' && (
-            <>
-              <QuickAddRow />
-              {lanes.scheduled.map((job) => (
-                <JobCard key={job.id} job={job} />
+            {lane.id === 'scheduled' && (
+              <>
+                <QuickAddRow />
+                {lanes.scheduled.map((job) => (
+                  <JobCard key={job.id} job={job} />
+                ))}
+                {lanes.scheduled.length === 0 && !isLoading && (
+                  <p className="py-6 text-center text-xs text-faded">
+                    No jobs today — tap + to add one
+                  </p>
+                )}
+              </>
+            )}
+
+            {lane.id === 'in_progress' &&
+              lanes.in_progress.map((job) => <JobCard key={job.id} job={job} />)}
+
+            {lane.id === 'done' &&
+              lanes.done.map((job) => (
+                <DoneCard key={job.id} job={job} allDone={lanes.done} />
               ))}
-              {lanes.scheduled.length === 0 && !isLoading && (
-                <p className="py-6 text-center text-xs text-faded">
-                  No jobs today — tap + to add one
-                </p>
+
+            {lane.id === 'ar' &&
+              lanes.ar.map((inv) => <ArCard key={inv.invoice_id} invoice={inv} />)}
+
+            {lane.id === 'paid' &&
+              lanes.paid.map((inv) => <PaidCard key={inv.invoice_id} invoice={inv} />)}
+          </KanbanColumn>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Pipeline-at-a-glance: a compact 3×2 grid of every lane's count + dollar value,
+ * so the whole quote→cash pipeline is visible without scrolling six wide
+ * columns. Each tile is a jump button that snaps its lane into view — dense
+ * overview, one-tap navigation.
+ */
+function LaneNav({
+  summaries,
+  onJump,
+}: {
+  summaries: Record<LaneId, LaneSummary>
+  onJump: (id: LaneId) => void
+}) {
+  return (
+    <div className="grid grid-cols-3 gap-2 px-edge pt-4">
+      {LANES.map((lane) => {
+        const s = summaries[lane.id]
+        return (
+          <button
+            key={lane.id}
+            type="button"
+            onClick={() => onJump(lane.id)}
+            aria-label={`${lane.title}: ${s.count} item${s.count === 1 ? '' : 's'}, ${formatCents(s.valueCents)}. Jump to lane.`}
+            className={`tap-active rounded-lg border-2 bg-surface-low px-2 py-1.5 text-left ${lane.tint}`}
+          >
+            <span className="label-caps block truncate text-[10px] text-faded">
+              {lane.short ?? lane.title}
+            </span>
+            <span className="mt-0.5 block truncate text-sm text-sand">
+              <span className="font-semibold">{s.count}</span>
+              {s.valueCents > 0 && (
+                <span className="text-xs text-faded">
+                  {' '}
+                  · {formatCentsShort(s.valueCents)}
+                </span>
               )}
-            </>
-          )}
-
-          {lane.id === 'in_progress' &&
-            lanes.in_progress.map((job) => <JobCard key={job.id} job={job} />)}
-
-          {lane.id === 'done' &&
-            lanes.done.map((job) => (
-              <DoneCard key={job.id} job={job} allDone={lanes.done} />
-            ))}
-
-          {lane.id === 'ar' &&
-            lanes.ar.map((inv) => <ArCard key={inv.invoice_id} invoice={inv} />)}
-
-          {lane.id === 'paid' &&
-            lanes.paid.map((inv) => <PaidCard key={inv.invoice_id} invoice={inv} />)}
-        </KanbanColumn>
-      ))}
+            </span>
+          </button>
+        )
+      })}
     </div>
   )
 }
 
 function KanbanColumn({
   lane,
-  count,
+  summary,
   loading,
   children,
 }: {
   lane: LaneDef
-  count: number
+  summary: LaneSummary
   loading: boolean
   children: React.ReactNode
 }) {
+  const count = summary.count
   const over = wipLevel(lane.id, count) === 'over'
   return (
     <section
-      className={`flex w-[82vw] max-w-sm shrink-0 snap-center flex-col rounded-lg border-2 bg-surface-low p-3 ${lane.tint}`}
+      id={laneDomId(lane.id)}
+      className={`flex w-[80vw] max-w-sm shrink-0 snap-center flex-col rounded-lg border-2 bg-surface-low p-3 ${lane.tint}`}
     >
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="heading-stencil text-sm text-sand">{lane.title}</h2>
-        <span
-          title={over ? 'Over the WIP cap — clear this lane' : undefined}
-          className={`label-caps rounded px-1.5 ${over ? 'bg-alert/20 text-alert' : 'text-faded'}`}
-        >
-          {loading && count === 0 ? '·' : count}
-        </span>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h2 className="heading-stencil min-w-0 truncate text-sm text-sand">
+          {lane.title}
+        </h2>
+        <div className="flex shrink-0 items-center gap-2">
+          {/* Lane money total — the dense, at-a-glance "how much $ is in this
+              stage" a contractor actually wants. */}
+          {summary.valueCents > 0 && (
+            <span className="heading-stencil text-xs text-faded">
+              {formatCentsShort(summary.valueCents)}
+            </span>
+          )}
+          <span
+            title={over ? 'Over the WIP cap — clear this lane' : undefined}
+            className={`label-caps rounded px-1.5 ${over ? 'bg-alert/20 text-alert' : 'text-faded'}`}
+          >
+            {loading && count === 0 ? '·' : count}
+          </span>
+        </div>
       </div>
       <div className="flex min-h-32 flex-col gap-2">{children}</div>
       {/* Loading → a couple of card placeholders so the board reads as "filling

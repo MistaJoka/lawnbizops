@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatCents, parseDollarsToCents, shortAgo } from './format'
+import { formatCents, formatCentsShort, parseDollarsToCents, shortAgo } from './format'
 
 describe('formatCents', () => {
   it('formats whole dollars', () => {
@@ -16,6 +16,28 @@ describe('formatCents', () => {
   })
   it('formats negatives', () => {
     expect(formatCents(-2550)).toBe('-$25.50')
+  })
+})
+
+describe('formatCentsShort', () => {
+  it('shows whole dollars under $1k', () => {
+    expect(formatCentsShort(6500)).toBe('$65')
+    expect(formatCentsShort(12000)).toBe('$120')
+    expect(formatCentsShort(0)).toBe('$0')
+  })
+  it('abbreviates thousands with one decimal', () => {
+    expect(formatCentsShort(840000)).toBe('$8.4k')
+    expect(formatCentsShort(120000)).toBe('$1.2k')
+  })
+  it('drops the decimal at $10k+', () => {
+    expect(formatCentsShort(1200000)).toBe('$12k')
+  })
+  it('rounds to whole dollars', () => {
+    expect(formatCentsShort(6549)).toBe('$65')
+    expect(formatCentsShort(6550)).toBe('$66')
+  })
+  it('handles negatives', () => {
+    expect(formatCentsShort(-840000)).toBe('-$8.4k')
   })
 })
 

@@ -7,6 +7,16 @@ export function formatCents(cents: number): string {
   return `${sign}$${dollars.toLocaleString('en-US')}.${remainder.toString().padStart(2, '0')}`
 }
 
+/** Compact money for tight spaces (board lane chips/headers): whole dollars,
+ *  k-abbreviated. $8,400 → "$8.4k", $120 → "$120", $12,000 → "$12k". */
+export function formatCentsShort(cents: number): string {
+  const sign = cents < 0 ? '-' : ''
+  const dollars = Math.round(Math.abs(cents) / 100)
+  if (dollars >= 10000) return `${sign}$${Math.round(dollars / 1000)}k`
+  if (dollars >= 1000) return `${sign}$${(dollars / 1000).toFixed(1)}k`
+  return `${sign}$${dollars.toLocaleString('en-US')}`
+}
+
 /** Parse a user-typed dollar amount ("45", "45.5", "$1,200.00") into cents, or null if invalid. */
 export function parseDollarsToCents(input: string): number | null {
   const cleaned = input.replace(/[$,\s]/g, '')
