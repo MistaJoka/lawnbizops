@@ -8,6 +8,7 @@ import {
   type ClientStage,
 } from '@/features/clients/hooks'
 import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
+import { EmptyState } from '@/components/EmptyState'
 import { confirm } from '@/lib/confirm'
 import { formatCents } from '@/lib/format'
 
@@ -53,6 +54,22 @@ function PipelineScreen() {
           Clients
         </Link>
       </header>
+
+      {clients?.length === 0 && (
+        <EmptyState
+          glyph="🌱"
+          title="No clients yet"
+          body="Add your first lead and start moving them through the pipeline."
+          action={
+            <Link
+              to="/clients/new"
+              className="heading-stencil rounded-lg bg-blaze px-5 py-3 text-on-cta"
+            >
+              + Add client
+            </Link>
+          }
+        />
+      )}
 
       <div className="scroll-hide flex snap-x gap-3 overflow-x-auto px-edge py-4">
         {CLIENT_STAGES.map((stage) => {
@@ -130,6 +147,28 @@ function PipelineCard({ client, balance }: { client: Client; balance: number }) 
             💬
           </a>
         </div>
+      )}
+
+      {/* Make the stage actionable, not just a label: the obvious next move for
+          a lead/quoted client is to quote them; for an active client, to
+          schedule work. Carries clientId so the form lands pre-scoped. */}
+      {(client.stage === 'lead' || client.stage === 'quoted') && (
+        <Link
+          to="/estimates/new"
+          search={{ clientId: client.id }}
+          className="heading-stencil tap-active mt-2 block w-full rounded-lg bg-blaze py-2 text-center text-xs text-on-cta"
+        >
+          Quote
+        </Link>
+      )}
+      {client.stage === 'active' && (
+        <Link
+          to="/jobs/new"
+          search={{ clientId: client.id }}
+          className="heading-stencil tap-active mt-2 block w-full rounded-lg border-2 border-edge py-2 text-center text-xs text-sand"
+        >
+          Schedule
+        </Link>
       )}
 
       {advanceTo && (

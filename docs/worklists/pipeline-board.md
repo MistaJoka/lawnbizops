@@ -19,8 +19,8 @@ Apply all four rubric lenses (README) to each item.
 
 ## Flow — lead→done (from e2e-audit-2026-06-24)
 
-- [ ] Pipeline card: add **"Quote"** (→ prefilled estimate) and **"Schedule"** actions carrying client context; stage change should be a side effect of doing work.
-- [ ] Pipeline empty state uses `EmptyState` with an "Add client" CTA.
+- [x] Pipeline card: add **"Quote"** (→ prefilled estimate) and **"Schedule"** actions carrying client context; stage change should be a side effect of doing work. *(done 2026-06-25: Quote on lead/quoted, Schedule on active; verified deep-links.)*
+- [x] Pipeline empty state uses `EmptyState` with an "Add client" CTA. *(done 2026-06-25: full-screen EmptyState when no clients.)*
 - [x] Today board: default scroll/landing to today's first **non-empty** lane (not the empty `quote` lane, `PipelineBoard.tsx` LANES[0]). *(done 2026-06-25: one-shot jump latches only once cards load; verified board opens on SCHEDULED.)*
 
 ## Stage criteria — from pipeline-stage-spec (2026-06-25)
