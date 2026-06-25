@@ -21,7 +21,7 @@ Apply all four rubric lenses (README) to each item.
 
 - [ ] Pipeline card: add **"Quote"** (→ prefilled estimate) and **"Schedule"** actions carrying client context; stage change should be a side effect of doing work.
 - [ ] Pipeline empty state uses `EmptyState` with an "Add client" CTA.
-- [ ] Today board: default scroll/landing to today's first **non-empty** lane (not the empty `quote` lane, `PipelineBoard.tsx` LANES[0]).
+- [x] Today board: default scroll/landing to today's first **non-empty** lane (not the empty `quote` lane, `PipelineBoard.tsx` LANES[0]). *(done 2026-06-25: one-shot jump latches only once cards load; verified board opens on SCHEDULED.)*
 
 ## Stage criteria — from pipeline-stage-spec (2026-06-25)
 

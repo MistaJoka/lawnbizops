@@ -70,6 +70,22 @@ export function PipelineBoard() {
     return () => row.removeEventListener('scroll', onScroll)
   }, [])
 
+  // On first load, land on the first lane that actually has cards (usually
+  // today's Scheduled work) instead of the typically-empty Quote lane that sits
+  // at scrollLeft 0 — so the board opens on real work, not an empty column.
+  const didInitialJump = useRef(false)
+  useEffect(() => {
+    if (isLoading || didInitialJump.current) return
+    const firstNonEmpty = LANES.find((l) => summaries[l.id].count > 0)
+    // Wait until cards actually exist before latching — otherwise an early
+    // empty render burns the one-shot before today's work has loaded.
+    if (!firstNonEmpty) return
+    didInitialJump.current = true
+    if (firstNonEmpty.id !== LANES[0].id) {
+      requestAnimationFrame(() => scrollToLane(firstNonEmpty.id))
+    }
+  }, [isLoading, summaries])
+
   function scrollToLane(id: LaneId) {
     const el = document.getElementById(laneDomId(id))
     const row = rowRef.current
