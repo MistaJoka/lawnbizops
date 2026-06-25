@@ -16,5 +16,5 @@ Apply all four rubric lenses (README) to each item.
 
 ## Flow — lead→done (from e2e-audit-2026-06-24)
 
-- [ ] Dispatch: show **client name** on each route stop (not just property label — "Home/Home/Home" is ambiguous).
-- [ ] Dispatch: make **unpinned jobs** (no lat/lng) tappable → job detail so the operator can add a location.
+- [x] Dispatch: show **client name** on each route stop (not just property label — "Home/Home/Home" is ambiguous). *(done 2026-06-25: "Client · Property"; verified.)*
+- [x] Dispatch: make **unpinned jobs** (no lat/lng) tappable → job detail so the operator can add a location. *(done 2026-06-25: links to /jobs/$id with a "tap to add address" hint.)*

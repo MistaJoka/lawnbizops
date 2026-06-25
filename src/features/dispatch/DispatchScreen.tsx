@@ -21,7 +21,13 @@ function jobPos(job: JobWithContext): LatLng | null {
 }
 
 function jobLabel(job: JobWithContext): string {
-  return job.property?.label ?? job.property?.client?.name ?? 'Job'
+  // Lead with the client name — "Home / Home / Home" across stops is useless on
+  // a route. Append the property label when present so multi-property clients
+  // stay distinguishable.
+  const name = job.property?.client?.name
+  const label = job.property?.label
+  if (name) return label ? `${name} · ${label}` : name
+  return label ?? 'Job'
 }
 
 export function DispatchScreen() {
@@ -167,13 +173,22 @@ export function DispatchScreen() {
       {unpinned.length > 0 && (
         <section className="mx-edge mt-6">
           <h2 className="heading-stencil text-xs text-khaki uppercase">Not on map</h2>
+          <p className="mt-1 text-xs text-faded">
+            No map pin — tap to add the property’s address.
+          </p>
           <ul className="mt-2 space-y-2">
             {unpinned.map((j) => (
-              <li
-                key={j.id}
-                className="rounded-lg border-2 border-edge bg-panel px-4 py-3 text-sm text-faded"
-              >
-                {jobLabel(j)}
+              <li key={j.id}>
+                <Link
+                  to="/jobs/$jobId"
+                  params={{ jobId: j.id }}
+                  className="tap-active flex items-center justify-between rounded-lg border-2 border-edge bg-panel px-4 py-3 text-sm text-sand"
+                >
+                  <span>{jobLabel(j)}</span>
+                  <span aria-hidden className="text-faded">
+                    →
+                  </span>
+                </Link>
               </li>
             ))}
           </ul>
