@@ -37,7 +37,7 @@ function ExpenseDetailScreen() {
 
   if (isLoading || !expense) {
     return (
-      <div className="px-4 pt-6">
+      <div className="px-edge pt-6">
         <SkeletonDetail />
       </div>
     )
@@ -93,7 +93,7 @@ function ExpenseEditor({ expense }: { expense: ExpenseRow }) {
   }
 
   return (
-    <div className="px-4 pt-6">
+    <div className="px-edge pt-6">
       <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Money
       </Link>

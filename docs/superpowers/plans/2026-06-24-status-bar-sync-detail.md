@@ -35,10 +35,12 @@
 ## Task 1: `shortAgo` relative-time formatter
 
 **Files:**
+
 - Modify: `src/lib/format.ts`
 - Test: `src/lib/format.test.ts`
 
 **Interfaces:**
+
 - Produces: `shortAgo(ts: number, now?: number): string` — `"now"` | `"5m"` | `"3h"` | absolute short date (`"Jun 21"`). `now` defaults to `Date.now()`, injectable for tests.
 
 - [ ] **Step 1: Write the failing tests** — append to `src/lib/format.test.ts`:
@@ -112,10 +114,12 @@ git commit -m "feat(format): add shortAgo relative-time formatter"
 ## Task 2: Persisted sync clock store
 
 **Files:**
+
 - Create: `src/lib/syncClock.ts`
 - Test: `src/lib/syncClock.test.ts`
 
 **Interfaces:**
+
 - Produces:
   - `markSynced(now?: number): void` — record a successful sync (epoch ms; defaults to `Date.now()`); persists to `localStorage` and notifies subscribers.
   - `lastSyncedAt(): number | null` — current value (in-memory source of truth, hydrated from `localStorage` at module load).
@@ -220,10 +224,12 @@ git commit -m "feat(sync): persisted reactive last-synced-at clock"
 ## Task 3: `showAge` + `statusDetail` in the pure status mapper
 
 **Files:**
+
 - Modify: `src/lib/statusBar.ts`
 - Test: `src/lib/statusBar.test.ts`
 
 **Interfaces:**
+
 - Consumes: `shortAgo` (Task 1), `StatusView` (existing).
 - Produces:
   - `StatusView.showAge: boolean` — whether the pill appends a `"· <age>"` staleness suffix (true only for `synced` and backlog-free `offline`).
@@ -289,7 +295,9 @@ describe('statusDetail — popover rows', () => {
 
   it('adds Failed only when there are failed ops', () => {
     expect(statusDetail(base).some((r) => r.label === 'Failed')).toBe(false)
-    expect(statusDetail({ ...base, failed: 2 }).some((r) => r.label === 'Failed')).toBe(true)
+    expect(statusDetail({ ...base, failed: 2 }).some((r) => r.label === 'Failed')).toBe(
+      true,
+    )
   })
 
   it('omits Oldest queued when the backlog has no timestamp', () => {
@@ -324,6 +332,7 @@ export interface StatusView {
 ```
 
 Then set `showAge` on each returned object in `statusView`:
+
 - `update` branch → `showAge: false`
 - `error` branch → `showAge: false`
 - `offline` branch → `showAge: s.pending === 0` (only the bare "Offline", not "Saved · N")
@@ -388,10 +397,12 @@ git commit -m "feat(status-bar): showAge flag + statusDetail popover rows"
 ## Task 4: Wire `markSynced` into the outbox + expose stats hooks
 
 **Files:**
+
 - Modify: `src/lib/outbox.ts`
 - Test: `src/lib/outbox.test.ts`
 
 **Interfaces:**
+
 - Consumes: `markSynced` (Task 2).
 - Produces:
   - `useOutboxFailed(): number` — live count of `status='failed'` ops.
@@ -479,10 +490,12 @@ git commit -m "feat(outbox): stamp sync clock on drain + expose failed/oldest ho
 ## Task 5: Age suffix + tap-to-expand popover in `DevStripe`
 
 **Files:**
+
 - Modify: `src/components/DevStripe.tsx`
 - Verify (must stay green): `e2e/demo/a11y.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `useLastSyncedAt` (Task 2), `shortAgo` (Task 1), `statusView`/`statusDetail`/`StatusView` (Task 3), `useOutboxFailed`/`useOldestPending`/`useOutboxPending`/`useSyncStatus` (Task 4 + existing), `useUpdateReady`/`applyUpdate` (existing).
 
 - [ ] **Step 1: Replace the file** — overwrite `src/components/DevStripe.tsx` with:
@@ -700,11 +713,15 @@ Expected: clean (no type/lint errors).
 
 ```js
 // preview_eval — make a write drain so markSynced fires, then read the pill.
-(() => new Promise((res) => setTimeout(() => {
-  const right = document.querySelector('.sticky .font-mono')?.lastElementChild;
-  res({ pill: right?.innerText.replace(/\n/g, ' ') });
-}, 500)))()
+;(() =>
+  new Promise((res) =>
+    setTimeout(() => {
+      const right = document.querySelector('.sticky .font-mono')?.lastElementChild
+      res({ pill: right?.innerText.replace(/\n/g, ' ') })
+    }, 500),
+  ))()
 ```
+
 Expected: after a sync drains, the pill reads `Synced · now` (or `· Nm`). Going offline (dispatch `offline` event) with an empty queue shows `Offline · Nm`.
 
 - [ ] **Step 4: Verify the popover open/close + Escape live** — `preview_click` the pill (or `preview_eval` `document.querySelector('.sticky button[aria-haspopup]').click()`), then `preview_snapshot`. Expected: a `dialog` "Sync details" with State + Last sync rows. Press Escape (`preview_eval` dispatch `keydown` Escape) → popover gone, focus back on the pill (`document.activeElement` is the toggle button).
@@ -729,6 +746,7 @@ git commit -m "feat(status-bar): freshness age + tap-to-expand sync detail popov
 ## Self-Review
 
 **Spec coverage:**
+
 - §1 persisted sync clock → Task 2 + wiring in Task 4. ✅
 - §2 `shortAgo` in `format.ts` → Task 1. ✅
 - §3 pill age suffix (`Synced · 2m`, `Offline · 8m`; `Saved·N`/`Syncing·N` keep count) → `showAge` (Task 3) + render (Task 5). ✅

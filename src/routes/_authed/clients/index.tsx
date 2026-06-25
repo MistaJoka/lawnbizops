@@ -24,7 +24,7 @@ function ClientsScreen() {
   )
 
   return (
-    <div className="px-4 pt-6 pb-28">
+    <div className="px-edge pt-6 pb-28">
       <div className="flex items-center justify-between gap-3">
         <h1 className="heading-stencil text-2xl text-khaki">Clients</h1>
         <span className="flex items-center gap-4">

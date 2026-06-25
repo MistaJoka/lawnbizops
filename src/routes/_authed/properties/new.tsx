@@ -15,7 +15,7 @@ function NewPropertyScreen() {
 
   if (!clientId) {
     return (
-      <div className="px-4 pt-6">
+      <div className="px-edge pt-6">
         <p className="mt-16 text-center text-faded">
           Pick a client first, then add a property from their page.
         </p>
@@ -30,7 +30,7 @@ function NewPropertyScreen() {
   }
 
   return (
-    <div className="px-4 pt-6">
+    <div className="px-edge pt-6">
       <Link
         to="/clients/$clientId"
         params={{ clientId }}

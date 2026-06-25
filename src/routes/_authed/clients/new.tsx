@@ -10,7 +10,7 @@ function NewClientScreen() {
   const navigate = useNavigate()
 
   return (
-    <div className="px-4 pt-6">
+    <div className="px-edge pt-6">
       <Link to="/clients" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Clients
       </Link>

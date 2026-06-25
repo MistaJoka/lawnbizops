@@ -12,7 +12,7 @@ function EditClientScreen() {
   const { data: client, isLoading } = useClient(clientId)
 
   return (
-    <div className="px-4 pt-6">
+    <div className="px-edge pt-6">
       <Link
         to="/clients/$clientId"
         params={{ clientId }}

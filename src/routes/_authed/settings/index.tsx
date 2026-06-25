@@ -25,7 +25,7 @@ function SettingsScreen() {
   }
 
   return (
-    <div className="px-4 pt-6">
+    <div className="px-edge pt-6">
       <h1 className="heading-stencil text-2xl text-khaki">Settings</h1>
 
       <div className="mt-6 flex flex-col gap-2">

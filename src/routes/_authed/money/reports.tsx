@@ -120,7 +120,7 @@ function ReportsScreen() {
   const net = pnl?.net_cents ?? 0
 
   return (
-    <div className="px-4 pt-6 pb-28">
+    <div className="px-edge pt-6 pb-28">
       <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Money
       </Link>

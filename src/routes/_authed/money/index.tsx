@@ -75,7 +75,7 @@ function MoneyScreen() {
   const [tab, setTab] = useState<MoneyTab>('invoices')
 
   return (
-    <div className="px-4 pt-6">
+    <div className="px-edge pt-6">
       <div className="flex items-center justify-between gap-3">
         <h1 className="heading-stencil text-2xl text-khaki">Money</h1>
         <div className="flex items-center gap-4">

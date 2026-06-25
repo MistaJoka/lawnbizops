@@ -47,7 +47,7 @@ function TaxScreen() {
   }
 
   return (
-    <div className="px-4 pt-6 pb-12">
+    <div className="px-edge pt-6 pb-12">
       <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Settings
       </Link>

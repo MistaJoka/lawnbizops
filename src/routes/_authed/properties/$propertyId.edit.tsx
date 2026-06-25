@@ -12,7 +12,7 @@ function EditPropertyScreen() {
   const { data: property, isLoading } = useProperty(propertyId)
 
   return (
-    <div className="px-4 pt-6">
+    <div className="px-edge pt-6">
       <Link
         to="/properties/$propertyId"
         params={{ propertyId }}

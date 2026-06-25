@@ -15,7 +15,7 @@ function NewScheduleScreen() {
 
   if (!propertyId) {
     return (
-      <div className="px-4 pt-6">
+      <div className="px-edge pt-6">
         <p className="mt-16 text-center text-faded">
           Pick a property first, then add a schedule from its page.
         </p>
@@ -30,7 +30,7 @@ function NewScheduleScreen() {
   }
 
   return (
-    <div className="px-4 pt-6">
+    <div className="px-edge pt-6">
       <Link
         to="/properties/$propertyId"
         params={{ propertyId }}
