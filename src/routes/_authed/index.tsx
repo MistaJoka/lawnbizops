@@ -179,6 +179,13 @@ function RouteView({ onQuickAdd }: { onQuickAdd: () => void }) {
         </a>
       )}
 
+      <Link
+        to="/dispatch"
+        className="heading-stencil tap-active mx-edge mt-4 flex items-center justify-center rounded-lg border-2 border-edge bg-panel py-3 text-sm text-sand"
+      >
+        Open map view
+      </Link>
+
       {lowStockCount > 0 && (
         <Link
           to="/inventory"
