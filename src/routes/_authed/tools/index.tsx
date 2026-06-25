@@ -38,7 +38,9 @@ function ToolsScreen() {
         </div>
       </header>
 
-      <main className="grid gap-3 px-edge py-4">
+      {/* div, not <main>: the _authed layout already provides the single <main>
+          landmark — a nested one here is invalid HTML + a duplicate a11y landmark. */}
+      <div className="grid gap-3 px-edge py-4">
         {tools.map((tool) => (
           <Link
             key={tool.to}
@@ -76,7 +78,7 @@ function ToolsScreen() {
             </div>
           </div>
         ))}
-      </main>
+      </div>
     </div>
   )
 }

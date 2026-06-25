@@ -35,15 +35,15 @@ routing on top as an online enhancement. No schema changes.
 
 ## Decisions (from brainstorming)
 
-| # | Decision | Choice |
-|---|----------|--------|
-| Scope | Which gap | **D** — full map-centric dispatch screen (map + real routing + live location) |
-| Placement | Where it lives | **C** — standalone `/dispatch` screen, linked from the Today view (TabBar is already full at 5 tabs) |
-| Offline | Behavior | **A now → C later** — map + haversine offline, real routing layers in when online; cache-for-the-day (C) added automatically once stable |
-| Reorder | Order model | **A now → B later** — auto-only ephemeral order in v1; manual drag + persisted `visit_order` is the next increment |
-| Map lib | Rendering | **Leaflet** (+ `react-leaflet`), raster tiles, ~40KB, tiles cache naturally |
-| Routing | Engine | **OSRM public demo**, behind a swappable `routingProvider` seam (ORS / self-host later) |
-| Attribution | Tile credit | **Yes** — "© OpenStreetMap" stays visible (free-tile license requirement) |
+| #           | Decision       | Choice                                                                                                                                   |
+| ----------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Scope       | Which gap      | **D** — full map-centric dispatch screen (map + real routing + live location)                                                            |
+| Placement   | Where it lives | **C** — standalone `/dispatch` screen, linked from the Today view (TabBar is already full at 5 tabs)                                     |
+| Offline     | Behavior       | **A now → C later** — map + haversine offline, real routing layers in when online; cache-for-the-day (C) added automatically once stable |
+| Reorder     | Order model    | **A now → B later** — auto-only ephemeral order in v1; manual drag + persisted `visit_order` is the next increment                       |
+| Map lib     | Rendering      | **Leaflet** (+ `react-leaflet`), raster tiles, ~40KB, tiles cache naturally                                                              |
+| Routing     | Engine         | **OSRM public demo**, behind a swappable `routingProvider` seam (ORS / self-host later)                                                  |
+| Attribution | Tile credit    | **Yes** — "© OpenStreetMap" stays visible (free-tile license requirement)                                                                |
 
 ## Architecture
 
@@ -54,19 +54,20 @@ Three new units plus reuse of existing libs.
 The single boundary between the app and any road-routing provider.
 
 ```ts
-export interface RouteLeg { miles: number; minutes: number }
+export interface RouteLeg {
+  miles: number
+  minutes: number
+}
 export interface RouteResult {
-  legs: RouteLeg[]          // one per hop between consecutive ordered stops
-  geometry: LatLng[]        // decoded polyline for drawing the route line
+  legs: RouteLeg[] // one per hop between consecutive ordered stops
+  geometry: LatLng[] // decoded polyline for drawing the route line
   totalMiles: number
   totalMinutes: number
 }
 
 // Best-effort. Returns null on ANY failure (offline, rate-limit, 4xx/5xx,
 // parse error) so the caller falls back to haversine. Never throws.
-export async function fetchRoadRoute(
-  ordered: LatLng[],
-): Promise<RouteResult | null>
+export async function fetchRoadRoute(ordered: LatLng[]): Promise<RouteResult | null>
 ```
 
 - Backed by OSRM `GET /route/v1/driving/{lng,lat;lng,lat;...}?overview=full&geometries=geojson&annotations=distance,duration`.
@@ -81,6 +82,7 @@ export async function fetchRoadRoute(
 Pure view, no data fetching.
 
 Props:
+
 - `stops`: ordered array of `{ id, lat, lng, label, status, seq }`
 - `origin`: `LatLng | null` (GPS "you are here")
 - `geometry`: `LatLng[] | null` (road line when available; else component draws
@@ -127,13 +129,13 @@ useJobsForDate(today) ──► active jobs
 
 ## Error handling / degradation
 
-| Condition | Behavior |
-|-----------|----------|
-| No GPS / denied | Start order from first pinned job (existing fallback); no "you are here" dot |
-| Job has no lat/lng | Listed below map as "not on map"; excluded from pins/route; never blocks |
-| Offline / tiles missing | Cached tiles render where previously seen; pins + haversine order + Maps link still work |
-| OSRM error / rate-limit / timeout | `fetchRoadRoute` → `null` → haversine straight lines + haversine distances |
-| No jobs today | Empty state (reuse `EmptyState`), map centered on GPS or last-known |
+| Condition                         | Behavior                                                                                 |
+| --------------------------------- | ---------------------------------------------------------------------------------------- |
+| No GPS / denied                   | Start order from first pinned job (existing fallback); no "you are here" dot             |
+| Job has no lat/lng                | Listed below map as "not on map"; excluded from pins/route; never blocks                 |
+| Offline / tiles missing           | Cached tiles render where previously seen; pins + haversine order + Maps link still work |
+| OSRM error / rate-limit / timeout | `fetchRoadRoute` → `null` → haversine straight lines + haversine distances               |
+| No jobs today                     | Empty state (reuse `EmptyState`), map centered on GPS or last-known                      |
 
 ## Testing
 
