@@ -5,9 +5,13 @@ import { DispatchScreen } from './dispatch'
 // TanStack Router needs a router context; stub it so tests run without one.
 vi.mock('@tanstack/react-router', () => ({
   createFileRoute: () => () => ({}),
-  Link: ({ children, ...props }: { children: React.ReactNode; [key: string]: unknown }) => (
-    <a {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>{children}</a>
-  ),
+  Link: ({
+    children,
+    ...props
+  }: {
+    children: React.ReactNode
+    [key: string]: unknown
+  }) => <a {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>{children}</a>,
 }))
 
 vi.mock('@/components/RouteMap', () => ({
@@ -55,6 +59,24 @@ describe('DispatchScreen', () => {
     render(<DispatchScreen />)
     expect(screen.getByText(/not on map/i)).toBeTruthy()
     expect(screen.getByText('NoGeo')).toBeTruthy()
+  })
+
+  it('does not show empty state when active jobs exist but none are geocoded', () => {
+    mockJobs.mockReturnValue({
+      data: [
+        {
+          id: 'd',
+          status: 'scheduled',
+          property: { label: 'UnpinnedOnly', lat: null, lng: null },
+        },
+      ],
+      isLoading: false,
+      isError: false,
+    })
+    render(<DispatchScreen />)
+    expect(screen.queryByText(/no jobs/i)).toBeNull()
+    expect(screen.getByText(/not on map/i)).toBeTruthy()
+    expect(screen.getByText('UnpinnedOnly')).toBeTruthy()
   })
 
   it('shows an empty state when there are no active jobs today', () => {

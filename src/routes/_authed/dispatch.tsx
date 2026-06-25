@@ -40,9 +40,10 @@ export function DispatchScreen() {
   const [origin, setOrigin] = useState<LatLng | null>(null)
   // Keyed so stale results from a previous stopKey are ignored without calling
   // setState synchronously inside the effect (which triggers a cascade render).
-  const [roadState, setRoadState] = useState<{ key: string; result: RouteResult | null } | null>(
-    null,
-  )
+  const [roadState, setRoadState] = useState<{
+    key: string
+    result: RouteResult | null
+  } | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
   useEffect(() => {
@@ -112,58 +113,61 @@ export function DispatchScreen() {
         </Link>
       </header>
 
-      {stops.length === 0 ? (
+      {active.length === 0 ? (
         <EmptyState title="No jobs to map" body="Nothing scheduled for today yet." />
       ) : (
-        <>
-          <div className="mx-edge mt-4 h-72 overflow-hidden rounded-lg border-2 border-edge">
-            <RouteMap
-              stops={stops}
-              origin={origin}
-              geometry={road?.geometry ?? null}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-            />
-          </div>
+        stops.length > 0 && (
+          <>
+            <div className="mx-edge mt-4 h-72 overflow-hidden rounded-lg border-2 border-edge">
+              <RouteMap
+                stops={stops}
+                origin={origin}
+                geometry={road?.geometry ?? null}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+              />
+            </div>
 
-          {mapsUrl && (
-            <a
-              href={mapsUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="heading-stencil tap-active mx-edge mt-4 flex items-center justify-center rounded-lg border-2 border-edge bg-panel py-3 text-sm text-sand"
-            >
-              Open route in Maps ({stops.length} stop{stops.length === 1 ? '' : 's'})
-            </a>
-          )}
+            {mapsUrl && (
+              <a
+                href={mapsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="heading-stencil tap-active mx-edge mt-4 flex items-center justify-center rounded-lg border-2 border-edge bg-panel py-3 text-sm text-sand"
+              >
+                Open route in Maps ({stops.length} stop{stops.length === 1 ? '' : 's'})
+              </a>
+            )}
 
-          <ol className="mx-edge mt-4 space-y-2">
-            {stops.map((s, i) => {
-              const miles = legMiles(i)
-              return (
-                <li key={s.id}>
-                  <button
-                    onClick={() => setSelectedId(s.id)}
-                    className={`tap-active flex w-full items-center justify-between rounded-lg border-2 px-4 py-3 text-left ${
-                      s.id === selectedId
-                        ? 'border-blaze bg-panel'
-                        : 'border-edge bg-panel'
-                    }`}
-                  >
-                    <span className="text-sm text-sand">
-                      {s.seq}. {s.label}
-                    </span>
-                    {miles !== null && (
-                      <span className="font-mono text-xs text-faded">
-                        {miles.toFixed(1)} mi
+            <ol className="mx-edge mt-4 space-y-2">
+              {stops.map((s, i) => {
+                const miles = legMiles(i)
+                return (
+                  <li key={s.id}>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedId(s.id)}
+                      className={`tap-active flex w-full items-center justify-between rounded-lg border-2 px-4 py-3 text-left ${
+                        s.id === selectedId
+                          ? 'border-blaze bg-panel'
+                          : 'border-edge bg-panel'
+                      }`}
+                    >
+                      <span className="text-sm text-sand">
+                        {s.seq}. {s.label}
                       </span>
-                    )}
-                  </button>
-                </li>
-              )
-            })}
-          </ol>
-        </>
+                      {miles !== null && (
+                        <span className="font-mono text-xs text-faded">
+                          {miles.toFixed(1)} mi
+                        </span>
+                      )}
+                    </button>
+                  </li>
+                )
+              })}
+            </ol>
+          </>
+        )
       )}
 
       {unpinned.length > 0 && (
