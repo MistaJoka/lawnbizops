@@ -12,6 +12,7 @@ import {
   type InvoiceItem,
 } from '@/features/invoices/hooks'
 import { createOneOffJob, type JobPropertyContext } from '@/features/jobs/hooks'
+import { maybeAdvanceStage } from '@/features/clients/hooks'
 import type { Tables } from '@/lib/database.types'
 
 export type Estimate = Tables<'estimates'>
@@ -230,6 +231,13 @@ export async function setEstimateStatus(
     kind: 'update',
     payload: { id, patch: { status } },
   })
+  // Sending a quote means this client is now Quoted — reconcile the stage.
+  if (status === 'sent') {
+    const detail = queryClient.getQueryData<EstimateDetail>(['estimates', id])
+    if (detail?.estimate.client_id) {
+      await maybeAdvanceStage(detail.estimate.client_id, 'quoted')
+    }
+  }
 }
 
 /**

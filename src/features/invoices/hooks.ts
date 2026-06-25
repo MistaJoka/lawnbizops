@@ -9,6 +9,7 @@ import {
   markJobsInvoicedInCaches,
   restoreInvoicedJobInCaches,
 } from '@/features/jobs/hooks'
+import { maybeAdvanceStage } from '@/features/clients/hooks'
 import type { Tables } from '@/lib/database.types'
 
 export type Invoice = Tables<'invoices'>
@@ -387,6 +388,10 @@ export async function recordPayment(input: RecordPaymentInput): Promise<void> {
       },
     },
   })
+  // Money in the door means this is an active customer — reconcile the stage.
+  const clientId = queryClient.getQueryData<InvoiceDetail>(['invoices', input.invoiceId])
+    ?.invoice.client_id
+  if (clientId) await maybeAdvanceStage(clientId, 'active')
   confirmToast('Payment recorded')
 }
 

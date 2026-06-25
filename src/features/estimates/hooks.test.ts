@@ -12,6 +12,10 @@ vi.mock('@/features/jobs/hooks', () => ({
   markJobsInvoicedInCaches: vi.fn(),
   restoreInvoicedJobInCaches: vi.fn(),
 }))
+const maybeAdvanceStage = vi.fn()
+vi.mock('@/features/clients/hooks', () => ({
+  maybeAdvanceStage: (...args: unknown[]) => maybeAdvanceStage(...args),
+}))
 
 import { queryClient } from '@/lib/queryClient'
 import {
@@ -29,8 +33,32 @@ const tables = () => enqueue.mock.calls.map((c) => (c[0] as { table: string }).t
 beforeEach(() => {
   enqueue.mockClear()
   createOneOffJob.mockClear()
+  maybeAdvanceStage.mockClear()
 })
 afterEach(() => queryClient.clear())
+
+describe('setEstimateStatus → stage reconciliation', () => {
+  const seedDetail = (clientId: string) =>
+    queryClient.setQueryData(['estimates', 'e1'], {
+      estimate: { id: 'e1', client_id: clientId },
+      items: [],
+      client: null,
+      property: null,
+      linkedInvoiceId: null,
+    } as unknown as EstimateDetail)
+
+  it('sent advances the client toward quoted', async () => {
+    seedDetail('c1')
+    await setEstimateStatus('e1', 'sent')
+    expect(maybeAdvanceStage).toHaveBeenCalledWith('c1', 'quoted')
+  })
+
+  it('accepted does NOT auto-advance the stage', async () => {
+    seedDetail('c1')
+    await setEstimateStatus('e1', 'accepted')
+    expect(maybeAdvanceStage).not.toHaveBeenCalled()
+  })
+})
 
 describe('createEstimate', () => {
   it('writes detail + list caches and enqueues estimate before items (FIFO)', async () => {

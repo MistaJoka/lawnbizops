@@ -16,6 +16,7 @@ import { queryClient } from '@/lib/queryClient'
 import {
   saveClient,
   setClientStage,
+  maybeAdvanceStage,
   archiveClient,
   type Client,
   type ClientDraft,
@@ -93,6 +94,53 @@ describe('archiveClient', () => {
     expect(ops()).toHaveLength(1)
     expect(ops()[0]).toMatchObject({ table: 'clients', kind: 'upsert' })
     expect(ops()[0].payload.archived_at).toEqual(expect.any(String))
+  })
+})
+
+describe('maybeAdvanceStage', () => {
+  const seed = (stage: Client['stage'], over: Partial<Client> = {}) => {
+    const c = client({ stage, ...over })
+    queryClient.setQueryData<Client[]>(['clients'], [c])
+    queryClient.setQueryData<Client>(['clients', 'cl1'], c)
+  }
+
+  it('advances forward (lead → quoted)', async () => {
+    seed('lead')
+    await maybeAdvanceStage('cl1', 'quoted')
+    expect(detail('cl1')!.stage).toBe('quoted')
+    expect(ops()).toHaveLength(1)
+  })
+
+  it('does not move backward (active stays active when target is quoted)', async () => {
+    seed('active')
+    await maybeAdvanceStage('cl1', 'quoted')
+    expect(detail('cl1')!.stage).toBe('active')
+    expect(ops()).toHaveLength(0)
+  })
+
+  it('never pulls a dormant client back into the funnel', async () => {
+    seed('dormant')
+    await maybeAdvanceStage('cl1', 'active')
+    expect(detail('cl1')!.stage).toBe('dormant')
+    expect(ops()).toHaveLength(0)
+  })
+
+  it('never auto-sets dormant', async () => {
+    seed('active')
+    await maybeAdvanceStage('cl1', 'dormant')
+    expect(detail('cl1')!.stage).toBe('active')
+    expect(ops()).toHaveLength(0)
+  })
+
+  it('no-ops when the client is not in cache', async () => {
+    await maybeAdvanceStage('ghost', 'active')
+    expect(ops()).toHaveLength(0)
+  })
+
+  it('ignores archived clients', async () => {
+    seed('lead', { archived_at: new Date().toISOString() })
+    await maybeAdvanceStage('cl1', 'quoted')
+    expect(ops()).toHaveLength(0)
   })
 })
 

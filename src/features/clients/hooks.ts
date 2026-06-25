@@ -153,6 +153,30 @@ export async function setClientStage(client: Client, stage: ClientStage): Promis
   confirmToast(`Moved to ${stageLabel(stage)}`)
 }
 
+/**
+ * Advance a client FORWARD to `target` as a side effect of doing the work —
+ * estimate sent → quoted, payment received → active — so `clients.stage`
+ * reflects reality instead of being a manual label (pipeline-stage-spec §0).
+ * Reads the client from cache and no-ops unless the move is strictly forward
+ * within lead→quoted→active. Never auto-sets dormant, never pulls a dormant
+ * (or archived) client back into the funnel.
+ */
+export async function maybeAdvanceStage(
+  clientId: string,
+  target: ClientStage,
+): Promise<void> {
+  const order: ClientStage[] = ['lead', 'quoted', 'active', 'dormant']
+  if (target === 'dormant') return
+  const client =
+    queryClient.getQueryData<Client>(['clients', clientId]) ??
+    queryClient.getQueryData<Client[]>(['clients'])?.find((c) => c.id === clientId)
+  if (!client || client.archived_at || client.stage === 'dormant') return
+  const from = order.indexOf(client.stage as ClientStage)
+  const to = order.indexOf(target)
+  if (from === -1 || to <= from) return
+  await setClientStage(client, target)
+}
+
 export async function archiveClient(client: Client): Promise<void> {
   await saveClient({
     id: client.id,
