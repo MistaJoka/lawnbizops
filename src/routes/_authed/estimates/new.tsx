@@ -10,6 +10,12 @@ import { formatCents, localToday, parseDollarsToCents } from '@/lib/format'
 import { addDaysISO } from '@/lib/dates'
 
 export const Route = createFileRoute('/_authed/estimates/new')({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { clientId?: string; propertyId?: string } => ({
+    clientId: typeof search.clientId === 'string' ? search.clientId : undefined,
+    propertyId: typeof search.propertyId === 'string' ? search.propertyId : undefined,
+  }),
   component: NewEstimateScreen,
 })
 
@@ -21,9 +27,15 @@ interface LineDraft {
 }
 
 function NewEstimateScreen() {
+  const search = Route.useSearch()
   const navigate = useNavigate()
-  const [clientId, setClientId] = useState('')
-  const [propertyId, setPropertyId] = useState('')
+  // null = untouched → derive from the ?clientId=/?propertyId= deep link so a
+  // "Create estimate" from a client/lead lands here pre-scoped. Picking a value
+  // sets the raw state and takes over.
+  const [clientIdRaw, setClientIdRaw] = useState<string | null>(null)
+  const [propertyIdRaw, setPropertyIdRaw] = useState<string | null>(null)
+  const clientId = clientIdRaw ?? search.clientId ?? ''
+  const propertyId = propertyIdRaw ?? search.propertyId ?? ''
   const [lines, setLines] = useState<LineDraft[]>([])
   const [validUntil, setValidUntil] = useState(addDaysISO(localToday(), 30))
   const [notes, setNotes] = useState('')
@@ -105,8 +117,8 @@ function NewEstimateScreen() {
           <Select
             value={clientId}
             onChange={(e) => {
-              setClientId(e.target.value)
-              setPropertyId('')
+              setClientIdRaw(e.target.value)
+              setPropertyIdRaw('')
             }}
           >
             <option value="">Pick a client…</option>
@@ -120,7 +132,7 @@ function NewEstimateScreen() {
 
         {clientId && (
           <Field label="Property (optional)">
-            <Select value={propertyId} onChange={(e) => setPropertyId(e.target.value)}>
+            <Select value={propertyId} onChange={(e) => setPropertyIdRaw(e.target.value)}>
               <option value="">No property</option>
               {(properties ?? []).map((p) => (
                 <option key={p.id} value={p.id}>

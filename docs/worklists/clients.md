@@ -18,3 +18,14 @@ Apply all four rubric lenses (README) to each item.
 - [ ] ClientForm + edit: writes go through `enqueue()`; new rows get `crypto.randomUUID()`; no `user_id/created_at/updated_at` in payload.
 - [ ] Import: progress/empty/error states present; large lists windowed; malformed rows surfaced, not silently dropped.
 - [ ] All screens: colors are tokens only (no `gray-*`/hex); primary CTA is `bg-blaze`.
+
+## Flow — lead→done (from e2e-audit-2026-06-24)
+
+- [x] Detail: add a primary **"Create estimate"** CTA (→ `/estimates/new?clientId=$id`) — for a lead this is the top missing action. *(done 2026-06-25: blaze CTA, carries propertyId when single)*
+- [ ] Detail: add **"Schedule work"** / **"New job"** CTAs carrying `clientId` (and propertyId when one property).
+- [ ] ClientForm: default stage to **lead** when arrived from a lead/pipeline context (`?lead=1`).
+
+## Stage criteria — from pipeline-stage-spec (2026-06-25)
+
+- [ ] ClientForm: require **at least one contact channel** (phone OR email) — today only `name` is required, so a lead can't be quoted/invoiced/reminded (G-A1).
+- [ ] Client/lead detail: **readiness chips** ("needs: ☐ contact ☐ property ☐ estimate"), each chip opening the prefilled producing component (G-B1 / stage-readiness model).

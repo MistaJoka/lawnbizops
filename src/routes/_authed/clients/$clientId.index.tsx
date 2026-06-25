@@ -162,9 +162,23 @@ function ClientDetailScreen() {
       <Link
         to="/properties/new"
         search={{ clientId }}
-        className="heading-stencil mt-4 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-on-cta"
+        className="heading-stencil mt-4 block w-full rounded-lg border border-edge bg-panel px-4 py-4 text-center text-lg text-sand"
       >
         + Add property
+      </Link>
+
+      {/* The lead/client's primary "do business" action: quote them. Carries
+          clientId (and the property when there's exactly one) so New Estimate
+          lands pre-scoped — closes the Lead→Quoted exit gap (G-B1). */}
+      <Link
+        to="/estimates/new"
+        search={{
+          clientId,
+          ...((properties ?? []).length === 1 ? { propertyId: properties![0].id } : {}),
+        }}
+        className="heading-stencil mt-3 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-on-cta"
+      >
+        + Create estimate
       </Link>
 
       <button
