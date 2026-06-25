@@ -20,5 +20,5 @@ Apply all four rubric lenses (README) to each item.
 - [x] New: add `validateSearch` for `clientId`/`propertyId` and **prefill + skip** those selectors (match `jobs/new`). *(done 2026-06-25, verified in demo)*
 - [x] Detail (accepted): add **"Create schedule"** path (not just job/invoice); when job path is blocked by no property, show an inline **"Add property"** affordance. *(done 2026-06-25, verified in demo)*
 - [x] Detail: "Create job"/"Create schedule" pass service, price, title, property as search params so the target form prefills. *(done 2026-06-25: schedule carries property+price (verified $775→form); job already carries price/title/notes via createJobFromEstimate. NOTE: service_id not carried — estimates are line-item-based, no single service.)*
-- [ ] Add **"Renew estimate"** (clone to new draft, fresh valid-until) for declined/expired.
+- [x] Add **"Renew estimate"** (clone to new draft, fresh valid-until) for declined/expired. *(done 2026-06-25: also shows for sent-past-valid; renewEstimate unit-tested. Demo can't show the status-gated button live — fake backend re-serves seed status on refetch.)*
 - [ ] Add **"Send via email/SMS"** action (mailto/sms deep link first) that also stamps `sent`.

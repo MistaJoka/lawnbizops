@@ -241,6 +241,29 @@ export async function setEstimateStatus(
 }
 
 /**
+ * Clone a declined/expired estimate into a fresh draft (same client, property,
+ * and line items; a new 30-day valid-until) so a stale quote can be re-sent
+ * without re-keying it. Returns the new estimate id for navigation.
+ */
+export async function renewEstimate(detail: EstimateDetail): Promise<string> {
+  return createEstimate({
+    clientId: detail.estimate.client_id,
+    client: detail.client
+      ? { name: detail.client.name, phone: detail.client.phone }
+      : null,
+    propertyId: detail.estimate.property_id,
+    property: detail.property,
+    items: detail.items.map((it) => ({
+      description: it.description,
+      quantity: it.quantity,
+      unit_price_cents: it.unit_price_cents,
+    })),
+    notes: detail.estimate.notes,
+    validUntil: addDaysISO(localToday(), 30),
+  })
+}
+
+/**
  * Create a draft invoice from an accepted estimate (estimate_id linked, items
  * copied). Reuses the invoice cache shapes so the invoice detail renders
  * fully offline. Returns the new invoice id for navigation.

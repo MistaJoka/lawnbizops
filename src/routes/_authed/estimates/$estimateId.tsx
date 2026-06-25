@@ -3,6 +3,7 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   convertToInvoice,
   createJobFromEstimate,
+  renewEstimate,
   setEstimateStatus,
   useEstimate,
   type EstimateDetail,
@@ -37,6 +38,7 @@ function EstimateDetailScreen() {
   const { data: settings } = useBusinessSettings()
   const [sharing, setSharing] = useState(false)
   const [converting, setConverting] = useState(false)
+  const [renewing, setRenewing] = useState(false)
 
   if (!detail) {
     return (
@@ -85,6 +87,17 @@ function EstimateDetailScreen() {
       }
     } finally {
       setSharing(false)
+    }
+  }
+
+  async function handleRenew() {
+    if (!detail || renewing) return
+    setRenewing(true)
+    try {
+      const id = await renewEstimate(detail)
+      void navigate({ to: '/estimates/$estimateId', params: { estimateId: id } })
+    } finally {
+      setRenewing(false)
     }
   }
 
@@ -245,6 +258,21 @@ function EstimateDetailScreen() {
               )}
             </div>
           </>
+        )}
+
+        {(estimate.status === 'declined' ||
+          estimate.status === 'expired' ||
+          (estimate.status === 'sent' &&
+            estimate.valid_until !== null &&
+            estimate.valid_until < localToday())) && (
+          <button
+            type="button"
+            disabled={renewing}
+            onClick={() => void handleRenew()}
+            className="heading-stencil w-full rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-khaki disabled:opacity-50"
+          >
+            {renewing ? 'Renewing…' : 'Renew estimate'}
+          </button>
         )}
 
         <div>

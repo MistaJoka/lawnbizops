@@ -201,9 +201,13 @@ must be produced to advance) · **Data required** · **Producing component**
 - **Exit:** new estimate/job; back to `active`.
 - **Producing component:** —
 - **Gaps:**
-  - **G-I1 [component]** **No "reactivate"** action and **no automated dormancy
-    detection** (despite the auto-followup/overdue settings existing); dormant is
-    a manual dead-end.
+  - **G-I1 [component]** CORRECTION: the client-detail **StageControl already
+    allows reactivation** — its four stage buttons each jump to any stage, so
+    dormant→active is one tap; "no reactivate path" was only true of the
+    Pipeline board's forward-only "Advance". Residual gap: **no automated
+    dormancy detection** (despite auto-followup/overdue settings) and no
+    one-tap reactivate on the *Pipeline* itself. *"Renew estimate" for
+    declined/expired quotes — FIXED 2026-06-25.*
 
 ---
 

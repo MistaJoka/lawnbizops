@@ -18,9 +18,11 @@ vi.mock('@/features/clients/hooks', () => ({
 }))
 
 import { queryClient } from '@/lib/queryClient'
+import { localToday } from '@/lib/format'
 import {
   createEstimate,
   setEstimateStatus,
+  renewEstimate,
   convertToInvoice,
   createJobFromEstimate,
   type EstimateDetail,
@@ -85,6 +87,29 @@ describe('createEstimate', () => {
 
     // FIFO: the estimate row must land before its item rows.
     expect(tables()).toEqual(['estimates', 'estimate_items', 'estimate_items'])
+  })
+})
+
+describe('renewEstimate', () => {
+  it('clones items into a fresh draft with a future valid-until', async () => {
+    const detail = {
+      estimate: { id: 'old', client_id: 'c1', property_id: 'p1', notes: 'redo' },
+      items: [
+        { description: 'Mow', quantity: 2, unit_price_cents: 5000 },
+        { description: 'Trim', quantity: 1, unit_price_cents: 1500 },
+      ],
+      client: { id: 'c1', name: 'Pat', phone: '555' },
+      property: null,
+      linkedInvoiceId: null,
+    } as unknown as EstimateDetail
+
+    const newId = await renewEstimate(detail)
+    expect(newId).not.toBe('old')
+
+    const fresh = queryClient.getQueryData<EstimateDetail>(['estimates', newId])!
+    expect(fresh.estimate.status).toBe('draft')
+    expect(fresh.estimate.valid_until! > localToday()).toBe(true)
+    expect(fresh.items.map((i) => i.description)).toEqual(['Mow', 'Trim'])
   })
 })
 
