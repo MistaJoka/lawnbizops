@@ -24,6 +24,11 @@ export function ClientForm({
   const [isLead, setIsLead] = useState((initial?.stage ?? 'active') === 'lead')
   const [busy, setBusy] = useState(false)
 
+  // Entry criterion (G-A1): a client with no phone and no email can never be
+  // quoted, invoiced, or reminded. Warn — don't block — so quick capture still
+  // works and the detail can be filled in later.
+  const noContact = phone.trim() === '' && email.trim() === ''
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true)
@@ -71,6 +76,11 @@ export function ClientForm({
           onChange={(e) => setEmail(e.target.value)}
         />
       </Field>
+      {noContact && (
+        <p className="-mt-2 text-sm text-khaki">
+          Add a phone or email so you can quote, invoice, and remind them.
+        </p>
+      )}
       <Field label="Notes">
         <TextArea
           placeholder="Anything worth remembering"

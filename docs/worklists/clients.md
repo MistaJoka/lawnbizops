@@ -27,5 +27,5 @@ Apply all four rubric lenses (README) to each item.
 
 ## Stage criteria — from pipeline-stage-spec (2026-06-25)
 
-- [ ] ClientForm: require **at least one contact channel** (phone OR email) — today only `name` is required, so a lead can't be quoted/invoiced/reminded (G-A1).
+- [x] ClientForm: require **at least one contact channel** (phone OR email) — today only `name` is required, so a lead can't be quoted/invoiced/reminded (G-A1). *(done 2026-06-25: soft inline warning, non-blocking per readiness-model philosophy; verified shows/clears in demo)*
 - [ ] Client/lead detail: **readiness chips** ("needs: ☐ contact ☐ property ☐ estimate"), each chip opening the prefilled producing component (G-B1 / stage-readiness model).
