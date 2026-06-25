@@ -22,4 +22,5 @@ Apply all four rubric lenses (README) to each item.
 
 ## Stage criteria — from pipeline-stage-spec (2026-06-25)
 
-- [ ] PropertyForm: require `address_line1` (and ideally geocode to lat/lng) before save — today a property saves with no address and no map pin, so its jobs silently drop off dispatch (G-D1).
+- [x] PropertyForm: require `address_line1` before save — an address-less property gets no geocode/pin and drops off dispatch (G-D1). *(done 2026-06-25, verified. NOTE: geocoding already existed — savePropertyWithGeocode/lib/geocode.ts — earlier "no geocoder" claim was wrong; corrected in spec/audit.)*
+- [ ] PropertyForm: surface a **geocode miss** ("couldn't pin this address — saved without a map location") since `savePropertyWithGeocode` returns null silently on a Nominatim miss (residual G-D1b).

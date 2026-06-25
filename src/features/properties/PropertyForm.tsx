@@ -36,6 +36,11 @@ export function PropertyForm({
   const [notes, setNotes] = useState(initial?.notes ?? '')
   const [busy, setBusy] = useState(false)
 
+  // Entry criterion for a dispatchable job (G-D1): without a street address the
+  // property can't be geocoded, so it gets no map pin and drops out of routing.
+  // Require it — geocoding (savePropertyWithGeocode) keys off this on save.
+  const canSave = addressLine1.trim() !== '' && !busy
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true)
@@ -86,6 +91,7 @@ export function PropertyForm({
       </Field>
       <Field label="Address line 1">
         <TextInput
+          required
           autoComplete="address-line1"
           placeholder="123 Palmetto St"
           value={addressLine1}
@@ -141,7 +147,7 @@ export function PropertyForm({
           onChange={(e) => setNotes(e.target.value)}
         />
       </Field>
-      <PrimaryButton type="submit" disabled={busy}>
+      <PrimaryButton type="submit" disabled={!canSave}>
         {busy ? 'Saving…' : 'Save property'}
       </PrimaryButton>
     </form>

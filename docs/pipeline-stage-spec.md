@@ -121,11 +121,14 @@ must be produced to advance) · **Data required** · **Producing component**
 - **Gate:** none — any status can jump to any status.
 - **Gaps:**
   - **G-D1 [data]** **`property.lat/lng`, address, city, state, zip are all
-    optional** (`properties` requires only `client_id`; PropertyForm has no
-    `required` on address and **no geocoding**). A job can be scheduled with **no
-    location**, so it silently drops off the dispatch map (listed as "not on map,"
-    and that row isn't even tappable). This is the biggest *data*-initialization
-    gap in the work machine.
+    optional** (`properties` requires only `client_id`). CORRECTION: a free
+    Nominatim **geocoder *does* exist and is wired** (`src/lib/geocode.ts` via
+    `savePropertyWithGeocode`, on both new + edit routes) — it geocodes the
+    address on save, best-effort. The real residual gap: (a) **address_line1 was
+    not required**, so an address-less property gets no geocode → no pin →
+    undispatchable (FIXED 2026-06-25: address now required on PropertyForm); and
+    (b) a geocode **miss is silent** (no "couldn't pin this" feedback at save;
+    the row only later shows "no pin" and isn't tappable on the dispatch list).
   - **G-D2 [data]** `job.price_cents` defaults to 0 and `service_id` is nullable
     — a "done" job can carry $0 and no service, then invoice to $0 / be invisible
     to revenue-by-service.
