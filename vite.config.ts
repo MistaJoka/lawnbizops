@@ -54,13 +54,7 @@ export default defineConfig({
   base: process.env.VITE_BASE ?? '/',
   plugins: [
     buildInfoPlugin(),
-    tanstackRouter({
-      target: 'react',
-      autoCodeSplitting: true,
-      // Co-located route tests (e.g. dispatch.test.tsx) aren't routes — keep
-      // them out of the generated route tree instead of warning on every build.
-      routeFileIgnorePattern: '\\.(test|spec)\\.[tj]sx?$',
-    }),
+    tanstackRouter({ target: 'react', autoCodeSplitting: true }),
     react(),
     tailwindcss(),
     VitePWA({

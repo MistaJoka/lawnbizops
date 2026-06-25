@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { DispatchScreen } from './dispatch'
+import { DispatchScreen } from './DispatchScreen'
 
 // TanStack Router needs a router context; stub it so tests run without one.
 vi.mock('@tanstack/react-router', () => ({
