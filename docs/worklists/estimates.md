@@ -18,7 +18,7 @@ Apply all four rubric lenses (README) to each item.
 ## Flow — lead→done (from e2e-audit-2026-06-24)
 
 - [x] New: add `validateSearch` for `clientId`/`propertyId` and **prefill + skip** those selectors (match `jobs/new`). *(done 2026-06-25, verified in demo)*
-- [ ] Detail (accepted): add **"Create schedule"** path (not just job/invoice); when job path is blocked by no property, show an inline **"Add property"** affordance.
-- [ ] Detail: "Create job"/"Create schedule" pass service, price, title, property as search params so the target form prefills.
+- [x] Detail (accepted): add **"Create schedule"** path (not just job/invoice); when job path is blocked by no property, show an inline **"Add property"** affordance. *(done 2026-06-25, verified in demo)*
+- [x] Detail: "Create job"/"Create schedule" pass service, price, title, property as search params so the target form prefills. *(done 2026-06-25: schedule carries property+price (verified $775→form); job already carries price/title/notes via createJobFromEstimate. NOTE: service_id not carried — estimates are line-item-based, no single service.)*
 - [ ] Add **"Renew estimate"** (clone to new draft, fresh valid-until) for declined/expired.
 - [ ] Add **"Send via email/SMS"** action (mailto/sms deep link first) that also stamps `sent`.

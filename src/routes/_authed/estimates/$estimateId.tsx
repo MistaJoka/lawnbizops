@@ -213,6 +213,15 @@ function EstimateDetailScreen() {
         {estimate.status === 'accepted' && (
           <>
             <CreateJobCard detail={detail} />
+            {property && (
+              <Link
+                to="/schedules/new"
+                search={{ propertyId: property.id, priceCents: total }}
+                className="heading-stencil w-full rounded-lg border border-edge bg-panel px-4 py-4 text-center text-lg text-sand"
+              >
+                Create recurring schedule
+              </Link>
+            )}
             <div>
               <button
                 type="button"
@@ -289,9 +298,18 @@ function CreateJobCard({ detail }: { detail: EstimateDetail }) {
         Create job
       </button>
       {!hasProperty && (
-        <p className="mt-1 text-center text-xs text-faded">
-          Needs a property — estimate has none
-        </p>
+        <div className="mt-2 text-center">
+          <p className="text-xs text-faded">Needs a property — estimate has none.</p>
+          {detail.client && (
+            <Link
+              to="/properties/new"
+              search={{ clientId: detail.client.id }}
+              className="heading-stencil mt-1 inline-block text-xs text-blaze"
+            >
+              + Add property
+            </Link>
+          )}
+        </div>
       )}
     </div>
   )

@@ -27,11 +27,15 @@ export interface ScheduleFormValues {
 export function ScheduleForm({
   propertyId,
   initial,
+  initialPriceCents,
   submitLabel,
   onSubmit,
 }: {
   propertyId: string
   initial?: RecurringSchedule
+  // Seed the price when creating from a deep link (e.g. an accepted estimate)
+  // without a full schedule record. Ignored when `initial` is provided.
+  initialPriceCents?: number
   submitLabel: string
   onSubmit: (values: ScheduleFormValues) => Promise<void>
 }) {
@@ -43,7 +47,11 @@ export function ScheduleForm({
   const [dayOfMonth, setDayOfMonth] = useState(initial?.day_of_month?.toString() ?? '15')
   const [serviceId, setServiceId] = useState(initial?.service_id ?? '')
   const [dollars, setDollars] = useState(
-    initial ? (initial.price_cents / 100).toFixed(2) : '',
+    initial
+      ? (initial.price_cents / 100).toFixed(2)
+      : initialPriceCents != null
+        ? (initialPriceCents / 100).toFixed(2)
+        : '',
   )
   const [notes, setNotes] = useState(initial?.notes ?? '')
   const [endsOn, setEndsOn] = useState(initial?.ends_on ?? '')

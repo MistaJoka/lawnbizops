@@ -3,14 +3,20 @@ import { ScheduleForm } from '@/features/schedules/ScheduleForm'
 import { saveSchedule } from '@/features/schedules/hooks'
 
 export const Route = createFileRoute('/_authed/schedules/new')({
-  validateSearch: (search: Record<string, unknown>): { propertyId: string } => ({
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { propertyId: string; priceCents?: number } => ({
     propertyId: typeof search.propertyId === 'string' ? search.propertyId : '',
+    priceCents:
+      typeof search.priceCents === 'number' && Number.isFinite(search.priceCents)
+        ? search.priceCents
+        : undefined,
   }),
   component: NewScheduleScreen,
 })
 
 function NewScheduleScreen() {
-  const { propertyId } = Route.useSearch()
+  const { propertyId, priceCents } = Route.useSearch()
   const navigate = useNavigate()
 
   if (!propertyId) {
@@ -42,6 +48,7 @@ function NewScheduleScreen() {
       <div className="mt-4">
         <ScheduleForm
           propertyId={propertyId}
+          initialPriceCents={priceCents}
           submitLabel="Save schedule"
           onSubmit={async (values) => {
             await saveSchedule(
