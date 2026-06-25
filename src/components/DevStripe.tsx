@@ -122,8 +122,7 @@ function SyncStat() {
     }
   }, [open])
 
-  const age =
-    v.showAge && lastSyncedAt != null ? ` · ${shortAgo(lastSyncedAt, now)}` : null
+  const age = v.showAge && lastSyncedAt != null ? shortAgo(lastSyncedAt, now) : null
 
   return (
     <div ref={wrapRef} className="relative">
@@ -139,7 +138,12 @@ function SyncStat() {
         <span className={`h-1.5 w-1.5 rounded-full ${v.dot}`} />
         {v.label}
         {v.count != null && <span className="text-faded">· {v.count}</span>}
-        {age && <span className="text-faded">{age}</span>}
+        {age && (
+          <>
+            <span aria-hidden>·</span>
+            <span className="text-faded">{age}</span>
+          </>
+        )}
       </button>
       {open && <DetailPanel rows={rows} view={v} onAct={() => setOpen(false)} />}
     </div>

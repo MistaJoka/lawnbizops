@@ -255,4 +255,27 @@ describe('outbox → sync clock', () => {
     expect(await db.outbox.count()).toBe(0)
     expect(lastSyncedAt()).toBeGreaterThanOrEqual(before)
   })
+
+  it('does NOT advance lastSyncedAt on a flush over an empty queue', async () => {
+    // Simulates app start / tab refocus / online event with nothing to push.
+    // The clock must remain unchanged — no real server round-trip occurred.
+    const before = lastSyncedAt()
+    goOnline()
+    await flush()
+    expect(await db.outbox.count()).toBe(0)
+    expect(lastSyncedAt()).toBe(before)
+  })
+
+  it('does NOT advance lastSyncedAt when the only op poison-fails (4xx)', async () => {
+    // All ops were rejected by the server — no successful push — so the clock
+    // must not be stamped (the success-counter gate, not just non-empty).
+    upsertMock.mockResolvedValueOnce(badRequest)
+    const before = lastSyncedAt()
+    await enqueue({ table: 'clients', kind: 'upsert', payload: { id: 'poison' } })
+    goOnline()
+    await flush()
+    const remaining = await db.outbox.toArray()
+    expect(remaining[0].status).toBe('failed')
+    expect(lastSyncedAt()).toBe(before)
+  })
 })

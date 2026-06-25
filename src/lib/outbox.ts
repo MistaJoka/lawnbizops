@@ -75,10 +75,12 @@ function setSyncStatus(next: SyncStatus) {
   if (next === syncStatus) return
   const prev = syncStatus
   syncStatus = next
-  // Edge "we just emptied the queue" → stamp the sync clock + one reassuring
-  // toast (not one per op).
+  // Edge "we just emptied the queue" → one reassuring toast (not one per op).
+  // markSynced() is NOT called here: setSyncStatus fires on every drain(),
+  // including empty-queue flushes (app start, tab focus, online event) where
+  // no real server round-trip occurred. The clock is stamped in drain() only
+  // after ≥1 op is successfully pushed.
   if (next === 'idle' && prev === 'syncing') {
-    markSynced()
     toast.success('All changes synced')
   }
   for (const l of syncListeners) l()
@@ -183,6 +185,9 @@ export async function flush(): Promise<void> {
 async function drain(): Promise<void> {
   setSyncStatus('syncing')
   const touched = new Set<SyncTable>()
+  // Count ops actually pushed to the server so we can stamp the sync clock only
+  // on real round-trips (not empty-queue flushes from app start / tab focus).
+  let pushed = 0
   // Loop until the queue is empty or we halt on a retryable failure, so ops
   // enqueued while we were draining get picked up in the next pass.
   outer: for (;;) {
@@ -193,6 +198,7 @@ async function drain(): Promise<void> {
       if (result.ok) {
         await db.outbox.delete(op.seq)
         touched.add(op.table)
+        pushed++
         continue
       }
       if (result.retryable) {
@@ -237,6 +243,10 @@ async function drain(): Promise<void> {
       void queryClient.invalidateQueries({ queryKey: key })
     }
   }
+  // Stamp the sync clock only when we actually pushed ≥1 op to the server.
+  // poison-failed ops are NOT counted (touched, but pushed is not incremented),
+  // so a drain where every op 4xx-fails does NOT advance lastSyncedAt.
+  if (pushed > 0) markSynced()
   // Reflect the post-drain reality: idle (emptied → "synced" toast), offline
   // (halted with no network), or error (a poison op got parked this pass).
   await recomputeStatus()
