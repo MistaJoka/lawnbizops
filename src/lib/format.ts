@@ -24,3 +24,17 @@ export function localToday(): string {
   const day = d.getDate().toString().padStart(2, '0')
   return `${y}-${m}-${day}`
 }
+
+/**
+ * Short relative age for the status bar: "now" | "5m" | "3h", falling back to an
+ * absolute short date ("Jun 21") past a day. `now` is injectable so callers can
+ * drive it off a ticking clock and tests stay deterministic. Future/skewed
+ * timestamps clamp to "now".
+ */
+export function shortAgo(ts: number, now: number = Date.now()): string {
+  const diff = now - ts
+  if (diff < 60_000) return 'now'
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m`
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h`
+  return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+}
