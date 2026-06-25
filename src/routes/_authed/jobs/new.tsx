@@ -23,12 +23,13 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 export const Route = createFileRoute('/_authed/jobs/new')({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { date?: string; propertyId?: string } => ({
+  ): { date?: string; propertyId?: string; clientId?: string } => ({
     date:
       typeof search.date === 'string' && DATE_RE.test(search.date)
         ? search.date
         : undefined,
     propertyId: typeof search.propertyId === 'string' ? search.propertyId : undefined,
+    clientId: typeof search.clientId === 'string' ? search.clientId : undefined,
   }),
   component: NewJobScreen,
 })
@@ -38,7 +39,7 @@ function NewJobScreen() {
   const navigate = useNavigate()
   const today = localToday()
 
-  // null = untouched → derive from the ?propertyId= deep link / auto-select.
+  // null = untouched → derive from the ?propertyId=/?clientId= deep link / auto-select.
   const [clientIdRaw, setClientIdRaw] = useState<string | null>(null)
   const [propertyIdRaw, setPropertyIdRaw] = useState<string | null>(null)
   const [serviceId, setServiceId] = useState('')
@@ -53,7 +54,7 @@ function NewJobScreen() {
   const { data: clients } = useClients()
   const { data: paramProperty } = useProperty(search.propertyId ?? '')
 
-  const clientId = clientIdRaw ?? paramProperty?.client_id ?? ''
+  const clientId = clientIdRaw ?? paramProperty?.client_id ?? search.clientId ?? ''
   const { data: properties } = useProperties(clientId)
 
   // Deep-linked property if it belongs to this client, else auto-pick a

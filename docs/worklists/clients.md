@@ -22,7 +22,7 @@ Apply all four rubric lenses (README) to each item.
 ## Flow — lead→done (from e2e-audit-2026-06-24)
 
 - [x] Detail: add a primary **"Create estimate"** CTA (→ `/estimates/new?clientId=$id`) — for a lead this is the top missing action. *(done 2026-06-25: blaze CTA, carries propertyId when single)*
-- [ ] Detail: add **"Schedule work"** / **"New job"** CTAs carrying `clientId` (and propertyId when one property).
+- [x] Detail: add **"Schedule work"** / **"New job"** CTAs carrying `clientId` (and propertyId when one property). *(done 2026-06-25: jobs/new now accepts ?clientId; verified in demo)*
 - [ ] ClientForm: default stage to **lead** when arrived from a lead/pipeline context (`?lead=1`).
 
 ## Stage criteria — from pipeline-stage-spec (2026-06-25)

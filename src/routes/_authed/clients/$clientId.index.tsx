@@ -181,6 +181,20 @@ function ClientDetailScreen() {
         + Create estimate
       </Link>
 
+      {/* Schedule work directly for this client — closes the client→scheduling
+          reachability gap (G-C4). Carries clientId (+ property when single) so
+          New Job lands pre-scoped. */}
+      <Link
+        to="/jobs/new"
+        search={{
+          clientId,
+          ...((properties ?? []).length === 1 ? { propertyId: properties![0].id } : {}),
+        }}
+        className="heading-stencil mt-3 block w-full rounded-lg border border-edge bg-panel px-4 py-4 text-center text-lg text-sand"
+      >
+        + Schedule work
+      </Link>
+
       <button
         onClick={() => void handleArchive()}
         className="heading-stencil mx-auto mt-12 block rounded-lg border border-edge px-6 py-3 text-alert"
