@@ -5,6 +5,7 @@ import { db, type OutboxOp, type SyncTable } from './db'
 import { supabase } from './supabase'
 import { queryClient } from './queryClient'
 import { toast } from './toast'
+import { markSynced } from './syncClock'
 
 /**
  * The offline write spine. Every mutation in the app goes through enqueue():
@@ -74,8 +75,12 @@ function setSyncStatus(next: SyncStatus) {
   if (next === syncStatus) return
   const prev = syncStatus
   syncStatus = next
-  // Edge "we just emptied the queue" → one reassuring toast, not one per op.
-  if (next === 'idle' && prev === 'syncing') toast.success('All changes synced')
+  // Edge "we just emptied the queue" → stamp the sync clock + one reassuring
+  // toast (not one per op).
+  if (next === 'idle' && prev === 'syncing') {
+    markSynced()
+    toast.success('All changes synced')
+  }
   for (const l of syncListeners) l()
 }
 
@@ -246,6 +251,29 @@ function scheduleRetry(attempts: number) {
 /** Live count of pending outbox writes — drives the sync badge. */
 export function useOutboxPending(): number {
   return useLiveQuery(() => db.outbox.where('status').equals('pending').count(), [], 0)
+}
+
+/** Live count of failed (poison) ops parked for the Sync issues screen. */
+export function useOutboxFailed(): number {
+  return useLiveQuery(() => db.outbox.where('status').equals('failed').count(), [], 0)
+}
+
+/**
+ * Epoch ms of the oldest pending op, or null. Pending ops share the `status`
+ * index value, so Dexie orders them by primary key — `.first()` is the lowest
+ * seq, i.e. the oldest enqueued (FIFO).
+ */
+export function useOldestPending(): number | null {
+  return useLiveQuery(
+    () =>
+      db.outbox
+        .where('status')
+        .equals('pending')
+        .first()
+        .then((op) => (op ? Date.parse(op.createdAt) : null)),
+    [],
+    null,
+  )
 }
 
 /** Reactive sync status for the global sync chip. */

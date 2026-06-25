@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { lastSyncedAt } from './syncClock'
 
 const upsertMock = vi.fn()
 const updateEqMock = vi.fn()
@@ -242,5 +243,16 @@ describe('outbox', () => {
       through_date: '2026-08-01',
     })
     expect(await db.outbox.count()).toBe(0)
+  })
+})
+
+describe('outbox → sync clock', () => {
+  it('records a sync time when a flush drains the queue', async () => {
+    const before = Date.now()
+    await enqueue({ table: 'clients', kind: 'upsert', payload: { id: 'c1' } })
+    goOnline()
+    await flush()
+    expect(await db.outbox.count()).toBe(0)
+    expect(lastSyncedAt()).toBeGreaterThanOrEqual(before)
   })
 })
