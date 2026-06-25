@@ -13,3 +13,8 @@ Apply all four rubric lenses (README) to each item.
 - [ ] Quick-action tiles ≥44px; primary action `bg-blaze`.
 - [ ] Aggregations memoized; no heavy recompute on each render.
 - [ ] Dates shown via `localToday()`-derived values; "today" framing correct.
+
+## Flow — lead→done (from e2e-audit-2026-06-24)
+
+- [ ] Dispatch: show **client name** on each route stop (not just property label — "Home/Home/Home" is ambiguous).
+- [ ] Dispatch: make **unpinned jobs** (no lat/lng) tappable → job detail so the operator can add a location.

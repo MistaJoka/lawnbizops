@@ -19,3 +19,17 @@ rubric lenses (README).
 - [ ] Toggle: ≥44px hit area; on/off states use tokens; accessible role/label.
 - [ ] ActivityTimeline: entries align; timestamps `tabular-nums`; empty uses `EmptyState`.
 - [ ] QueryError / AppErrorFallback: consistent layout, retry action, tokenized colors.
+
+## Flow — lead→done (from e2e-audit-2026-06-24)
+
+- [ ] Add a **global quick-create FAB** (or 6th "More" nav target) reaching New client / Estimate / Job / Invoice / Expense from anywhere — today only "+ Job" is global; Estimates/Dispatch/Tools/Inventory/Tax/Reports are single-deep-link-only and undiscoverable.
+- [ ] Reusable **"next-step success sheet"** component for post-save forward momentum (property/estimate/schedule).
+- [ ] Schedule edit: `ConfirmDialog` when `resync_schedule()` would drop future jobs that have notes/checklist customizations.
+
+## Correctness — from e2e-audit-2026-06-24 (verify before billing changes)
+
+- [ ] Add `unique(estimate_id)` partial index on `invoices` (defense-in-depth vs offline double-convert; UI already guards the button).
+- [ ] Void invoice with recorded payments: warn + reverse/flag so collected revenue can't count a voided invoice.
+- [ ] Schedule resync: add a `customized_at` guard (or ConfirmDialog naming affected visits) so editing a schedule doesn't silently delete edited future jobs (`0005` resync deletes all future `scheduled` jobs).
+- [ ] Extend job materialization horizon (~6mo) + auto-extend on load when `last_materialized_through` is near; consider a pg_cron top-up.
+- [ ] Outbox terminal failure: surface a visible toast/banner + one-tap retry with the error reason (today it only shows in Settings → Sync).

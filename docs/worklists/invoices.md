@@ -14,3 +14,9 @@ Apply all four rubric lenses (README) to each item.
 - [ ] New: fields use `Field`; new invoice + lines get `crypto.randomUUID()`; no DB-owned columns in payload.
 - [ ] PDF + share lazy-loaded with disabled-while-working state.
 - [ ] Empty/loading/error states use `EmptyState`/`Skeleton`/`QueryError`.
+
+## Flow — lead→done (from e2e-audit-2026-06-24)
+
+- [ ] Payment form: default **method** to the org's last-used method, not always `cash`.
+- [ ] Money aging buckets: add a **one-tap "send reminder"** on overdue invoices (wire the existing `auto_overdue_reminder` setting into a visible action).
+- [ ] Support a **deposit / partial invoice** created from an accepted estimate.

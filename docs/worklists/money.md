@@ -14,3 +14,9 @@ Apply all four rubric lenses (README) to each item.
 - [ ] ReportPdf + share lazy-loaded with disabled-while-working state.
 - [ ] Edge padding `px-edge`; headings `heading-stencil`; cards uniform padding/radius.
 - [ ] Heavy aggregations memoized; no re-compute on every render.
+
+## Flow — lead→done (from e2e-audit-2026-06-24)
+
+- [ ] Label revenue **"Billed" vs "Collected"** consistently (job profitability = billed by invoice issued_at; client/dashboard = collected by payment paid_at).
+- [ ] Reports: surface **job/service-level profitability** (the `job_profitability` data exists but is only shown per-client) — e.g. most/least profitable services.
+- [ ] Reports: empty sections use `EmptyState`; money columns use `tabular-nums`.

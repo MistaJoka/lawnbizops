@@ -14,3 +14,12 @@ Apply all four rubric lenses (README) to each item.
 - [ ] Writes via `enqueue()` with client-generated id; no DB-owned columns in payload.
 - [ ] Loading uses `Skeleton`; errors use `QueryError`.
 - [ ] Colors are tokens; primary CTA `bg-blaze`.
+
+## Flow — lead→done (from e2e-audit-2026-06-24)
+
+- [ ] New: collapse line1/city/state/zip into an **address autofill** (free Nominatim/OSM geocode → fills fields + lat/lng) to cut taps and fix "no pin" properties that break dispatch routing.
+- [ ] After save: show a **next-step row** ("Quote · Schedule · Job" for this property) instead of bare back-nav.
+
+## Stage criteria — from pipeline-stage-spec (2026-06-25)
+
+- [ ] PropertyForm: require `address_line1` (and ideally geocode to lat/lng) before save — today a property saves with no address and no map pin, so its jobs silently drop off dispatch (G-D1).
