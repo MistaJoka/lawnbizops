@@ -36,9 +36,14 @@ estimates · invoices · jobs.
 
 ## Tier 2 — customer-facing (light backend)
 
-- [ ] **Online estimate approval link**: token-keyed public route (no login);
-      customer taps Approve/Decline → status flips, activity logged. Edge fn +
-      public route + `estimate_tokens` table.
+- [x] **Online estimate approval link**: token-keyed public route (no login);
+      customer taps Approve/Decline → status flips, activity logged. _(done
+      2026-06-25: migration 0033 — `estimates.approval_token` + anon-callable
+      `estimate_by_token`/`respond_to_estimate` SECURITY DEFINER RPCs scoped to
+      the token, no table exposed to anon; public route `/e/$token`
+      (`src/routes/e.$token.tsx`); "Send approval link" CTA on sent estimates;
+      `src/features/estimates/approval.ts` + 6 tests; RPCs round-trip tested on
+      prod; verified end-to-end in demo.)_
 - [ ] **Public "Request a Quote" lead form**: public route → edge fn inserts a
       `client` with `stage='lead'` + a `property`. Opens top-of-funnel.
 - [ ] **Stripe Payment Link on invoices**: "Pay now" button generating a Stripe

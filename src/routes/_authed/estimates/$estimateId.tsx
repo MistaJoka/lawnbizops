@@ -15,7 +15,7 @@ import {
   type PhotoWithUrl,
 } from '@/features/estimates/photos'
 import { EstimateStatusChip } from '@/features/estimates/EstimateStatusChip'
-import { estimateFilename, sharePdf } from '@/features/estimates/share'
+import { estimateFilename, shareLink, sharePdf } from '@/features/estimates/share'
 import {
   invoiceTotalCents,
   lineTotalCents,
@@ -39,6 +39,7 @@ function EstimateDetailScreen() {
   const [sharing, setSharing] = useState(false)
   const [converting, setConverting] = useState(false)
   const [renewing, setRenewing] = useState(false)
+  const [linkMsg, setLinkMsg] = useState<string | null>(null)
 
   if (!detail) {
     return (
@@ -88,6 +89,18 @@ function EstimateDetailScreen() {
     } finally {
       setSharing(false)
     }
+  }
+
+  async function handleShareApprovalLink() {
+    if (!detail) return
+    const url = `${window.location.origin}/e/${detail.estimate.approval_token}`
+    const outcome = await shareLink(
+      url,
+      `Your estimate from ${settings?.business_name ?? 'us'} — review and approve:`,
+    )
+    if (outcome === 'copied') setLinkMsg('Approval link copied')
+    else if (outcome === 'failed') setLinkMsg('Could not share the link')
+    else setLinkMsg(null)
   }
 
   async function handleRenew() {
@@ -205,22 +218,36 @@ function EstimateDetailScreen() {
         )}
 
         {estimate.status === 'sent' && (
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={() => void setEstimateStatus(estimate.id, 'accepted')}
-              className="heading-stencil flex-1 rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-go"
-            >
-              Accepted ✓
-            </button>
-            <button
-              type="button"
-              onClick={() => void setEstimateStatus(estimate.id, 'declined')}
-              className="heading-stencil flex-1 rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-alert"
-            >
-              Declined
-            </button>
-          </div>
+          <>
+            <div>
+              <button
+                type="button"
+                onClick={() => void handleShareApprovalLink()}
+                className="heading-stencil w-full rounded-lg bg-blaze px-4 py-4 text-lg text-on-cta"
+              >
+                Send approval link
+              </button>
+              <p className="mt-1 text-center text-xs text-faded">
+                {linkMsg ?? 'Customer can approve or decline online — no app needed.'}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => void setEstimateStatus(estimate.id, 'accepted')}
+                className="heading-stencil flex-1 rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-go"
+              >
+                Accepted ✓
+              </button>
+              <button
+                type="button"
+                onClick={() => void setEstimateStatus(estimate.id, 'declined')}
+                className="heading-stencil flex-1 rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-alert"
+              >
+                Declined
+              </button>
+            </div>
+          </>
         )}
 
         {estimate.status === 'accepted' && (

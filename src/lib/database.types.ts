@@ -290,6 +290,7 @@ export type Database = {
       }
       estimates: {
         Row: {
+          approval_token: string
           client_id: string
           created_at: string
           id: string
@@ -304,6 +305,7 @@ export type Database = {
           valid_until: string | null
         }
         Insert: {
+          approval_token?: string
           client_id: string
           created_at?: string
           id?: string
@@ -318,6 +320,7 @@ export type Database = {
           valid_until?: string | null
         }
         Update: {
+          approval_token?: string
           client_id?: string
           created_at?: string
           id?: string
@@ -1440,6 +1443,10 @@ export type Database = {
           quoted: number
         }[]
       }
+      estimate_by_token: {
+        Args: { p_token: string }
+        Returns: Json
+      }
       expenses_by_category: {
         Args: { p_end: string; p_start: string }
         Returns: { category: string; total_cents: number }[]
@@ -1468,6 +1475,10 @@ export type Database = {
           expense_cents: number
           net_cents: number
         }[]
+      }
+      respond_to_estimate: {
+        Args: { p_action: string; p_token: string }
+        Returns: string
       }
       resync_schedule: {
         Args: { p_schedule_id: string; through_date: string }

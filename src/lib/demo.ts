@@ -1032,9 +1032,44 @@ function makeQuery(rows: Row[]) {
   return builder
 }
 
-async function rpc(name: string) {
+async function rpc(name: string, params?: Record<string, unknown>) {
   const d = buildData()
   switch (name) {
+    case 'estimate_by_token': {
+      const estimates = d.tables.estimates ?? []
+      const est = estimates.find((e) => e.status === 'sent') ?? estimates[0]
+      if (!est) return { data: null, error: null }
+      const items = (d.tables.estimate_items ?? []).filter(
+        (i) => i.estimate_id === est.id,
+      )
+      const client = (d.tables.clients ?? []).find((c) => c.id === est.client_id)
+      const prop = (d.tables.properties ?? []).find((p) => p.id === est.property_id)
+      const bs = (d.tables.business_settings ?? [])[0]
+      return {
+        data: {
+          id: est.id,
+          number: est.number,
+          status: est.status,
+          issued_at: est.issued_at,
+          valid_until: est.valid_until,
+          notes: est.notes ?? '',
+          business_name: bs?.business_name ?? '',
+          client_name: client?.name ?? '',
+          property_label: prop?.label ?? prop?.address_line1 ?? '',
+          items: items.map((i) => ({
+            description: i.description,
+            quantity: i.quantity,
+            unit_price_cents: i.unit_price_cents,
+          })),
+        },
+        error: null,
+      }
+    }
+    case 'respond_to_estimate':
+      return {
+        data: params?.p_action === 'decline' ? 'declined' : 'accepted',
+        error: null,
+      }
     case 'app_state':
       return {
         data: {

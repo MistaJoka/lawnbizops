@@ -29,6 +29,35 @@ export async function sharePdf(blob: Blob, filename: string): Promise<boolean> {
   return true
 }
 
+/**
+ * Share a plain link (the customer approval URL) via the Web Share API, falling
+ * back to copying it to the clipboard. Outcomes:
+ *  - 'shared'    handed to the share sheet
+ *  - 'dismissed' user cancelled the share sheet (no error — just nothing sent)
+ *  - 'copied'    no share API, copied to clipboard instead
+ *  - 'failed'    neither path worked
+ */
+export async function shareLink(
+  url: string,
+  text?: string,
+): Promise<'shared' | 'dismissed' | 'copied' | 'failed'> {
+  if (navigator.share) {
+    try {
+      await navigator.share({ url, text })
+      return 'shared'
+    } catch (e) {
+      if (e instanceof DOMException && e.name === 'AbortError') return 'dismissed'
+      // Fall through to clipboard for unsupported/secure-context errors.
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url)
+    return 'copied'
+  } catch {
+    return 'failed'
+  }
+}
+
 /** "Estimate-EST-3-Walt-Pierce.pdf" — collapse whitespace/oddballs to dashes. */
 export function estimateFilename(number: string, clientName: string): string {
   const base = `Estimate-${number}-${clientName}`

@@ -185,6 +185,8 @@ export async function createEstimate(input: CreateEstimateInput): Promise<string
   const cachedEstimate: Estimate = {
     ...estimateRow,
     number: null,
+    // Placeholder until the server assigns the real default on sync.
+    approval_token: crypto.randomUUID(),
     created_at: now,
     updated_at: now,
     user_id: '',
