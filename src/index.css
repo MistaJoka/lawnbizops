@@ -103,6 +103,21 @@ body {
   transform: translateY(2px);
 }
 
+/* Disabled brand CTAs. The common `disabled:opacity-50` over a saturated
+   bg-blaze / bg-go drops the fill to a muddy half-brown/green and the dark
+   on-CTA text to near-invisible — it reads as broken, not "not yet". Give the
+   inactive state one explicit, clearly-greyed treatment instead. Unlayered, so
+   it overrides Tailwind's layered utilities (fill, text, opacity) without
+   !important; scoped to :disabled so enabled buttons are untouched. */
+.bg-blaze:disabled,
+.bg-go:disabled {
+  opacity: 1;
+  background-color: var(--color-surface-high);
+  color: var(--color-faded);
+  border-color: var(--color-edge);
+  cursor: not-allowed;
+}
+
 .scroll-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
