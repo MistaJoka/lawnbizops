@@ -2,7 +2,9 @@ import { useRef, useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { JobChecklist } from '@/features/jobs/JobChecklist'
 import { setJobStatus, useJob } from '@/features/jobs/hooks'
+import { useBusinessSettings } from '@/features/invoices/hooks'
 import { useExpensesForJob } from '@/features/expenses/hooks'
+import { onMyWayMessage, reviewRequestMessage, smsHref } from '@/lib/outreach'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { JobStepper } from '@/components/JobStepper'
 import { SkeletonDetail } from '@/components/Skeleton'
@@ -21,6 +23,7 @@ function JobDetailScreen() {
   const { jobId } = Route.useParams()
   const navigate = useNavigate()
   const { data: job, isLoading } = useJob(jobId)
+  const { data: settings } = useBusinessSettings()
 
   if (!job) {
     return (
@@ -43,6 +46,9 @@ function JobDetailScreen() {
   const client = p?.client
   const address = p ? [p.address_line1, p.city].filter(Boolean).join(', ') : ''
   const canInvoice = job.status === 'done'
+  const enRoute = job.status === 'scheduled' || job.status === 'in_progress'
+  const business = settings?.business_name ?? ''
+  const reviewUrl = settings?.review_url ?? ''
 
   async function handleCancel() {
     if (!job) return
@@ -108,26 +114,51 @@ function JobDetailScreen() {
       )}
 
       {client && (
-        <div className="card-surface mt-4 flex items-center justify-between gap-3 p-4">
-          <span className="min-w-0">
-            <span className="label-caps text-faded">Client</span>
-            <Link
-              to="/clients/$clientId"
-              params={{ clientId: client.id }}
-              className="mt-1 block truncate text-lg text-sand underline decoration-edge"
-            >
-              {client.name}
-            </Link>
-          </span>
-          {client.phone && (
+        <div className="card-surface mt-4 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <span className="min-w-0">
+              <span className="label-caps text-faded">Client</span>
+              <Link
+                to="/clients/$clientId"
+                params={{ clientId: client.id }}
+                className="mt-1 block truncate text-lg text-sand underline decoration-edge"
+              >
+                {client.name}
+              </Link>
+            </span>
+            {client.phone && (
+              <a
+                href={`tel:${client.phone}`}
+                className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta"
+              >
+                Call
+              </a>
+            )}
+          </div>
+          {client.phone && enRoute && (
             <a
-              href={`tel:${client.phone}`}
-              className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta"
+              href={smsHref(
+                client.phone,
+                onMyWayMessage(business, client.name, p?.label || p?.city || ''),
+              )}
+              className="heading-stencil tap-active mt-3 block rounded-lg border-2 border-edge py-3 text-center text-sm text-sand"
             >
-              Call
+              Text “on my way”
             </a>
           )}
         </div>
+      )}
+
+      {canInvoice && client?.phone && reviewUrl && (
+        <a
+          href={smsHref(
+            client.phone,
+            reviewRequestMessage(business, client.name, reviewUrl),
+          )}
+          className="heading-stencil tap-active mt-4 block rounded-lg border-2 border-go py-4 text-center text-lg text-go"
+        >
+          Request a Google review
+        </a>
       )}
 
       {p && (

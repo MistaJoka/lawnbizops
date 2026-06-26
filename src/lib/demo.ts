@@ -857,6 +857,7 @@ function buildData(): DemoData {
       address: '3421 NW 85th Ave, Coral Springs, FL 33065',
       email: 'apexlawn.fl@gmail.com',
       phone: '(954) 555-0142',
+      review_url: 'https://g.page/r/apex-lawn-landscape/review',
       invoice_prefix: 'INV-',
       estimate_prefix: 'EST-',
       next_invoice_number: 1043,

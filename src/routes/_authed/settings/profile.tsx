@@ -44,6 +44,7 @@ function ProfileForm({ initial }: { initial: BusinessSettings | null }) {
   const [invoicePrefix, setInvoicePrefix] = useState(initial?.invoice_prefix ?? 'INV-')
   const [estimatePrefix, setEstimatePrefix] = useState(initial?.estimate_prefix ?? 'EST-')
   const [dueDays, setDueDays] = useState(String(initial?.default_due_days ?? 14))
+  const [reviewUrl, setReviewUrl] = useState(initial?.review_url ?? '')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null)
 
@@ -67,6 +68,7 @@ function ProfileForm({ initial }: { initial: BusinessSettings | null }) {
         invoice_prefix: invoicePrefix.trim(),
         estimate_prefix: estimatePrefix.trim(),
         default_due_days: days,
+        review_url: reviewUrl.trim(),
       })
       setMessage({ text: 'Saved', ok: true })
     } catch {
@@ -136,6 +138,20 @@ function ProfileForm({ initial }: { initial: BusinessSettings | null }) {
           value={dueDays}
           onChange={(e) => setDueDays(e.target.value)}
         />
+      </Field>
+      <Field label="Google review link">
+        <TextInput
+          type="url"
+          inputMode="url"
+          autoComplete="url"
+          placeholder="https://g.page/r/…/review"
+          value={reviewUrl}
+          onChange={(e) => setReviewUrl(e.target.value)}
+        />
+        <span className="text-xs text-faded">
+          Paste your Google review URL — powers the one-tap review request on a finished
+          job.
+        </span>
       </Field>
       {message && (
         <p className={`text-sm ${message.ok ? 'text-go' : 'text-alert'}`}>

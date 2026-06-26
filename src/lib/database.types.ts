@@ -114,6 +114,7 @@ export type Database = {
           payment_provider: string | null
           payment_provider_config: Json
           phone: string
+          review_url: string
           updated_at: string
           user_id: string | null
         }
@@ -141,6 +142,7 @@ export type Database = {
           payment_provider?: string | null
           payment_provider_config?: Json
           phone?: string
+          review_url?: string
           updated_at?: string
           user_id?: string | null
         }
@@ -168,6 +170,7 @@ export type Database = {
           payment_provider?: string | null
           payment_provider_config?: Json
           phone?: string
+          review_url?: string
           updated_at?: string
           user_id?: string | null
         }

@@ -23,10 +23,14 @@ estimates · invoices · jobs.
       from anywhere (today only "+ Job" exists on home).
 - [ ] **Default new client to `lead`** when arrived from a lead/pipeline context
       (`?lead=1`). _(also tracked in clients.md)_
-- [ ] **Google review request**: one-tap `sms:`/`mailto` link with the review URL
-      when a job is marked done (review URL set in Settings → Profile).
-- [ ] **"On my way" SMS**: native `sms:` deep link from job/schedule detail,
-      prefilled with client name + ETA.
+- [x] **Google review request**: one-tap `sms:` link with the review URL on a
+      done job (review URL set in Settings → Profile). _(done 2026-06-25:
+      migration 0032 `business_settings.review_url`; profile field; "Request a
+      Google review" CTA on done jobs; `src/lib/outreach.ts` + 6 tests; verified
+      in demo.)_
+- [x] **"On my way" SMS**: native `sms:` deep link from job detail, prefilled
+      with client name + business + destination. _(done 2026-06-25: "Text on my
+      way" on scheduled/in-progress jobs; verified in demo.)_
 - [ ] **Appointment reminder**: one-tap `sms:` reminder for tomorrow's jobs from
       the schedule view.
 
