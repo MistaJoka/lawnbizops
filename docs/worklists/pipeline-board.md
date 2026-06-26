@@ -19,11 +19,11 @@ Apply all four rubric lenses (README) to each item.
 
 ## Flow — lead→done (from e2e-audit-2026-06-24)
 
-- [x] Pipeline card: add **"Quote"** (→ prefilled estimate) and **"Schedule"** actions carrying client context; stage change should be a side effect of doing work. *(done 2026-06-25: Quote on lead/quoted, Schedule on active; verified deep-links.)*
-- [x] Pipeline empty state uses `EmptyState` with an "Add client" CTA. *(done 2026-06-25: full-screen EmptyState when no clients.)*
-- [x] Today board: default scroll/landing to today's first **non-empty** lane (not the empty `quote` lane, `PipelineBoard.tsx` LANES[0]). *(done 2026-06-25: one-shot jump latches only once cards load; verified board opens on SCHEDULED.)*
+- [x] Pipeline card: add **"Quote"** (→ prefilled estimate) and **"Schedule"** actions carrying client context; stage change should be a side effect of doing work. _(done 2026-06-25: Quote on lead/quoted, Schedule on active; verified deep-links.)_
+- [x] Pipeline empty state uses `EmptyState` with an "Add client" CTA. _(done 2026-06-25: full-screen EmptyState when no clients.)_
+- [x] Today board: default scroll/landing to today's first **non-empty** lane (not the empty `quote` lane, `PipelineBoard.tsx` LANES[0]). _(done 2026-06-25: one-shot jump latches only once cards load; verified board opens on SCHEDULED.)_
 
 ## Stage criteria — from pipeline-stage-spec (2026-06-25)
 
 - [ ] **Soft advance gate**: when advancing a client stage whose exit criteria aren't met (e.g. → Active with no scheduled work, → Quoted with no estimate), warn + offer the producing action inline rather than silently allowing it (G-0 / G-H3).
-- [x] **Auto-advance stage as a side effect**: estimate sent → `quoted`; payment received → `active` — so `clients.stage` reflects reality. *(done 2026-06-25: `maybeAdvanceStage` (forward-only, never auto-dormant) wired into `setEstimateStatus`(sent) + `recordPayment`; 8 unit tests. NOTE: demo can't show it live — fake backend re-serves seed stage on refetch, clobbering the optimistic patch; verified via unit tests instead.)*
+- [x] **Auto-advance stage as a side effect**: estimate sent → `quoted`; payment received → `active` — so `clients.stage` reflects reality. _(done 2026-06-25: `maybeAdvanceStage` (forward-only, never auto-dormant) wired into `setEstimateStatus`(sent) + `recordPayment`; 8 unit tests. NOTE: demo can't show it live — fake backend re-serves seed stage on refetch, clobbering the optimistic patch; verified via unit tests instead.)_

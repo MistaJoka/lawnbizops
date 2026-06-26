@@ -20,14 +20,15 @@ neither has any enforced entry/exit criteria.**
 
 **Every transition is a free-form field write with no precondition check:**
 
-| Transition fn | Guard | File |
-|---|---|---|
-| `setClientStage(client, stage)` | none — patches `stage` | `clients/hooks.ts:133` |
-| `setEstimateStatus(id, status)` | none — patches `status` | `estimates/hooks.ts:223` |
-| `setJobStatus(job, status)` | none — patches `status` (+`completed_at` on done) | `jobs/hooks.ts` |
-| `markSent(id)` | none — patches `status:'sent'` | `invoices/hooks.ts:468` |
+| Transition fn                   | Guard                                             | File                     |
+| ------------------------------- | ------------------------------------------------- | ------------------------ |
+| `setClientStage(client, stage)` | none — patches `stage`                            | `clients/hooks.ts:133`   |
+| `setEstimateStatus(id, status)` | none — patches `status`                           | `estimates/hooks.ts:223` |
+| `setJobStatus(job, status)`     | none — patches `status` (+`completed_at` on done) | `jobs/hooks.ts`          |
+| `markSent(id)`                  | none — patches `status:'sent'`                    | `invoices/hooks.ts:468`  |
 
 Consequences (all currently possible):
+
 - Mark a **lead → quoted with no estimate**; **→ active with no scheduled work
   and no paid invoice.** The client detail StageControl exposes all four stages
   as free jumps (confirmed live on James Okafor).
@@ -52,15 +53,16 @@ must be produced to advance) · **Data required** · **Producing component**
 (what the user uses to satisfy exit) · **Gate** (what enforces it) · **Gaps**.
 
 ### Step A — Intake (new lead)
+
 - **Entry:** a contact exists with `stage='lead'`.
 - **Exit → Lead worked:** lead is reachable and has a service address.
 - **Data required:** `name` ✅(required). At least one **contact channel**
-  (phone *or* email). A **property** with an address.
+  (phone _or_ email). A **property** with an address.
 - **Producing component:** `/clients/new` (ClientForm).
 - **Gate:** ClientForm requires only `name`; phone/email/property all optional.
 - **Gaps:**
   - **G-A1 [data]** No "≥1 contact channel" rule — a lead can be saved with no
-    phone *and* no email, so it can never be quoted, invoiced, or reminded.
+    phone _and_ no email, so it can never be quoted, invoiced, or reminded.
     (`ClientForm.tsx` — only `name` is `required`.)
   - **G-A2 [component]** **No inbound lead capture.** Leads exist only via manual
     create or CSV import — there is no public "request a quote" intake. The top
@@ -69,6 +71,7 @@ must be produced to advance) · **Data required** · **Producing component**
     is set — so real leads are mislabeled by default.
 
 ### Step B — Lead → Quoted
+
 - **Entry:** `stage='lead'`, a property with an address exists.
 - **Exit → Quoted:** an **estimate** has been created **and sent** to the customer.
 - **Data required:** estimate with `client_id` ✅, **≥1 line item** ✅(enforced at
@@ -89,6 +92,7 @@ must be produced to advance) · **Data required** · **Producing component**
     set on a draft never shown to a customer (no real send exists — see G-F2).
 
 ### Step C — Quoted → Won (accepted + scheduled)
+
 - **Entry:** estimate `status='sent'`.
 - **Exit → Active/Won:** estimate `accepted` **and** work scheduled (a one-off
   **job** or a **recurring schedule**).
@@ -101,7 +105,7 @@ must be produced to advance) · **Data required** · **Producing component**
 - **Gaps:**
   - **G-C1 [component]** **No customer-facing approval.** "Accepted" is an
     operator button, not a customer action — no approval link, no timestamp of
-    *their* assent.
+    _their_ assent.
   - **G-C2 [component]** Accepted estimate offers **"Create job" / "Convert to
     invoice" but no "Create recurring schedule"** — the most common lawn outcome
     (weekly mow) can't be produced from the estimate. (`$estimateId.tsx:291`)
@@ -113,6 +117,7 @@ must be produced to advance) · **Data required** · **Producing component**
     **no inline "add property"** affordance — a dead-end (G-B3 compounding).
 
 ### Step D — Scheduled → In progress → Done
+
 - **Entry:** job `status='scheduled'`, `scheduled_date` set.
 - **Exit → Done:** work completed; `status='done'`, `completed_at` stamped.
 - **Data required:** job `property_id`✅ + `scheduled_date`✅; a **dispatchable
@@ -122,7 +127,7 @@ must be produced to advance) · **Data required** · **Producing component**
 - **Gaps:**
   - **G-D1 [data]** **`property.lat/lng`, address, city, state, zip are all
     optional** (`properties` requires only `client_id`). CORRECTION: a free
-    Nominatim **geocoder *does* exist and is wired** (`src/lib/geocode.ts` via
+    Nominatim **geocoder _does_ exist and is wired** (`src/lib/geocode.ts` via
     `savePropertyWithGeocode`, on both new + edit routes) — it geocodes the
     address on save, best-effort. The real residual gap: (a) **address_line1 was
     not required**, so an address-less property gets no geocode → no pin →
@@ -138,6 +143,7 @@ must be produced to advance) · **Data required** · **Producing component**
     actual time-on-site is captured, so job costing has no labor input.
 
 ### Step E — Done → Invoiced
+
 - **Entry:** ≥1 job `status='done'` and not yet invoiced.
 - **Exit → Invoiced:** an invoice draft created; its jobs flip to `invoiced`.
 - **Data required:** invoice `client_id`✅; ≥1 line (job or manual); a `due_at`.
@@ -154,6 +160,7 @@ must be produced to advance) · **Data required** · **Producing component**
     OK, but onboarding is an unstated hard precondition for this stage.
 
 ### Step F — Invoiced → Sent
+
 - **Entry:** invoice `status='draft'`.
 - **Exit → Sent:** invoice delivered to the customer; `status='sent'`.
 - **Data required:** customer **contact channel** (email/phone), invoice number,
@@ -168,6 +175,7 @@ must be produced to advance) · **Data required** · **Producing component**
     customer-viewable link. (Same for estimates.)
 
 ### Step G — Sent (A/R) → Paid
+
 - **Entry:** invoice `status='sent'`.
 - **Exit → Paid:** payments cover the balance; status → `partially_paid`/`paid`
   via `apply_payment` (`0006:133`).
@@ -182,6 +190,7 @@ must be produced to advance) · **Data required** · **Producing component**
     (`voidInvoice` `:485`).
 
 ### Step H — Paid → Retained / next cycle
+
 - **Entry:** invoice `paid`.
 - **Exit:** customer retained — recurring schedule continues, follow-up logged,
   review requested; `stage` reflects `active`.
@@ -197,6 +206,7 @@ must be produced to advance) · **Data required** · **Producing component**
     (machines decoupled).
 
 ### Step I — Dormant → Reactivated
+
 - **Entry:** `stage='dormant'`.
 - **Exit:** new estimate/job; back to `active`.
 - **Producing component:** —
@@ -206,8 +216,8 @@ must be produced to advance) · **Data required** · **Producing component**
     dormant→active is one tap; "no reactivate path" was only true of the
     Pipeline board's forward-only "Advance". Residual gap: **no automated
     dormancy detection** (despite auto-followup/overdue settings) and no
-    one-tap reactivate on the *Pipeline* itself. *"Renew estimate" for
-    declined/expired quotes — FIXED 2026-06-25.*
+    one-tap reactivate on the _Pipeline_ itself. _"Renew estimate" for
+    declined/expired quotes — FIXED 2026-06-25._
 
 ---
 
@@ -216,16 +226,16 @@ must be produced to advance) · **Data required** · **Producing component**
 Fields that are **nullable/defaulted in the schema but are effectively required**
 to complete a stage — the "data needed to initialize / advance" gaps.
 
-| Entity.field | Schema | Needed for | Gap |
-|---|---|---|---|
-| `clients.phone` / `.email` | both optional | send estimate/invoice/reminder | **No ≥1-contact rule** (G-A1) |
-| `properties.address_line1` | optional | service address, geocode | savable blank (G-D1) |
-| `properties.lat/lng` | optional, **no geocoder** | dispatch routing | jobs with no map pin (G-D1) |
-| `estimates.property_id` | nullable | create job from estimate | blocks scheduling (G-B3) |
-| `jobs.service_id` | nullable | revenue-by-service | untracked (G-D2) |
-| `jobs.price_cents` | default 0 | billing | $0 invoice lines (G-D2/E1) |
-| `invoices.due_at` | nullable | aging / reminders | undefined aging (G-E2) |
-| `business_settings` | onboarding-seeded | invoice/estimate numbering | unstated hard precondition (G-E3) |
+| Entity.field               | Schema                    | Needed for                     | Gap                               |
+| -------------------------- | ------------------------- | ------------------------------ | --------------------------------- |
+| `clients.phone` / `.email` | both optional             | send estimate/invoice/reminder | **No ≥1-contact rule** (G-A1)     |
+| `properties.address_line1` | optional                  | service address, geocode       | savable blank (G-D1)              |
+| `properties.lat/lng`       | optional, **no geocoder** | dispatch routing               | jobs with no map pin (G-D1)       |
+| `estimates.property_id`    | nullable                  | create job from estimate       | blocks scheduling (G-B3)          |
+| `jobs.service_id`          | nullable                  | revenue-by-service             | untracked (G-D2)                  |
+| `jobs.price_cents`         | default 0                 | billing                        | $0 invoice lines (G-D2/E1)        |
+| `invoices.due_at`          | nullable                  | aging / reminders              | undefined aging (G-E2)            |
+| `business_settings`        | onboarding-seeded         | invoice/estimate numbering     | unstated hard precondition (G-E3) |
 
 ---
 
@@ -235,7 +245,7 @@ The "elements/components needed to complete entry/exit criteria" that are **not
 present** anywhere in the app:
 
 1. **Stage-gate / readiness model** — nothing validates that a customer has the
-   data/state required to be in (or advance from) a stage. *(root gap)*
+   data/state required to be in (or advance from) a stage. _(root gap)_
 2. **"Create estimate" from a lead/client** (G-B1).
 3. **"Create recurring schedule" from an accepted estimate** + data carry (G-C2/3).
 4. **Inline "add property"** when an estimate/job needs one (G-C5/B3).
@@ -268,6 +278,7 @@ Rather than hard-blocking (which fights offline-first and a busy operator), add 
   first scheduled job/paid invoice → active), so the two machines reconcile.
 
 ### Build order (by leverage)
+
 1. **Readiness chips + "Create estimate from lead"** (G-B1, the model + the top
    missing exit action). 2. **Deep-link estimate + carry to job/schedule**
    (G-B2/C3). 3. **Estimate→schedule + inline add-property** (G-C2/C5). 4. **≥1

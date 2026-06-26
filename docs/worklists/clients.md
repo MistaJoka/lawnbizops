@@ -21,11 +21,11 @@ Apply all four rubric lenses (README) to each item.
 
 ## Flow — lead→done (from e2e-audit-2026-06-24)
 
-- [x] Detail: add a primary **"Create estimate"** CTA (→ `/estimates/new?clientId=$id`) — for a lead this is the top missing action. *(done 2026-06-25: blaze CTA, carries propertyId when single)*
-- [x] Detail: add **"Schedule work"** / **"New job"** CTAs carrying `clientId` (and propertyId when one property). *(done 2026-06-25: jobs/new now accepts ?clientId; verified in demo)*
+- [x] Detail: add a primary **"Create estimate"** CTA (→ `/estimates/new?clientId=$id`) — for a lead this is the top missing action. _(done 2026-06-25: blaze CTA, carries propertyId when single)_
+- [x] Detail: add **"Schedule work"** / **"New job"** CTAs carrying `clientId` (and propertyId when one property). _(done 2026-06-25: jobs/new now accepts ?clientId; verified in demo)_
 - [ ] ClientForm: default stage to **lead** when arrived from a lead/pipeline context (`?lead=1`).
 
 ## Stage criteria — from pipeline-stage-spec (2026-06-25)
 
-- [x] ClientForm: require **at least one contact channel** (phone OR email) — today only `name` is required, so a lead can't be quoted/invoiced/reminded (G-A1). *(done 2026-06-25: soft inline warning, non-blocking per readiness-model philosophy; verified shows/clears in demo)*
+- [x] ClientForm: require **at least one contact channel** (phone OR email) — today only `name` is required, so a lead can't be quoted/invoiced/reminded (G-A1). _(done 2026-06-25: soft inline warning, non-blocking per readiness-model philosophy; verified shows/clears in demo)_
 - [ ] Client/lead detail: **readiness chips** ("needs: ☐ contact ☐ property ☐ estimate"), each chip opening the prefilled producing component (G-B1 / stage-readiness model).

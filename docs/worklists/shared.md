@@ -29,7 +29,7 @@ rubric lenses (README).
 ## Correctness — from e2e-audit-2026-06-24 (verify before billing changes)
 
 - [ ] Add `unique(estimate_id)` partial index on `invoices` (defense-in-depth vs offline double-convert; UI already guards the button).
-- [x] Void invoice with recorded payments: warn so collected revenue can't count a voided invoice. *(done 2026-06-25: void confirm now names the recorded-payment total and says to reverse payments first; verified. Auto-reverse left as a follow-up.)*
+- [x] Void invoice with recorded payments: warn so collected revenue can't count a voided invoice. _(done 2026-06-25: void confirm now names the recorded-payment total and says to reverse payments first; verified. Auto-reverse left as a follow-up.)_
 - [ ] Schedule resync: add a `customized_at` guard (or ConfirmDialog naming affected visits) so editing a schedule doesn't silently delete edited future jobs (`0005` resync deletes all future `scheduled` jobs).
 - [ ] Extend job materialization horizon (~6mo) + auto-extend on load when `last_materialized_through` is near; consider a pg_cron top-up.
 - [ ] Outbox terminal failure: surface a visible toast/banner + one-tap retry with the error reason (today it only shows in Settings → Sync).

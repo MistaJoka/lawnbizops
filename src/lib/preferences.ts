@@ -7,6 +7,8 @@ export interface AppPreferences {
   pushNotifications: boolean
   /** Which Today layout to show: the pipeline board or the drive-order route. */
   todayView: 'board' | 'route'
+  /** User hid the home-screen activation checklist. */
+  activationDismissed: boolean
 }
 
 const KEY = 'lawnbizops:prefs'
@@ -17,6 +19,7 @@ const DEFAULTS: AppPreferences = {
   offlinePreferred: false,
   pushNotifications: false,
   todayView: 'board',
+  activationDismissed: false,
 }
 
 export function loadPreferences(): AppPreferences {

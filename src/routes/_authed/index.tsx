@@ -26,6 +26,7 @@ import {
 import { loadPreferences, savePreferences } from '@/lib/preferences'
 import { stockLevel, useInventory } from '@/features/inventory/hooks'
 import { TasksSection } from '@/features/tasks/TaskUI'
+import { ActivationCard } from '@/features/activation/ActivationCard'
 
 export const Route = createFileRoute('/_authed/')({
   // Warm today's jobs on intent so the home screen paints instantly.
@@ -103,6 +104,8 @@ function TodayScreen() {
           ))}
         </div>
       </header>
+
+      <ActivationCard />
 
       {view === 'board' ? (
         <PipelineBoard />

@@ -17,6 +17,6 @@ Apply all four rubric lenses (README) to each item.
 
 ## Flow — lead→done (from e2e-audit-2026-06-24)
 
-- [x] Payment form: default **method** to the last-used method, not always `cash`. *(done 2026-06-25: device-local localStorage memory, falls back to cash; unit-tested.)*
+- [x] Payment form: default **method** to the last-used method, not always `cash`. _(done 2026-06-25: device-local localStorage memory, falls back to cash; unit-tested.)_
 - [ ] Money aging buckets: add a **one-tap "send reminder"** on overdue invoices (wire the existing `auto_overdue_reminder` setting into a visible action).
 - [ ] Support a **deposit / partial invoice** created from an accepted estimate.

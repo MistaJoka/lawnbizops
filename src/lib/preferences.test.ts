@@ -31,6 +31,7 @@ const DEFAULTS = {
   offlinePreferred: false,
   pushNotifications: false,
   todayView: 'board',
+  activationDismissed: false,
 } as const
 
 beforeEach(() => vi.stubGlobal('localStorage', memStorage()))
