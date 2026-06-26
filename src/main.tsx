@@ -12,6 +12,7 @@ import { maybeAutologin } from './lib/autologin' // DEV/TEST-ONLY — see autolo
 import { DevPanel } from './dev/DevPanel' // DEV-ONLY — see below; delete with src/dev/
 import { ToastHost } from './components/Toast'
 import { ConfirmHost } from './components/ConfirmDialog'
+import { RoutePending } from './components/RoutePending'
 import '@fontsource/archivo-narrow/latin-400.css'
 import '@fontsource/archivo-narrow/latin-600.css'
 import '@fontsource/archivo-narrow/latin-700.css'
@@ -57,12 +58,9 @@ const router = createRouter({
   // A slow auth gate (e.g. a flaky cold start where `_authed` beforeLoad waits
   // on the network) shows this after ~1s instead of a blank screen. Fast loads
   // from cache never reach it. The root component still renders the top bar
-  // around it, so build/version + sync status stay visible.
-  defaultPendingComponent: () => (
-    <div className="flex min-h-dvh items-center justify-center">
-      <p className="label-caps animate-pulse text-faded">Connecting…</p>
-    </div>
-  ),
+  // around it, so build/version + sync status stay visible. A skeleton that
+  // mirrors a real screen reads as "loading" rather than a stall.
+  defaultPendingComponent: RoutePending,
 })
 
 declare module '@tanstack/react-router' {

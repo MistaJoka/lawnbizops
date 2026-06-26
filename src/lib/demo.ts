@@ -858,6 +858,7 @@ function buildData(): DemoData {
       email: 'apexlawn.fl@gmail.com',
       phone: '(954) 555-0142',
       review_url: 'https://g.page/r/apex-lawn-landscape/review',
+      intake_token: 'demo-intake-token',
       invoice_prefix: 'INV-',
       estimate_prefix: 'EST-',
       next_invoice_number: 1043,
@@ -1070,6 +1071,13 @@ async function rpc(name: string, params?: Record<string, unknown>) {
         data: params?.p_action === 'decline' ? 'declined' : 'accepted',
         error: null,
       }
+    case 'intake_business_name':
+      return {
+        data: (d.tables.business_settings ?? [])[0]?.business_name ?? '',
+        error: null,
+      }
+    case 'submit_lead':
+      return { data: { ok: true }, error: null }
     case 'app_state':
       return {
         data: {

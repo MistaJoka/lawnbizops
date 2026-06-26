@@ -113,6 +113,7 @@ export type Database = {
           org_id: string
           payment_provider: string | null
           payment_provider_config: Json
+          intake_token: string
           phone: string
           review_url: string
           updated_at: string
@@ -139,6 +140,7 @@ export type Database = {
           next_invoice_number?: number
           onboarded_at?: string | null
           org_id?: string
+          intake_token?: string
           payment_provider?: string | null
           payment_provider_config?: Json
           phone?: string
@@ -167,6 +169,7 @@ export type Database = {
           next_invoice_number?: number
           onboarded_at?: string | null
           org_id?: string
+          intake_token?: string
           payment_provider?: string | null
           payment_provider_config?: Json
           phone?: string
@@ -1455,6 +1458,10 @@ export type Database = {
         Args: { p_end: string; p_start: string }
         Returns: { method: string; total_cents: number }[]
       }
+      intake_business_name: {
+        Args: { p_token: string }
+        Returns: string
+      }
       job_profitability: {
         Args: { p_end: string; p_start: string }
         Returns: {
@@ -1483,6 +1490,17 @@ export type Database = {
       resync_schedule: {
         Args: { p_schedule_id: string; through_date: string }
         Returns: number
+      }
+      submit_lead: {
+        Args: {
+          p_token: string
+          p_name: string
+          p_phone: string
+          p_email: string
+          p_address: string
+          p_notes: string
+        }
+        Returns: Json
       }
     }
     Enums: {

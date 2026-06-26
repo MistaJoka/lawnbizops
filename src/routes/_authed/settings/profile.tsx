@@ -1,7 +1,14 @@
 import { useRef, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Field, PrimaryButton, TextArea, TextInput } from '@/components/Field'
+import {
+  Field,
+  PrimaryButton,
+  SecondaryButton,
+  TextArea,
+  TextInput,
+} from '@/components/Field'
 import { confirm } from '@/lib/confirm'
+import { shareLink } from '@/features/estimates/share'
 import { useBusinessSettings, type BusinessSettings } from '@/features/invoices/hooks'
 import {
   removeLogo,
@@ -29,6 +36,7 @@ function ProfileScreen() {
       ) : (
         <>
           <ProfileForm key={settings?.updated_at ?? 'new'} initial={settings ?? null} />
+          <IntakeLinkSection settings={settings ?? null} />
           <LogoSection settings={settings ?? null} />
         </>
       )}
@@ -162,6 +170,40 @@ function ProfileForm({ initial }: { initial: BusinessSettings | null }) {
         {busy ? 'Saving…' : 'Save profile'}
       </PrimaryButton>
     </form>
+  )
+}
+
+function IntakeLinkSection({ settings }: { settings: BusinessSettings | null }) {
+  const [msg, setMsg] = useState<string | null>(null)
+  if (!settings?.intake_token) return null
+  const url = `${window.location.origin}/quote/${settings.intake_token}`
+
+  async function share() {
+    const outcome = await shareLink(
+      url,
+      `Request a quote from ${settings?.business_name || 'us'}:`,
+    )
+    if (outcome === 'copied') setMsg('Link copied')
+    else if (outcome === 'failed') setMsg('Could not share the link')
+    else setMsg(null)
+  }
+
+  return (
+    <div className="mt-6 rounded-lg border border-edge bg-panel px-4 py-4">
+      <p className="heading-stencil text-xs text-faded">Quote request link</p>
+      <p className="mt-1 text-sm text-faded">
+        Share this so customers can request a quote — each one lands as a new lead.
+      </p>
+      <p className="mt-3 truncate rounded border border-edge bg-canvas px-3 py-2 text-sm text-sand">
+        {url}
+      </p>
+      <div className="mt-3">
+        <SecondaryButton type="button" onClick={() => void share()}>
+          Share link
+        </SecondaryButton>
+        {msg && <p className="mt-1 text-center text-xs text-faded">{msg}</p>}
+      </div>
+    </div>
   )
 }
 

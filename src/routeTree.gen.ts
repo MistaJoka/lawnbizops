@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as BillingRouteImport } from './routes/billing'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
+import { Route as QuoteTokenRouteImport } from './routes/quote.$token'
 import { Route as ETokenRouteImport } from './routes/e.$token'
 import { Route as AuthedScheduleRouteImport } from './routes/_authed/schedule'
 import { Route as AuthedPipelineRouteImport } from './routes/_authed/pipeline'
@@ -80,6 +81,11 @@ const AuthedIndexRoute = AuthedIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthedRoute,
+} as any)
+const QuoteTokenRoute = QuoteTokenRouteImport.update({
+  id: '/quote/$token',
+  path: '/quote/$token',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ETokenRoute = ETokenRouteImport.update({
   id: '/e/$token',
@@ -311,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/pipeline': typeof AuthedPipelineRoute
   '/schedule': typeof AuthedScheduleRoute
   '/e/$token': typeof ETokenRoute
+  '/quote/$token': typeof QuoteTokenRoute
   '/clients/import': typeof AuthedClientsImportRoute
   '/clients/new': typeof AuthedClientsNewRoute
   '/estimates/$estimateId': typeof AuthedEstimatesEstimateIdRoute
@@ -358,6 +365,7 @@ export interface FileRoutesByTo {
   '/pipeline': typeof AuthedPipelineRoute
   '/schedule': typeof AuthedScheduleRoute
   '/e/$token': typeof ETokenRoute
+  '/quote/$token': typeof QuoteTokenRoute
   '/': typeof AuthedIndexRoute
   '/clients/import': typeof AuthedClientsImportRoute
   '/clients/new': typeof AuthedClientsNewRoute
@@ -408,6 +416,7 @@ export interface FileRoutesById {
   '/_authed/pipeline': typeof AuthedPipelineRoute
   '/_authed/schedule': typeof AuthedScheduleRoute
   '/e/$token': typeof ETokenRoute
+  '/quote/$token': typeof QuoteTokenRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/clients/import': typeof AuthedClientsImportRoute
   '/_authed/clients/new': typeof AuthedClientsNewRoute
@@ -459,6 +468,7 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/schedule'
     | '/e/$token'
+    | '/quote/$token'
     | '/clients/import'
     | '/clients/new'
     | '/estimates/$estimateId'
@@ -506,6 +516,7 @@ export interface FileRouteTypes {
     | '/pipeline'
     | '/schedule'
     | '/e/$token'
+    | '/quote/$token'
     | '/'
     | '/clients/import'
     | '/clients/new'
@@ -555,6 +566,7 @@ export interface FileRouteTypes {
     | '/_authed/pipeline'
     | '/_authed/schedule'
     | '/e/$token'
+    | '/quote/$token'
     | '/_authed/'
     | '/_authed/clients/import'
     | '/_authed/clients/new'
@@ -600,6 +612,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   OnboardingRoute: typeof OnboardingRoute
   ETokenRoute: typeof ETokenRoute
+  QuoteTokenRoute: typeof QuoteTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -638,6 +651,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthedIndexRouteImport
       parentRoute: typeof AuthedRoute
+    }
+    '/quote/$token': {
+      id: '/quote/$token'
+      path: '/quote/$token'
+      fullPath: '/quote/$token'
+      preLoaderRoute: typeof QuoteTokenRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/e/$token': {
       id: '/e/$token'
@@ -1035,6 +1055,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   OnboardingRoute: OnboardingRoute,
   ETokenRoute: ETokenRoute,
+  QuoteTokenRoute: QuoteTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

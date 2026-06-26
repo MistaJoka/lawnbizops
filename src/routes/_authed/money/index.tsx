@@ -37,14 +37,16 @@ import { formatCents, localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
 export const Route = createFileRoute('/_authed/money/')({
-  // Warm both lists on tab-intent (preload) so Money paints instantly on tap.
-  // prefetchQuery never throws — offline/no-cache stays graceful.
-  loader: () =>
-    Promise.all([
-      queryClient.prefetchQuery(invoiceBalancesQueryOptions),
-      queryClient.prefetchQuery(estimatesQueryOptions),
-      queryClient.prefetchQuery(expensesQueryOptions),
-    ]),
+  // Warm all three lists on tab-intent (preload) so Money paints instantly on
+  // tap. Fire-and-forget: the loader must NOT await these, or one slow/failing
+  // query gates the whole screen behind the router's pending fallback instead
+  // of letting each tab show its own skeleton / error state. prefetchQuery
+  // never throws — offline/no-cache stays graceful.
+  loader: () => {
+    void queryClient.prefetchQuery(invoiceBalancesQueryOptions)
+    void queryClient.prefetchQuery(estimatesQueryOptions)
+    void queryClient.prefetchQuery(expensesQueryOptions)
+  },
   component: MoneyScreen,
 })
 

@@ -44,8 +44,15 @@ estimates · invoices · jobs.
       (`src/routes/e.$token.tsx`); "Send approval link" CTA on sent estimates;
       `src/features/estimates/approval.ts` + 6 tests; RPCs round-trip tested on
       prod; verified end-to-end in demo.)_
-- [ ] **Public "Request a Quote" lead form**: public route → edge fn inserts a
-      `client` with `stage='lead'` + a `property`. Opens top-of-funnel.
+- [x] **Public "Request a Quote" lead form**: public route → anon RPC inserts a
+      `client` with `stage='lead'` + a `property`. Opens top-of-funnel. _(done
+      2026-06-26: migration 0034 — `business_settings.intake_token` + anon
+      `intake_business_name`/`submit_lead` SECURITY DEFINER RPCs, token-scoped,
+      no table exposed; public route `/quote/$token`; "Quote request link" share
+      in Settings → Profile; `src/features/leads/intake.ts` + 5 tests; submit_lead
+      round-trip + validation tested on prod; verified end-to-end in demo. NOTE:
+      public writer — bounded by token + required fields + length caps; CAPTCHA/
+      rate-limit can layer on later.)_
 - [ ] **Stripe Payment Link on invoices**: "Pay now" button generating a Stripe
       payment link (Stripe seam already stubbed in Settings → Payments).
 - [ ] **Real send** for estimates/invoices via Resend/Brevo free tier — replaces
