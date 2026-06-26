@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Field, PrimaryButton, TextArea, TextInput } from '@/components/Field'
 import { fetchIntakeBusinessName, submitLead } from '@/features/leads/intake'
+import { useDocumentTitle } from '@/lib/useDocumentTitle'
 
 export const Route = createFileRoute('/quote/$token')({
   component: QuoteRequestPage,
@@ -16,6 +17,8 @@ function QuoteRequestPage() {
     retry: false,
     staleTime: Infinity,
   })
+
+  useDocumentTitle(business ? `Request a quote · ${business}` : null)
 
   return (
     <div className="mx-auto min-h-dvh max-w-md px-edge py-10">

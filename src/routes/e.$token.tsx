@@ -9,6 +9,7 @@ import {
 } from '@/features/estimates/approval'
 import { formatCents, localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
+import { useDocumentTitle } from '@/lib/useDocumentTitle'
 
 export const Route = createFileRoute('/e/$token')({
   component: ApprovalPage,
@@ -22,6 +23,12 @@ function ApprovalPage() {
     retry: false,
     staleTime: Infinity,
   })
+
+  useDocumentTitle(
+    data?.business_name
+      ? `Estimate ${data.number ?? ''} · ${data.business_name}`.trim()
+      : null,
+  )
 
   return (
     <div className="mx-auto min-h-dvh max-w-md px-edge py-10">
