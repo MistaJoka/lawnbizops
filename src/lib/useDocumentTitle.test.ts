@@ -28,4 +28,17 @@ describe('useDocumentTitle', () => {
     renderHook(() => useDocumentTitle(null))
     expect(document.title).toBe(DEFAULT)
   })
+
+  it('updates the title when the title prop changes', () => {
+    // A token page mounts with a loading default, then re-renders once the
+    // business name resolves — the tab must track the latest title, not stay
+    // pinned to the first one. (Kills the [title] -> [] dependency-array mutant.)
+    document.title = DEFAULT
+    const { rerender } = renderHook(({ t }: { t: string }) => useDocumentTitle(t), {
+      initialProps: { t: 'Estimate EST-1 · Apex Lawn' },
+    })
+    expect(document.title).toBe('Estimate EST-1 · Apex Lawn')
+    rerender({ t: 'Estimate EST-2 · Apex Lawn' })
+    expect(document.title).toBe('Estimate EST-2 · Apex Lawn')
+  })
 })
