@@ -18,6 +18,7 @@ import {
   type CreateInvoiceInput,
   type InvoiceBalance,
   type InvoiceDetail,
+  type Payment,
   type UninvoicedJob,
 } from './hooks'
 
@@ -165,6 +166,49 @@ describe('markSent', () => {
       kind: 'update',
       payload: { id, patch: { status: 'sent' } },
     })
+  })
+})
+
+describe('voidInvoice with payments', () => {
+  const pay = (pid: string, invoiceId: string, cents: number, note = ''): Payment => ({
+    id: pid,
+    invoice_id: invoiceId,
+    amount_cents: cents,
+    method: 'cash',
+    paid_at: '2026-06-21',
+    note,
+    created_at: '',
+    updated_at: '',
+    user_id: '',
+    org_id: '',
+  })
+
+  it('reverses each unreversed payment before the void flip lands', async () => {
+    const id = await createInvoiceFromJobs(baseInput([job('j1', 5000)]))
+    queryClient.setQueryData<InvoiceDetail>(['invoices', id], (old) => ({
+      ...old!,
+      payments: [
+        pay('p1', id, 3000),
+        pay('p2', id, 2000),
+        pay('p3', id, -2000, 'Reversal of p2'), // p2 already reversed by hand
+      ],
+    }))
+    enqueue.mockClear()
+
+    await voidInvoice(id)
+
+    const all = ops()
+    const reversals = all.filter((o) => o.kind === 'rpc')
+    // Only p1 needs reversing — p2's reversal exists, p3 is itself a reversal.
+    expect(reversals).toHaveLength(1)
+    expect(reversals[0].payload).toMatchObject({
+      fn: 'apply_payment',
+      args: { p_invoice_id: id, p_amount_cents: -3000 },
+    })
+    // FIFO: the reversal reaches the server while the invoice is still live.
+    const voidIdx = all.findIndex((o) => o.table === 'invoices')
+    expect(all.indexOf(reversals[0])).toBeLessThan(voidIdx)
+    expect(balance(id).status).toBe('void')
   })
 })
 

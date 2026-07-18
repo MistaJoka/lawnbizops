@@ -236,6 +236,9 @@ async function drain(): Promise<void> {
           extra: { ref, attempts: op.attempts + 1 },
         },
       )
+      // The status chip flips to error, but that's easy to miss mid-job — say
+      // it out loud once, at the moment the change is parked.
+      toast.error('A change could not sync — review it in Settings → Sync issues')
     }
   }
   for (const table of touched) {

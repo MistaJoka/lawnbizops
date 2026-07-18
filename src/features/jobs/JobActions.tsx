@@ -52,7 +52,27 @@ export function JobActions({ job }: { job: JobWithContext }) {
 
   const scheduled = job.status === 'scheduled'
   const primaryLabel = scheduled ? '▶ Start' : '✓ Done'
-  const primary = () => void setJobStatus(job, scheduled ? 'in_progress' : 'done')
+  const primary = () => void (scheduled ? setJobStatus(job, 'in_progress') : markDone())
+
+  // Finishing a job with no price invoices at $0; no service means revenue
+  // can't be tracked by service. Confirm instead of silently under-billing.
+  async function markDone() {
+    if (job.price_cents === 0 || job.service_id === null) {
+      const body =
+        job.price_cents === 0
+          ? 'This job has no price — it will invoice at $0. You can still mark it done and fix the invoice line later.'
+          : 'This job has no service set, so its revenue won’t be tracked by service.'
+      if (
+        !(await confirm({
+          title: 'Mark done as-is?',
+          body,
+          confirmLabel: 'Mark done',
+        }))
+      )
+        return
+    }
+    await setJobStatus(job, 'done')
+  }
 
   async function skip() {
     if (
@@ -104,9 +124,7 @@ export function JobActions({ job }: { job: JobWithContext }) {
       {open && (
         <div className="mt-2 flex flex-col gap-2 rounded-lg border-2 border-edge bg-surface-low p-2">
           {scheduled && (
-            <OverflowButton onClick={() => void setJobStatus(job, 'done')}>
-              ✓ Mark done
-            </OverflowButton>
+            <OverflowButton onClick={() => void markDone()}>✓ Mark done</OverflowButton>
           )}
           <OverflowButton onClick={() => void skip()}>
             Skip (rain / no-show)

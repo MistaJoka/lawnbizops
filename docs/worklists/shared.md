@@ -28,8 +28,8 @@ rubric lenses (README).
 
 ## Correctness — from e2e-audit-2026-06-24 (verify before billing changes)
 
-- [ ] Add `unique(estimate_id)` partial index on `invoices` (defense-in-depth vs offline double-convert; UI already guards the button).
-- [x] Void invoice with recorded payments: warn so collected revenue can't count a voided invoice. _(done 2026-06-25: void confirm now names the recorded-payment total and says to reverse payments first; verified. Auto-reverse left as a follow-up.)_
-- [ ] Schedule resync: add a `customized_at` guard (or ConfirmDialog naming affected visits) so editing a schedule doesn't silently delete edited future jobs (`0005` resync deletes all future `scheduled` jobs).
+- [x] Add `unique(estimate_id)` partial index on `invoices` (defense-in-depth vs offline double-convert; UI already guards the button). _(done 2026-07-18: migration 0035 `invoices_estimate_id_key`.)_
+- [x] Void invoice with recorded payments: warn so collected revenue can't count a voided invoice. _(done 2026-06-25: void confirm names the recorded-payment total. 2026-07-18: voidInvoice now auto-reverses unreversed payments before the void flip — FIFO keeps reversals ahead of the status change; covered in invoiceWrites.test.ts.)_
+- [x] Schedule resync: add a `customized_at` guard (or ConfirmDialog naming affected visits) so editing a schedule doesn't silently delete edited future jobs (`0005` resync deletes all future `scheduled` jobs). _(done 2026-07-18: migration 0035 adds `jobs.customized_at` + resync skips stamped rows; reschedule/checklist edits on recurring jobs stamp it — jobWrites.test.ts.)_
 - [ ] Extend job materialization horizon (~6mo) + auto-extend on load when `last_materialized_through` is near; consider a pg_cron top-up.
-- [ ] Outbox terminal failure: surface a visible toast/banner + one-tap retry with the error reason (today it only shows in Settings → Sync).
+- [x] Outbox terminal failure: surface a visible toast/banner + one-tap retry with the error reason (today it only shows in Settings → Sync). _(done 2026-07-18: poison ops now raise a toast pointing at Settings → Sync issues, where retry/discard already live.)_

@@ -636,6 +636,7 @@ export type Database = {
           checklist: Json
           completed_at: string | null
           created_at: string
+          customized_at: string | null
           id: string
           notes: string
           occurrence_date: string | null
@@ -655,6 +656,7 @@ export type Database = {
           checklist?: Json
           completed_at?: string | null
           created_at?: string
+          customized_at?: string | null
           id?: string
           notes?: string
           occurrence_date?: string | null
@@ -674,6 +676,7 @@ export type Database = {
           checklist?: Json
           completed_at?: string | null
           created_at?: string
+          customized_at?: string | null
           id?: string
           notes?: string
           occurrence_date?: string | null

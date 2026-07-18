@@ -509,9 +509,27 @@ export async function markSent(id: string): Promise<void> {
  * append-only financial record — correctly NOT a rewind), but each job it
  * invoiced goes back to 'done' so it isn't stranded at 'invoiced', and we append
  * an activity as the audit trail. Mirrors createInvoiceFromJobs' forward flip.
+ *
+ * Recorded payments are reversed first (offsetting negative lines), so voided
+ * money never keeps counting as collected revenue. FIFO ordering guarantees the
+ * reversals reach the server while the invoice is still live — apply_payment
+ * refuses to recompute status on a row already marked 'void'.
  */
 export async function voidInvoice(id: string): Promise<void> {
   const detail = queryClient.getQueryData<InvoiceDetail>(['invoices', id])
+
+  const payments = detail?.payments ?? []
+  const reversedIds = new Set(
+    payments
+      .filter((p) => p.amount_cents < 0)
+      .map((p) => p.note.replace(/^Reversal of /, '')),
+  )
+  for (const payment of payments) {
+    if (payment.amount_cents > 0 && !reversedIds.has(payment.id)) {
+      await reversePayment(payment)
+    }
+  }
+
   patchInvoiceCaches(id, { status: 'void' })
   await enqueue({
     table: 'invoices',

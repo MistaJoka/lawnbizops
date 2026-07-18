@@ -115,4 +115,22 @@ describe('rescheduleJob', () => {
       payload: { id: 'j1', patch: { scheduled_date: NEXT } },
     })
   })
+
+  it('a one-off move never stamps customized_at (nothing resyncs it)', async () => {
+    seed(job({ schedule_id: null }))
+
+    await rescheduleJob(job({ schedule_id: null }), '2026-06-27')
+
+    expect(lastOp().payload.patch).toEqual({ scheduled_date: '2026-06-27' })
+  })
+
+  it('moving a recurring job stamps customized_at so resync leaves it alone', async () => {
+    seed(job({ schedule_id: 's1' }))
+
+    await rescheduleJob(job({ schedule_id: 's1' }), '2026-06-27')
+
+    const patch = lastOp().payload.patch
+    expect(patch.scheduled_date).toBe('2026-06-27')
+    expect(patch.customized_at).toEqual(expect.any(String))
+  })
 })

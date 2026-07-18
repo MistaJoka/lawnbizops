@@ -180,9 +180,14 @@ export function restoreInvoicedJobInCaches(jobId: string): void {
   )
 }
 
-/** Move a job to a different date. */
+/**
+ * Move a job to a different date. Rescheduling a recurring job stamps
+ * customized_at so resync_schedule regenerates around it instead of deleting
+ * the operator's hand-placed date.
+ */
 export async function rescheduleJob(job: Job, scheduledDate: string): Promise<void> {
   const patch: Partial<Job> = { scheduled_date: scheduledDate }
+  if (job.schedule_id) patch.customized_at = new Date().toISOString()
   patchJobCaches(job, patch)
   await enqueue({ table: 'jobs', kind: 'update', payload: { id: job.id, patch } })
   confirmToast('Job rescheduled')
@@ -226,6 +231,9 @@ export async function createOneOffJob(
   }
   const cached: JobWithContext = {
     ...row,
+    // Not in the upsert payload — the server defaults it; one-offs are never
+    // resynced anyway (no schedule).
+    customized_at: null,
     property,
     created_at: now,
     updated_at: now,
@@ -250,7 +258,9 @@ export async function updateJobChecklist(
   job: Job,
   checklist: ChecklistItem[],
 ): Promise<void> {
-  const patch = { checklist: checklist as unknown as Json }
+  const patch: Partial<Job> = { checklist: checklist as unknown as Json }
+  // A written checklist is on-site work capture — a resync must not delete it.
+  if (job.schedule_id) patch.customized_at = new Date().toISOString()
   patchJobCaches(job, patch)
   await enqueue({ table: 'jobs', kind: 'update', payload: { id: job.id, patch } })
 }
