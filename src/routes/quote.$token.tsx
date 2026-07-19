@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Field, PrimaryButton, TextArea, TextInput } from '@/components/Field'
+import { SkeletonDetail } from '@/components/Skeleton'
 import { fetchIntakeBusinessName, submitLead } from '@/features/leads/intake'
 import { useDocumentTitle } from '@/lib/useDocumentTitle'
 
@@ -23,7 +24,9 @@ function QuoteRequestPage() {
   return (
     <div className="mx-auto min-h-dvh max-w-md px-edge py-10">
       {isLoading ? (
-        <p className="mt-20 text-center text-faded">Loading…</p>
+        <div className="mt-10">
+          <SkeletonDetail />
+        </div>
       ) : business === null ? (
         <div className="mt-20 text-center">
           <h1 className="heading-stencil text-2xl text-khaki">Form not found</h1>

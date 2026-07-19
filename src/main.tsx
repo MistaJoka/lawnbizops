@@ -7,6 +7,7 @@ import { routeTree } from './routeTree.gen'
 import { CACHE_MAX_AGE_MS, dexiePersister, queryClient } from './lib/queryClient'
 import { registerSW } from 'virtual:pwa-register'
 import { initOutbox } from './lib/outbox'
+import { initInstallPrompt } from './lib/installPrompt'
 import { markUpdateReady } from './lib/pwaUpdate'
 import { maybeAutologin } from './lib/autologin' // DEV/TEST-ONLY — see autologin.ts
 import { DevPanel } from './dev/DevPanel' // DEV-ONLY — see below; delete with src/dev/
@@ -27,6 +28,7 @@ if (sentryDsn) {
 }
 
 initOutbox()
+initInstallPrompt()
 
 // Register the service worker and surface a staged new build to the top bar.
 // onNeedRefresh fires when a deploy is precached and waiting; markUpdateReady

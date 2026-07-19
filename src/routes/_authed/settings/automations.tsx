@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { Toggle } from '@/components/Toggle'
+import { SkeletonList } from '@/components/Skeleton'
 import { useBusinessSettings, type BusinessSettings } from '@/features/invoices/hooks'
 import { saveBusinessSettings } from '@/features/settings/hooks'
 
@@ -11,7 +12,11 @@ export const Route = createFileRoute('/_authed/settings/automations')({
 function AutomationsScreen() {
   const { data: settings } = useBusinessSettings()
   if (!settings) {
-    return <p className="px-edge py-12 text-center text-faded">Loading…</p>
+    return (
+      <div className="px-edge py-12">
+        <SkeletonList count={3} variant="card" />
+      </div>
+    )
   }
   // Remount when the server row changes so the form re-prefills without an
   // effect (the project lints against setState-in-effect).
@@ -73,6 +78,7 @@ function AutomationsForm({ settings }: { settings: BusinessSettings }) {
               Remind me
               <input
                 type="number"
+                inputMode="numeric"
                 min={0}
                 max={90}
                 value={followupDays}
@@ -103,6 +109,7 @@ function AutomationsForm({ settings }: { settings: BusinessSettings }) {
               Once they&apos;re
               <input
                 type="number"
+                inputMode="numeric"
                 min={0}
                 max={120}
                 value={overdueDays}

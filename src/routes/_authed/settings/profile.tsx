@@ -8,6 +8,7 @@ import {
   TextInput,
 } from '@/components/Field'
 import { confirm } from '@/lib/confirm'
+import { SkeletonDetail } from '@/components/Skeleton'
 import { shareLink } from '@/features/estimates/share'
 import { useBusinessSettings, type BusinessSettings } from '@/features/invoices/hooks'
 import {
@@ -32,7 +33,9 @@ function ProfileScreen() {
       <h1 className="heading-stencil mt-2 text-2xl text-khaki">Business profile</h1>
 
       {isLoading ? (
-        <p className="mt-16 text-center text-faded">Loading…</p>
+        <div className="mt-6">
+          <SkeletonDetail />
+        </div>
       ) : (
         <>
           <ProfileForm key={settings?.updated_at ?? 'new'} initial={settings ?? null} />

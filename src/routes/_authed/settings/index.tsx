@@ -1,6 +1,7 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/lib/db'
+import { promptInstall, useCanInstall } from '@/lib/installPrompt'
 import { signOut } from '@/features/auth/hooks'
 
 export const Route = createFileRoute('/_authed/settings/')({
@@ -18,6 +19,7 @@ function SettingsScreen() {
     0,
   )
   const standalone = window.matchMedia('(display-mode: standalone)').matches
+  const canInstall = useCanInstall()
 
   async function handleSignOut() {
     await signOut()
@@ -87,9 +89,24 @@ function SettingsScreen() {
       {!standalone && (
         <div className="mt-6 rounded-lg border border-edge bg-panel px-4 py-4">
           <p className="heading-stencil text-xs text-faded">Install this app</p>
-          <p className="mt-1 text-sm text-sand">
-            Open Chrome menu ⋮ → Add to Home screen. Works offline once installed.
-          </p>
+          {canInstall ? (
+            <>
+              <p className="mt-1 text-sm text-sand">
+                One tap — full screen, home-screen icon, works offline.
+              </p>
+              <button
+                type="button"
+                onClick={() => void promptInstall()}
+                className="heading-stencil tap-active mt-3 w-full rounded-lg bg-blaze py-3 text-on-cta"
+              >
+                Install app
+              </button>
+            </>
+          ) : (
+            <p className="mt-1 text-sm text-sand">
+              Open Chrome menu ⋮ → Add to Home screen. Works offline once installed.
+            </p>
+          )}
         </div>
       )}
 

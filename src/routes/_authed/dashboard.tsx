@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useDashboard } from '@/features/dashboard/hooks'
+import { SkeletonList } from '@/components/Skeleton'
 import { formatCents } from '@/lib/format'
 
 export const Route = createFileRoute('/_authed/dashboard')({
@@ -16,7 +17,9 @@ function DashboardScreen() {
       </header>
 
       {isLoading && !m ? (
-        <p className="px-edge py-12 text-center text-faded">Loading…</p>
+        <div className="px-edge py-6">
+          <SkeletonList count={3} variant="card" />
+        </div>
       ) : (
         <div className="px-edge py-6">
           {/* Money */}

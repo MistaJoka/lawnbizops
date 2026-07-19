@@ -133,7 +133,9 @@ function SyncStat() {
         aria-expanded={open}
         aria-haspopup="dialog"
         aria-label="Sync status — details"
-        className={`tap-active flex min-h-[1.5rem] shrink-0 items-center gap-1.5 ${v.text}`}
+        // min-h-11 + py grow the hit box to ≥44px; the negative margin cancels
+        // the layout growth so the bar stays visually thin.
+        className={`tap-active -my-3 flex min-h-11 shrink-0 items-center gap-1.5 py-3 ${v.text}`}
       >
         <span className={`h-1.5 w-1.5 rounded-full ${v.dot}`} />
         {v.label}
@@ -185,7 +187,7 @@ function DetailPanel({
             onAct()
             applyUpdate()
           }}
-          className="tap-active mt-2 flex min-h-[1.5rem] w-full items-center justify-center rounded bg-blaze text-on-cta"
+          className="tap-active mt-2 flex min-h-11 w-full items-center justify-center rounded bg-blaze text-on-cta"
         >
           Reload to update
         </button>
@@ -195,7 +197,7 @@ function DetailPanel({
           to="/settings/sync"
           data-autofocus
           onClick={onAct}
-          className="tap-active mt-2 flex min-h-[1.5rem] items-center text-alert"
+          className="tap-active mt-2 flex min-h-11 items-center text-alert"
         >
           Review sync issue →
         </Link>

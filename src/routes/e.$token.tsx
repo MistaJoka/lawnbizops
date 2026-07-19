@@ -7,6 +7,7 @@ import {
   respondToEstimate,
   type ApprovalBundle,
 } from '@/features/estimates/approval'
+import { SkeletonDetail } from '@/components/Skeleton'
 import { formatCents, localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 import { useDocumentTitle } from '@/lib/useDocumentTitle'
@@ -33,7 +34,9 @@ function ApprovalPage() {
   return (
     <div className="mx-auto min-h-dvh max-w-md px-edge py-10">
       {isLoading ? (
-        <p className="mt-20 text-center text-faded">Loading your estimate…</p>
+        <div className="mt-10">
+          <SkeletonDetail />
+        </div>
       ) : isError || !data ? (
         <InvalidLink />
       ) : (
