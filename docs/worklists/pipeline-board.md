@@ -25,5 +25,5 @@ Apply all four rubric lenses (README) to each item.
 
 ## Stage criteria — from pipeline-stage-spec (2026-06-25)
 
-- [ ] **Soft advance gate**: when advancing a client stage whose exit criteria aren't met (e.g. → Active with no scheduled work, → Quoted with no estimate), warn + offer the producing action inline rather than silently allowing it (G-0 / G-H3).
+- [x] **Soft advance gate**: when advancing a client stage whose exit criteria aren't met (e.g. → Active with no scheduled work, → Quoted with no estimate), warn + offer the producing action inline rather than silently allowing it (G-0 / G-H3). _(done 2026-07-19: `stageAdvanceWarning` (cache-first, count-query fallback, unknown→allow so offline never blocks) turns the board's advance confirm into "Move anyway" naming what's missing; detail-screen segmented control left ungated as the manual-override path.)_
 - [x] **Auto-advance stage as a side effect**: estimate sent → `quoted`; payment received → `active` — so `clients.stage` reflects reality. _(done 2026-06-25: `maybeAdvanceStage` (forward-only, never auto-dormant) wired into `setEstimateStatus`(sent) + `recordPayment`; 8 unit tests. NOTE: demo can't show it live — fake backend re-serves seed stage on refetch, clobbering the optimistic patch; verified via unit tests instead.)_

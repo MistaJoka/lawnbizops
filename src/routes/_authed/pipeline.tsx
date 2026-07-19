@@ -7,6 +7,7 @@ import {
   type Client,
   type ClientStage,
 } from '@/features/clients/hooks'
+import { stageAdvanceWarning } from '@/features/clients/stageGate'
 import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
 import { EmptyState } from '@/components/EmptyState'
 import { confirm } from '@/lib/confirm'
@@ -25,10 +26,20 @@ const TINT: Record<ClientStage, string> = {
 
 /** Confirm before the one-tap forward move — an accidental advance is awkward
  *  to walk back from the board (the segmented control on the detail screen is
- *  the easy-undo path). */
+ *  the easy-undo path). When the target stage's exit criteria aren't met the
+ *  confirm becomes a soft gate (G-0/G-H3): name what's missing, offer the
+ *  producing action, but never hard-block the move. */
 async function advance(client: Client, to: ClientStage) {
   const label = CLIENT_STAGES.find((s) => s.value === to)?.label ?? to
-  if (await confirm({ title: `Move to ${label}?`, confirmLabel: 'Move' })) {
+  const warning = await stageAdvanceWarning(client.id, to)
+  const ok = warning
+    ? await confirm({
+        title: warning.title,
+        body: warning.body,
+        confirmLabel: 'Move anyway',
+      })
+    : await confirm({ title: `Move to ${label}?`, confirmLabel: 'Move' })
+  if (ok) {
     await setClientStage(client, to)
   }
 }
@@ -63,6 +74,7 @@ function PipelineScreen() {
           action={
             <Link
               to="/clients/new"
+              search={{ lead: 1 }}
               className="heading-stencil rounded-lg bg-blaze px-5 py-3 text-on-cta"
             >
               + Add client

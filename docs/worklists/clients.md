@@ -23,9 +23,9 @@ Apply all four rubric lenses (README) to each item.
 
 - [x] Detail: add a primary **"Create estimate"** CTA (→ `/estimates/new?clientId=$id`) — for a lead this is the top missing action. _(done 2026-06-25: blaze CTA, carries propertyId when single)_
 - [x] Detail: add **"Schedule work"** / **"New job"** CTAs carrying `clientId` (and propertyId when one property). _(done 2026-06-25: jobs/new now accepts ?clientId; verified in demo)_
-- [ ] ClientForm: default stage to **lead** when arrived from a lead/pipeline context (`?lead=1`).
+- [x] ClientForm: default stage to **lead** when arrived from a lead/pipeline context (`?lead=1`). _(done 2026-07-19: `/clients/new?lead=1` validateSearch → `defaultLead` prop starts the lead toggle on; pipeline empty-state "Add client" carries it.)_
 
 ## Stage criteria — from pipeline-stage-spec (2026-06-25)
 
 - [x] ClientForm: require **at least one contact channel** (phone OR email) — today only `name` is required, so a lead can't be quoted/invoiced/reminded (G-A1). _(done 2026-06-25: soft inline warning, non-blocking per readiness-model philosophy; verified shows/clears in demo)_
-- [ ] Client/lead detail: **readiness chips** ("needs: ☐ contact ☐ property ☐ estimate"), each chip opening the prefilled producing component (G-B1 / stage-readiness model).
+- [x] Client/lead detail: **readiness chips** ("needs: ☐ contact ☐ property ☐ estimate"), each chip opening the prefilled producing component (G-B1 / stage-readiness model). _(done 2026-07-19: chips row on lead/quoted detail → edit / properties/new / estimates/new deep links; unknown data suppresses the chip, all-met renders nothing.)_

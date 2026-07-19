@@ -7,6 +7,7 @@ import {
   type Client,
 } from '@/features/clients/hooks'
 import { formatAddress, useProperties } from '@/features/properties/hooks'
+import { useEstimates } from '@/features/estimates/hooks'
 import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
 import { useClientProfitability } from '@/features/profitability/hooks'
 import { presetRange } from '@/features/reports/range'
@@ -80,6 +81,10 @@ function ClientDetailScreen() {
           Edit
         </Link>
       </div>
+
+      {(client.stage === 'lead' || client.stage === 'quoted') && (
+        <ReadinessChips client={client} properties={properties} />
+      )}
 
       {client.phone && (
         <div className="mt-4 grid grid-cols-2 gap-3">
@@ -201,6 +206,62 @@ function ClientDetailScreen() {
       >
         Archive client
       </button>
+    </div>
+  )
+}
+
+/**
+ * Stage-readiness chips (G-B1) for lead/quoted clients: what this client still
+ * needs before it can move down the funnel, each chip deep-linking to the
+ * prefilled producing screen. Unknown data (properties/estimates not loaded,
+ * e.g. offline) suppresses that chip rather than nagging about rows we can't
+ * see; when nothing is missing the row renders nothing.
+ */
+function ReadinessChips({
+  client,
+  properties,
+}: {
+  client: Client
+  properties: { id: string }[] | undefined
+}) {
+  const { data: estimates } = useEstimates()
+  const needsContact = !client.phone && !client.email
+  const needsProperty = properties !== undefined && properties.length === 0
+  const needsEstimate =
+    estimates !== undefined && !estimates.some((e) => e.client_id === client.id)
+  if (!needsContact && !needsProperty && !needsEstimate) return null
+
+  const chip =
+    'label-caps tap-active flex min-h-11 items-center rounded-full border border-edge px-4 text-khaki'
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-2">
+      <span className="label-caps text-faded">Needs</span>
+      {needsContact && (
+        <Link
+          to="/clients/$clientId/edit"
+          params={{ clientId: client.id }}
+          className={chip}
+        >
+          ☐ Contact
+        </Link>
+      )}
+      {needsProperty && (
+        <Link to="/properties/new" search={{ clientId: client.id }} className={chip}>
+          ☐ Property
+        </Link>
+      )}
+      {needsEstimate && (
+        <Link
+          to="/estimates/new"
+          search={{
+            clientId: client.id,
+            ...(properties?.length === 1 ? { propertyId: properties[0].id } : {}),
+          }}
+          className={chip}
+        >
+          ☐ Estimate
+        </Link>
+      )}
     </div>
   )
 }

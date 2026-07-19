@@ -65,20 +65,9 @@ function PreferencesScreen() {
         </div>
       </section>
 
-      <section className="mt-6">
-        <p className="label-caps mb-3 text-faded">Notifications</p>
-        <div className="card-surface p-4">
-          <Toggle
-            id="push"
-            label="Push notifications"
-            checked={prefs.pushNotifications}
-            onChange={(v) => update('pushNotifications', v)}
-          />
-          <p className="mt-1 text-sm text-muted">
-            Coming soon — preference saved locally
-          </p>
-        </div>
-      </section>
+      {/* Push notifications: no backend yet — no toggle until there is one.
+          Email reminders (the real notification channel) live under
+          Settings → Automations. */}
 
       <section className="mt-6">
         <p className="label-caps mb-3 text-faded">Support</p>

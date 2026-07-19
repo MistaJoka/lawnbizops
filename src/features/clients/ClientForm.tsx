@@ -12,16 +12,21 @@ export interface ClientFormValues {
 
 export function ClientForm({
   initial,
+  defaultLead,
   onSubmit,
 }: {
   initial?: Client
+  /** New-client only: start the lead toggle ON (arrived from a pipeline/lead context). */
+  defaultLead?: boolean
   onSubmit: (values: ClientFormValues) => Promise<void>
 }) {
   const [name, setName] = useState(initial?.name ?? '')
   const [phone, setPhone] = useState(initial?.phone ?? '')
   const [email, setEmail] = useState(initial?.email ?? '')
   const [notes, setNotes] = useState(initial?.notes ?? '')
-  const [isLead, setIsLead] = useState((initial?.stage ?? 'active') === 'lead')
+  const [isLead, setIsLead] = useState(
+    (initial?.stage ?? (defaultLead ? 'lead' : 'active')) === 'lead',
+  )
   const [busy, setBusy] = useState(false)
 
   // Entry criterion (G-A1): a client with no phone and no email can never be

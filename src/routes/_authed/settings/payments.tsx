@@ -48,8 +48,9 @@ function PaymentsScreen() {
       </Link>
       <h1 className="heading-stencil mt-2 text-2xl text-khaki">Payments</h1>
       <p className="mt-2 text-faded">
-        Take card payments through Square or PayPal — coming soon. Pick your provider now
-        and the connection lights up in a future update.
+        Online card collection isn&apos;t built yet — today you record payments on each
+        invoice (cash, check, Zelle, external card). Picking a provider here only saves
+        your preference for when the connection ships.
       </p>
 
       <div className="mt-6 flex flex-col gap-3 pb-8">
@@ -69,9 +70,9 @@ function PaymentsScreen() {
                   type="button"
                   disabled={busy}
                   onClick={() => void setProvider(provider.value)}
-                  className="heading-stencil tap-active mt-3 block w-full rounded-lg bg-blaze px-4 py-3 text-on-cta disabled:opacity-50"
+                  className="heading-stencil tap-active mt-3 block w-full rounded-lg border border-edge px-4 py-3 text-sand disabled:opacity-50"
                 >
-                  Set up
+                  Save as my provider
                 </button>
               )}
               {isSelected && (

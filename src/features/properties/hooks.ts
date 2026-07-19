@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
 import { geocodeAddress } from '@/lib/geocode'
+import { toast } from '@/lib/toast'
 import type { Tables } from '@/lib/database.types'
 
 export type Property = Tables<'properties'>
@@ -123,19 +124,37 @@ export async function saveProperty(draft: PropertyDraft): Promise<void> {
 
 /**
  * Geocode the address (best effort — never throws, never blocks save) and
- * save the property with whatever coordinates we found.
+ * save the property with whatever coordinates we found. Drafts that already
+ * carry coordinates (address-autofill pick, or an unchanged address on edit)
+ * skip the network round-trip entirely.
  */
 export async function savePropertyWithGeocode(
-  draft: Omit<PropertyDraft, 'lat' | 'lng'>,
+  draft: Omit<PropertyDraft, 'lat' | 'lng'> & {
+    lat?: number | null
+    lng?: number | null
+  },
 ): Promise<void> {
-  const coords = draft.address_line1
-    ? await geocodeAddress({
-        address_line1: draft.address_line1,
-        city: draft.city,
-        state: draft.state,
-        zip: draft.zip,
-      })
-    : null
+  const known =
+    typeof draft.lat === 'number' && typeof draft.lng === 'number'
+      ? { lat: draft.lat, lng: draft.lng }
+      : null
+  const coords =
+    known ??
+    (draft.address_line1
+      ? await geocodeAddress({
+          address_line1: draft.address_line1,
+          city: draft.city,
+          state: draft.state,
+          zip: draft.zip,
+        })
+      : null)
+  if (!coords && draft.address_line1) {
+    // G-D1b: a silent Nominatim miss leaves a pin-less property that quietly
+    // drops out of dispatch routing — say so, but never block the save.
+    toast.info(
+      "Couldn't pin this address — saved without a map location. Check the address on the property screen.",
+    )
+  }
   await saveProperty({ ...draft, lat: coords?.lat ?? null, lng: coords?.lng ?? null })
 }
 
