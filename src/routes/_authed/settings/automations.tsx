@@ -23,6 +23,8 @@ function AutomationsForm({ settings }: { settings: BusinessSettings }) {
   const [followupDays, setFollowupDays] = useState(settings.auto_followup_days)
   const [overdue, setOverdue] = useState(settings.auto_overdue_reminder)
   const [overdueDays, setOverdueDays] = useState(settings.auto_overdue_days)
+  const [emailOverdue, setEmailOverdue] = useState(settings.email_overdue_reminders)
+  const [emailAppt, setEmailAppt] = useState(settings.email_appointment_reminders)
   const [status, setStatus] = useState<string | null>(null)
 
   async function save(patch: {
@@ -30,6 +32,8 @@ function AutomationsForm({ settings }: { settings: BusinessSettings }) {
     auto_followup_days?: number
     auto_overdue_reminder?: boolean
     auto_overdue_days?: number
+    email_overdue_reminders?: boolean
+    email_appointment_reminders?: boolean
   }) {
     setStatus(null)
     try {
@@ -109,6 +113,37 @@ function AutomationsForm({ settings }: { settings: BusinessSettings }) {
               days overdue
             </label>
           )}
+        </div>
+
+        <div className="card-surface p-4">
+          <Toggle
+            id="email-overdue"
+            label="Email overdue reminders"
+            checked={emailOverdue}
+            onChange={(v) => {
+              setEmailOverdue(v)
+              void save({ email_overdue_reminders: v })
+            }}
+          />
+          <p className="mt-1 text-sm text-muted">
+            Each night, email clients a friendly reminder for overdue invoices (re-nudges
+            at most weekly, only clients with an email).
+          </p>
+        </div>
+
+        <div className="card-surface p-4">
+          <Toggle
+            id="email-appointments"
+            label="Email visit reminders"
+            checked={emailAppt}
+            onChange={(v) => {
+              setEmailAppt(v)
+              void save({ email_appointment_reminders: v })
+            }}
+          />
+          <p className="mt-1 text-sm text-muted">
+            Each morning, email clients a heads-up for that day&apos;s scheduled visits.
+          </p>
         </div>
       </section>
 

@@ -104,6 +104,8 @@ export type Database = {
           created_at: string
           default_due_days: number
           email: string
+          email_appointment_reminders: boolean
+          email_overdue_reminders: boolean
           estimate_prefix: string
           invoice_prefix: string
           logo_path: string | null
@@ -133,6 +135,8 @@ export type Database = {
           created_at?: string
           default_due_days?: number
           email?: string
+          email_appointment_reminders?: boolean
+          email_overdue_reminders?: boolean
           estimate_prefix?: string
           invoice_prefix?: string
           logo_path?: string | null
@@ -162,6 +166,8 @@ export type Database = {
           created_at?: string
           default_due_days?: number
           email?: string
+          email_appointment_reminders?: boolean
+          email_overdue_reminders?: boolean
           estimate_prefix?: string
           invoice_prefix?: string
           logo_path?: string | null
