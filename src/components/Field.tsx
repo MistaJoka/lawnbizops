@@ -1,11 +1,22 @@
 const inputClass =
   'w-full min-h-touch rounded-lg border-2 border-edge bg-surface-highest px-4 py-3 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none focus:ring-2 focus:ring-blaze/20'
 
-export function Field({ label, children }: { label: string; children: React.ReactNode }) {
+export function Field({
+  label,
+  error,
+  children,
+}: {
+  label: string
+  /** Inline validation message — renders in alert red under the input. Lives
+   *  inside the wrapping <label>, so assistive tech reads it with the field. */
+  error?: string
+  children: React.ReactNode
+}) {
   return (
     <label className="flex flex-col gap-2">
       <span className="label-caps text-khaki">{label}</span>
       {children}
+      {error && <span className="text-sm text-alert">{error}</span>}
     </label>
   )
 }

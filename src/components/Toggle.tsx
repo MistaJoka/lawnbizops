@@ -12,7 +12,9 @@ export function Toggle({
   return (
     <label
       htmlFor={id}
-      className="flex cursor-pointer items-center justify-between gap-3"
+      // min-h-touch: the switch itself is only 24px tall — the whole label row
+      // is the tap target, so it must clear the 44px glove-friendly minimum.
+      className="flex min-h-touch cursor-pointer items-center justify-between gap-3"
     >
       <span className="text-lg text-sand">{label}</span>
       <button

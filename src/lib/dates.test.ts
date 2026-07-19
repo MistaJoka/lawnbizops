@@ -54,7 +54,7 @@ describe('relativeTime', () => {
 })
 
 describe('materializeHorizon', () => {
-  it('is 56 days past local today', () => {
-    expect(materializeHorizon()).toBe(addDaysISO(localToday(), 56))
+  it('is 182 days (~6 months) past local today', () => {
+    expect(materializeHorizon()).toBe(addDaysISO(localToday(), 182))
   })
 })

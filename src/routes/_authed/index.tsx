@@ -168,8 +168,6 @@ function RouteView({ onQuickAdd }: { onQuickAdd: () => void }) {
 
   return (
     <div>
-      <Fab onClick={onQuickAdd} />
-
       {mapsUrl && pinnedStops.length >= 1 && (
         <a
           href={mapsUrl}
@@ -271,6 +269,9 @@ function RouteView({ onQuickAdd }: { onQuickAdd: () => void }) {
           </ul>
         </section>
       )}
+
+      {/* Rendered last so its in-flow spacer clears the list, not the header. */}
+      <Fab onClick={onQuickAdd} />
     </div>
   )
 }

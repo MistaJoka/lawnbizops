@@ -4,6 +4,8 @@ import {
   useActivities,
   type ActivityKind,
 } from '@/features/activities/hooks'
+import { EmptyState } from '@/components/EmptyState'
+import { TextArea } from '@/components/Field'
 import { relativeTime } from '@/lib/dates'
 
 const KIND_DOT: Record<string, { glyph: string; tint: string }> = {
@@ -36,12 +38,11 @@ export function ActivityTimeline({ clientId }: { clientId: string }) {
   return (
     <div>
       <div className="flex flex-col gap-2">
-        <textarea
+        <TextArea
           rows={2}
           placeholder="What happened?"
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          className="w-full rounded-lg border-2 border-edge bg-surface-highest px-4 py-3 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none focus:ring-2 focus:ring-blaze/20"
         />
         <div className="grid grid-cols-2 gap-2">
           <button
@@ -64,7 +65,10 @@ export function ActivityTimeline({ clientId }: { clientId: string }) {
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-4 text-sm text-faded">No activity yet.</p>
+        <EmptyState
+          title="No activity yet"
+          body="Notes and calls you log will build the history here."
+        />
       ) : (
         <ul className="mt-4 flex flex-col">
           {rows.map((a) => {
@@ -78,7 +82,7 @@ export function ActivityTimeline({ clientId }: { clientId: string }) {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="whitespace-pre-wrap break-words text-sand">{a.body}</p>
-                  <p className="mt-0.5 text-xs text-faded">
+                  <p className="mt-0.5 text-xs text-faded tabular-nums">
                     {relativeTime(a.created_at)}
                   </p>
                 </div>

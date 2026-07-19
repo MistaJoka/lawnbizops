@@ -50,7 +50,6 @@ function ToastCard({ item }: { item: ToastItem }) {
     <button
       type="button"
       onClick={() => setLeaving(true)}
-      aria-live="polite"
       className={`card-surface ${leaving ? 'anim-toast-out' : 'anim-toast-in'} pointer-events-auto flex w-full items-center gap-3 border-l-4 ${accent} px-4 py-3 text-left`}
     >
       <span className={`heading-stencil shrink-0 text-lg ${accent.split(' ')[1]}`}>
@@ -63,10 +62,16 @@ function ToastCard({ item }: { item: ToastItem }) {
 
 export function ToastHost() {
   const toasts = useToasts()
-  if (toasts.length === 0) return null
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-48 z-50 mx-auto flex max-w-[28rem] flex-col gap-2 px-edge">
+    // The live region must exist BEFORE a toast arrives or screen readers
+    // won't announce it — so the (invisible, pointer-transparent) container
+    // stays mounted even while empty, and aria-live sits here, not per-card.
+    <div
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none fixed inset-x-0 bottom-48 z-50 mx-auto flex max-w-[28rem] flex-col gap-2 px-edge"
+    >
       {toasts.map((t) => (
         <ToastCard key={t.id} item={t} />
       ))}

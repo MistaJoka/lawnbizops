@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { PropertyForm } from '@/features/properties/PropertyForm'
+import { NextStepAction, NextStepSheet } from '@/components/NextStepSheet'
 import { savePropertyWithGeocode } from '@/features/properties/hooks'
 
 export const Route = createFileRoute('/_authed/properties/new')({
@@ -12,6 +14,9 @@ export const Route = createFileRoute('/_authed/properties/new')({
 function NewPropertyScreen() {
   const { clientId } = Route.useSearch()
   const navigate = useNavigate()
+  // Set once the save is enqueued — offers the forward path (schedule /
+  // estimate / one-off job) instead of dropping back to the client page.
+  const [savedId, setSavedId] = useState<string | null>(null)
 
   if (!clientId) {
     return (
@@ -44,10 +49,38 @@ function NewPropertyScreen() {
           onSubmit={async (values) => {
             const id = crypto.randomUUID()
             await savePropertyWithGeocode({ id, client_id: clientId, ...values })
-            void navigate({ to: '/clients/$clientId', params: { clientId } })
+            setSavedId(id)
           }}
         />
       </div>
+
+      <NextStepSheet
+        open={savedId !== null}
+        title="Property saved"
+        subtitle="Line up the work while you're here."
+        doneLabel="Back to client →"
+        onDone={() => void navigate({ to: '/clients/$clientId', params: { clientId } })}
+      >
+        <NextStepAction
+          primary
+          to="/schedules/new"
+          search={{ propertyId: savedId ?? '' }}
+          label="Set up recurring visits"
+          hint="Weekly, biweekly, or monthly"
+        />
+        <NextStepAction
+          to="/estimates/new"
+          search={{ clientId, propertyId: savedId ?? '' }}
+          label="Create an estimate"
+          hint="Quote the work first"
+        />
+        <NextStepAction
+          to="/jobs/new"
+          search={{ propertyId: savedId ?? '' }}
+          label="Book a one-off job"
+          hint="Single visit, pick a date"
+        />
+      </NextStepSheet>
     </div>
   )
 }

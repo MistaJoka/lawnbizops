@@ -7,29 +7,29 @@ Components in `src/components/`: `TabBar`, `Fab`, `StatusChip`, `EmptyState`,
 These are leverage points — fixing one improves every screen. Apply all four
 rubric lenses (README).
 
-- [ ] TabBar: items evenly spaced, active state uses tokens, all targets ≥44px, safe-area inset respected.
-- [ ] Fab: consistent position/size across screens; ≥44px; `bg-blaze`; doesn't cover content/TabBar.
-- [ ] StatusChip: every status value maps to a token color; consistent padding/radius/size.
-- [ ] EmptyState: consistent icon/title/body/CTA layout; CTA is `bg-blaze`.
-- [ ] Skeleton: matches the shape of the content it stands in for (no layout shift on load).
-- [ ] Toast: readable contrast; auto-dismiss timing sane; stacking handled.
-- [ ] Sheet: backdrop, drag/close affordance, safe-area inset, scroll lock.
-- [ ] ConfirmDialog: destructive action styled `text-alert`; cancel is the safe default focus.
-- [ ] Field: label association (`htmlFor`/`id`), error slot, consistent spacing; used everywhere inputs appear.
-- [ ] Toggle: ≥44px hit area; on/off states use tokens; accessible role/label.
-- [ ] ActivityTimeline: entries align; timestamps `tabular-nums`; empty uses `EmptyState`.
-- [ ] QueryError / AppErrorFallback: consistent layout, retry action, tokenized colors.
+- [x] TabBar: items evenly spaced, active state uses tokens, all targets ≥44px, safe-area inset respected. _(verified 2026-07-19, already correct: flex-1 equal widths, bg-blaze/text-on-cta active state, ~50px targets in the 72px h-tabbar, env(safe-area-inset-bottom) padding. Now also hosts the global "New" target — see flow section.)_
+- [x] Fab: consistent position/size across screens; ≥44px; `bg-blaze`; doesn't cover content/TabBar. _(done 2026-07-19: position/size/color were already shared via one baseClass (56/64px, bg-blaze, clears TabBar), but the layout's pb-24 didn't clear the FAB band — last list row's trailing edge hid under it at max scroll. Fab now renders an in-flow h-24 spacer before the floating button; RouteView's Fab moved to end-of-content so the spacer lands after the list.)_
+- [x] StatusChip: every status value maps to a token color; consistent padding/radius/size. _(verified 2026-07-19, already correct: single VARIANT_CLASS map of 7 token-only variants; one `status-badge` + px-2 py-0.5 rounded shell; job/estimate/invoice chips all map through it.)_
+- [x] EmptyState: consistent icon/title/body/CTA layout; CTA is `bg-blaze`. _(verified 2026-07-19, already correct: one glyph/title/body/action stack (px-edge py-16, centered); primary CTAs at call sites use bg-blaze (e.g. Today route view "+ Add job"), retry-style actions intentionally secondary.)_
+- [x] Skeleton: matches the shape of the content it stands in for (no layout shift on load). _(verified 2026-07-19, already correct: Row/Card/List/Detail presets mirror card-surface geometry of the real rows; shimmer degrades under prefers-reduced-motion.)_
+- [x] Toast: readable contrast; auto-dismiss timing sane; stacking handled. _(done 2026-07-19: contrast (card-surface + text-sand), 3–5s per-kind timing, and gap-2 stacking were already right; fixed the live region — aria-live sat on each card, created after the fact so SRs never announced it. ToastHost's container now stays mounted with role="status" aria-live="polite".)_
+- [x] Sheet: backdrop, drag/close affordance, safe-area inset, scroll lock. _(verified 2026-07-19, already correct: scrim backdrop with tap-to-close + Escape, Close button in the title header (both title-less usages pass their own close/cancel controls), pb-safe, body scroll lock, focus moved in/restored.)_
+- [x] ConfirmDialog: destructive action styled `text-alert`; cancel is the safe default focus. _(done 2026-07-19: destructive styling was already bg-alert; but autoFocus sat on the CONFIRM button, so a reflexive Enter confirmed the destructive action. Default focus moved to Cancel via ref+effect — an effect because Sheet's mount effect would otherwise steal focus to the panel.)_
+- [x] Field: label association (`htmlFor`/`id`), error slot, consistent spacing; used everywhere inputs appear. _(done 2026-07-19: association was already implicit via the wrapping `<label>`; added the missing `error` slot (text-alert line inside the label so AT reads it with the field). ActivityTimeline's duplicated raw textarea now uses the shared TextArea.)_
+- [x] Toggle: ≥44px hit area; on/off states use tokens; accessible role/label. _(done 2026-07-19: tokens + role="switch"/aria-checked were already right; the tappable row was only ~28px tall — added min-h-touch to the label so the hit area clears 44px.)_
+- [x] ActivityTimeline: entries align; timestamps `tabular-nums`; empty uses `EmptyState`. _(done 2026-07-19: alignment was already right; timestamps now tabular-nums, the bare "No activity yet." paragraph is now EmptyState, and the composer textarea uses the shared TextArea.)_
+- [x] QueryError / AppErrorFallback: consistent layout, retry action, tokenized colors. _(verified 2026-07-19, already correct: QueryError composes EmptyState with a centered retry; AppErrorFallback is the full-screen offline-safe variant with a bg-blaze Reload; both token-only.)_
 
 ## Flow — lead→done (from e2e-audit-2026-06-24)
 
-- [ ] Add a **global quick-create FAB** (or 6th "More" nav target) reaching New client / Estimate / Job / Invoice / Expense from anywhere — today only "+ Job" is global; Estimates/Dispatch/Tools/Inventory/Tax/Reports are single-deep-link-only and undiscoverable.
-- [ ] Reusable **"next-step success sheet"** component for post-save forward momentum (property/estimate/schedule).
-- [ ] Schedule edit: `ConfirmDialog` when `resync_schedule()` would drop future jobs that have notes/checklist customizations.
+- [x] Add a **global quick-create FAB** (or 6th "More" nav target) reaching New client / Estimate / Job / Invoice / Expense from anywhere — today only "+ Job" is global; Estimates/Dispatch/Tools/Inventory/Tax/Reports are single-deep-link-only and undiscoverable. _(done 2026-07-19: TabBar gained a center blaze "New" target opening the new QuickCreateSheet — Job/Client/Estimate/Invoice/Expense create rows plus a "Go to" grid for Dispatch/Tools/Inventory/Tax/Reports.)_
+- [x] Reusable **"next-step success sheet"** component for post-save forward momentum (property/estimate/schedule). _(done 2026-07-19: new NextStepSheet + NextStepAction (src/components/NextStepSheet.tsx); wired into clients/new (→ add property / estimate) and properties/new (→ schedule / estimate / one-off job); every dismiss path lands on the saved record.)_
+- [x] Schedule edit: `ConfirmDialog` when `resync_schedule()` would drop future jobs that have notes/checklist customizations. _(resolved 2026-07-19 by migration 0035: resync now skips customized_at-stamped jobs entirely, and reschedule/checklist edits stamp them — so the "would drop customized visits" condition can no longer occur. Remaining deletions are uncustomized machine-generated rows regenerated losslessly under the edited cadence; a confirm there would be noise, not protection.)_
 
 ## Correctness — from e2e-audit-2026-06-24 (verify before billing changes)
 
 - [x] Add `unique(estimate_id)` partial index on `invoices` (defense-in-depth vs offline double-convert; UI already guards the button). _(done 2026-07-18: migration 0035 `invoices_estimate_id_key`.)_
 - [x] Void invoice with recorded payments: warn so collected revenue can't count a voided invoice. _(done 2026-06-25: void confirm names the recorded-payment total. 2026-07-18: voidInvoice now auto-reverses unreversed payments before the void flip — FIFO keeps reversals ahead of the status change; covered in invoiceWrites.test.ts.)_
 - [x] Schedule resync: add a `customized_at` guard (or ConfirmDialog naming affected visits) so editing a schedule doesn't silently delete edited future jobs (`0005` resync deletes all future `scheduled` jobs). _(done 2026-07-18: migration 0035 adds `jobs.customized_at` + resync skips stamped rows; reschedule/checklist edits on recurring jobs stamp it — jobWrites.test.ts.)_
-- [ ] Extend job materialization horizon (~6mo) + auto-extend on load when `last_materialized_through` is near; consider a pg_cron top-up.
+- [x] Extend job materialization horizon (~6mo) + auto-extend on load when `last_materialized_through` is near; consider a `pg_cron` top-up. _(done 2026-07-19: `materializeHorizon()` 56→182 days — the existing once-per-session on-load call and post-edit resyncs are incremental (resume from `last_materialized_through`), so they top up automatically; migration 0038 moves the existing nightly `pg_cron` sweep (0014) to +182. **0038 written but NOT yet applied to the database.**)_
 - [x] Outbox terminal failure: surface a visible toast/banner + one-tap retry with the error reason (today it only shows in Settings → Sync). _(done 2026-07-18: poison ops now raise a toast pointing at Settings → Sync issues, where retry/discard already live.)_

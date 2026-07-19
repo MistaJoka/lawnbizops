@@ -20,9 +20,14 @@ export function addDaysISO(date: string, days: number): string {
   return fmtDate(d)
 }
 
-/** Materialization horizon — 8 weeks out from the device-local today. */
+/**
+ * Materialization horizon — ~6 months out from the device-local today.
+ * materialize_jobs is incremental (it resumes from last_materialized_through),
+ * so the once-per-session on-load call keeps every schedule topped up to this;
+ * migration 0038 moves the nightly pg_cron sweep to the same 182 days.
+ */
 export function materializeHorizon(): string {
-  return addDaysISO(localToday(), 56)
+  return addDaysISO(localToday(), 182)
 }
 
 /** "Thu Jun 18" from a YYYY-MM-DD string. */

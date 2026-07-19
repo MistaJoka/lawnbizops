@@ -26,21 +26,33 @@ export function Fab({
     </>
   )
 
+  // In-flow spacer: the button floats over the band ~112–176px above the
+  // viewport bottom, but the layout's pb-24 only clears the TabBar. Without
+  // this, the last list row's trailing edge hides under the FAB at max scroll.
+  // Render the Fab after the screen's content so the spacer lands at the end.
+  const spacer = <div aria-hidden className="h-24" />
+
   if (onClick) {
     return (
-      <button
-        type="button"
-        onClick={onClick}
-        className={className}
-        aria-label={ariaLabel}
-      >
-        {inner}
-      </button>
+      <>
+        {spacer}
+        <button
+          type="button"
+          onClick={onClick}
+          className={className}
+          aria-label={ariaLabel}
+        >
+          {inner}
+        </button>
+      </>
     )
   }
   return (
-    <Link to={to!} search={search} className={className} aria-label={ariaLabel}>
-      {inner}
-    </Link>
+    <>
+      {spacer}
+      <Link to={to!} search={search} className={className} aria-label={ariaLabel}>
+        {inner}
+      </Link>
+    </>
   )
 }
