@@ -55,6 +55,8 @@ const INVALIDATE: Record<SyncTable, string[][]> = {
   tasks: [['tasks']],
   mileage_logs: [['mileage_logs'], ['tax']],
   vendors_1099: [['vendors_1099'], ['tax']],
+  // queue_email rows live server-side; the documents' sent_at is what the UI reads.
+  email_outbox: [['estimates'], ['invoices']],
 }
 
 /**
@@ -250,6 +252,16 @@ async function drain(): Promise<void> {
   // poison-failed ops are NOT counted (touched, but pushed is not incremented),
   // so a drain where every op 4xx-fails does NOT advance lastSyncedAt.
   if (pushed > 0) markSynced()
+  // A queued email just reached the server — kick the drain worker so the send
+  // feels instant. Best-effort: if this fails (offline again, function cold,
+  // stubbed client), the every-minute pg_cron kick delivers it anyway.
+  if (pushed > 0 && touched.has('email_outbox')) {
+    try {
+      void supabase.functions.invoke('send-email').catch(() => {})
+    } catch {
+      /* test/demo stubs without functions — the cron kick covers it */
+    }
+  }
   // Reflect the post-drain reality: idle (emptied → "synced" toast), offline
   // (halted with no network), or error (a poison op got parked this pass).
   await recomputeStatus()

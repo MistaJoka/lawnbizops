@@ -237,6 +237,62 @@ export type Database = {
           },
         ]
       }
+      email_outbox: {
+        Row: {
+          attempts: number
+          created_at: string
+          entity_id: string
+          error: string
+          id: string
+          org_id: string
+          provider_id: string
+          send_date: string
+          sent_at: string | null
+          status: string
+          template: string
+          to_email: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          entity_id: string
+          error?: string
+          id: string
+          org_id: string
+          provider_id?: string
+          send_date?: string
+          sent_at?: string | null
+          status?: string
+          template: string
+          to_email: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          entity_id?: string
+          error?: string
+          id?: string
+          org_id?: string
+          provider_id?: string
+          send_date?: string
+          sent_at?: string | null
+          status?: string
+          template?: string
+          to_email?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_outbox_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       estimate_items: {
         Row: {
           created_at: string
@@ -302,6 +358,7 @@ export type Database = {
           number: string | null
           org_id: string
           property_id: string | null
+          sent_at: string | null
           status: string
           updated_at: string
           user_id: string
@@ -317,6 +374,7 @@ export type Database = {
           number?: string | null
           org_id?: string
           property_id?: string | null
+          sent_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -332,6 +390,7 @@ export type Database = {
           number?: string | null
           org_id?: string
           property_id?: string | null
+          sent_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -573,6 +632,7 @@ export type Database = {
           notes: string
           number: string | null
           org_id: string
+          sent_at: string | null
           status: string
           updated_at: string
           user_id: string
@@ -588,6 +648,7 @@ export type Database = {
           notes?: string
           number?: string | null
           org_id?: string
+          sent_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -603,6 +664,7 @@ export type Database = {
           notes?: string
           number?: string | null
           org_id?: string
+          sent_at?: string | null
           status?: string
           updated_at?: string
           user_id?: string

@@ -1119,6 +1119,8 @@ export function createDemoClient(): SupabaseClient<Database> {
     },
     from: (table: string) => makeQuery(buildData().tables[table] ?? []),
     rpc,
+    // The outbox kicks the send-email worker after a flush — silent no-op here.
+    functions: { invoke: async () => ({ data: null, error: null }) },
     storage: {
       from: () => ({
         upload: async () => ({ data: { path: 'demo' }, error: null }),

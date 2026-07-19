@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   PAYMENT_METHODS,
+  emailInvoice,
   getLastPaymentMethod,
   rememberPaymentMethod,
   invoiceTotalCents,
@@ -44,6 +45,7 @@ function InvoiceDetailScreen() {
   const { data: settings } = useBusinessSettings()
   const [paying, setPaying] = useState(false)
   const [sharing, setSharing] = useState(false)
+  const [emailing, setEmailing] = useState(false)
 
   if (!detail) {
     return (
@@ -138,6 +140,16 @@ function InvoiceDetailScreen() {
       toast.info('Message copied')
     }
     await recordReminder(detail.invoice.id)
+  }
+
+  async function handleEmail() {
+    if (!detail || !detail.client?.email || emailing) return
+    setEmailing(true)
+    try {
+      await emailInvoice(detail)
+    } finally {
+      setEmailing(false)
+    }
   }
 
   async function handleVoid() {
@@ -294,6 +306,26 @@ function InvoiceDetailScreen() {
           ) : (
             <PrimaryButton onClick={() => setPaying(true)}>Record payment</PrimaryButton>
           ))}
+
+        {invoice.status !== 'void' && (
+          <div>
+            <button
+              type="button"
+              disabled={!client?.email || emailing}
+              onClick={() => void handleEmail()}
+              className="heading-stencil w-full rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-sand disabled:opacity-50"
+            >
+              {emailing ? 'Queueing…' : 'Email invoice'}
+            </button>
+            <p className="mt-1 text-center text-xs text-faded">
+              {invoice.sent_at
+                ? `Emailed ${formatNudgeDate(invoice.sent_at)}`
+                : client?.email
+                  ? `Sends to ${client.email}.`
+                  : 'Add an email to the client to send directly.'}
+            </p>
+          </div>
+        )}
 
         {invoice.status !== 'void' && (
           <div>

@@ -71,7 +71,7 @@ export interface InvoiceDetail {
   invoice: Invoice
   items: InvoiceItem[]
   payments: Payment[]
-  client: { id: string; name: string; phone: string } | null
+  client: { id: string; name: string; phone: string; email?: string } | null
 }
 
 /** quantity is numeric (can be fractional) — round to whole cents at the edge. */
@@ -149,7 +149,7 @@ export function useInvoice(id: string) {
       if (paymentsError) throw paymentsError
       const { data: client } = await supabase
         .from('clients')
-        .select('id, name, phone')
+        .select('id, name, phone, email')
         .eq('id', invoice.client_id)
         .maybeSingle()
       return { invoice, items, payments, client: client ?? null }
@@ -282,6 +282,7 @@ export async function createInvoiceFromJobs(input: CreateInvoiceInput): Promise<
     number: null,
     estimate_id: null,
     last_reminded_at: null,
+    sent_at: null,
     created_at: now,
     updated_at: now,
     user_id: '',
@@ -491,6 +492,36 @@ export async function reversePayment(payment: Payment): Promise<void> {
       },
     },
   })
+}
+
+/**
+ * Queue a real email of this invoice through the server-side email outbox.
+ * Offline-safe (op waits in the client outbox); sent_at is stamped server-side
+ * at actual delivery. The optimistic flip here is only draft → sent status.
+ */
+export async function emailInvoice(detail: InvoiceDetail): Promise<void> {
+  if (!detail.client?.email) throw new Error('Client has no email')
+  if (detail.invoice.status === 'draft') {
+    patchInvoiceCaches(detail.invoice.id, { status: 'sent' })
+    await enqueue({
+      table: 'invoices',
+      kind: 'update',
+      payload: { id: detail.invoice.id, patch: { status: 'sent' } },
+    })
+  }
+  await enqueue({
+    table: 'email_outbox',
+    kind: 'rpc',
+    payload: {
+      fn: 'queue_email',
+      args: {
+        p_id: crypto.randomUUID(),
+        p_template: 'invoice_send',
+        p_entity_id: detail.invoice.id,
+      },
+    },
+  })
+  confirmToast('Invoice email queued')
 }
 
 export async function markSent(id: string): Promise<void> {

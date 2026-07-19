@@ -21,6 +21,7 @@ export type SyncTable =
   | 'tasks'
   | 'mileage_logs'
   | 'vendors_1099'
+  | 'email_outbox'
 
 export interface OutboxOp {
   /** Auto-increment — FIFO order. */

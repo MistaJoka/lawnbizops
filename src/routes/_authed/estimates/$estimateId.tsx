@@ -3,6 +3,7 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   convertToInvoice,
   createJobFromEstimate,
+  emailEstimate,
   renewEstimate,
   setEstimateStatus,
   useEstimate,
@@ -39,6 +40,7 @@ function EstimateDetailScreen() {
   const [sharing, setSharing] = useState(false)
   const [converting, setConverting] = useState(false)
   const [renewing, setRenewing] = useState(false)
+  const [emailing, setEmailing] = useState(false)
   const [linkMsg, setLinkMsg] = useState<string | null>(null)
 
   if (!detail) {
@@ -111,6 +113,16 @@ function EstimateDetailScreen() {
       void navigate({ to: '/estimates/$estimateId', params: { estimateId: id } })
     } finally {
       setRenewing(false)
+    }
+  }
+
+  async function handleEmail() {
+    if (!detail || !detail.client?.email || emailing) return
+    setEmailing(true)
+    try {
+      await emailEstimate(detail)
+    } finally {
+      setEmailing(false)
     }
   }
 
@@ -207,6 +219,30 @@ function EstimateDetailScreen() {
       <PhotosSection estimateId={estimate.id} />
 
       <div className="mt-6 flex flex-col gap-3 pb-8">
+        {(estimate.status === 'draft' || estimate.status === 'sent') && (
+          <div>
+            <button
+              type="button"
+              disabled={!client?.email || emailing}
+              onClick={() => void handleEmail()}
+              className={`heading-stencil w-full rounded-lg px-4 py-4 text-lg disabled:opacity-50 ${
+                estimate.status === 'draft'
+                  ? 'bg-blaze text-on-cta'
+                  : 'border border-edge bg-panel text-sand'
+              }`}
+            >
+              {emailing ? 'Queueing…' : 'Email estimate'}
+            </button>
+            <p className="mt-1 text-center text-xs text-faded">
+              {estimate.sent_at
+                ? `Emailed ${formatShortDate(estimate.sent_at.slice(0, 10))}`
+                : client?.email
+                  ? `Sends to ${client.email} with the approval link.`
+                  : 'Add an email to the client to send directly.'}
+            </p>
+          </div>
+        )}
+
         {estimate.status === 'draft' && (
           <button
             type="button"

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
+import { confirmToast } from '@/lib/toast'
 import { localToday } from '@/lib/format'
 import { addDaysISO } from '@/lib/dates'
 import {
@@ -40,7 +41,7 @@ export interface EstimateListRow extends Estimate {
 export interface EstimateDetail {
   estimate: Estimate
   items: EstimateItem[]
-  client: { id: string; name: string; phone: string } | null
+  client: { id: string; name: string; phone: string; email?: string } | null
   property: EstimateProperty | null
   /** Invoice already created from this estimate, if any. */
   linkedInvoiceId: string | null
@@ -94,7 +95,7 @@ export function useEstimate(id: string) {
       if (itemsError) throw itemsError
       const { data: client } = await supabase
         .from('clients')
-        .select('id, name, phone')
+        .select('id, name, phone, email')
         .eq('id', estimate.client_id)
         .maybeSingle()
       let property: EstimateProperty | null = null
@@ -187,6 +188,7 @@ export async function createEstimate(input: CreateEstimateInput): Promise<string
     number: null,
     // Placeholder until the server assigns the real default on sync.
     approval_token: crypto.randomUUID(),
+    sent_at: null,
     created_at: now,
     updated_at: now,
     user_id: '',
@@ -221,6 +223,32 @@ export async function createEstimate(input: CreateEstimateInput): Promise<string
     await enqueue({ table: 'estimate_items', kind: 'upsert', payload: item })
   }
   return id
+}
+
+/**
+ * Queue a real email of this estimate (with its approval link) through the
+ * server-side email outbox. Offline-safe: the op waits in the client outbox,
+ * the send-email worker delivers when it lands. sent_at is stamped server-side
+ * at actual delivery — the optimistic flip here is only draft → sent status.
+ */
+export async function emailEstimate(detail: EstimateDetail): Promise<void> {
+  if (!detail.client?.email) throw new Error('Client has no email')
+  if (detail.estimate.status === 'draft') {
+    await setEstimateStatus(detail.estimate.id, 'sent')
+  }
+  await enqueue({
+    table: 'email_outbox',
+    kind: 'rpc',
+    payload: {
+      fn: 'queue_email',
+      args: {
+        p_id: crypto.randomUUID(),
+        p_template: 'estimate_send',
+        p_entity_id: detail.estimate.id,
+      },
+    },
+  })
+  confirmToast('Estimate email queued')
 }
 
 export async function setEstimateStatus(
@@ -304,6 +332,7 @@ export async function convertToInvoice(
     ...invoiceRow,
     number: null,
     last_reminded_at: null,
+    sent_at: null,
     created_at: now,
     updated_at: now,
     user_id: '',

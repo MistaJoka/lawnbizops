@@ -55,8 +55,12 @@ estimates · invoices · jobs.
       rate-limit can layer on later.)_
 - [ ] **Stripe Payment Link on invoices**: "Pay now" button generating a Stripe
       payment link (Stripe seam already stubbed in Settings → Payments).
-- [ ] **Real send** for estimates/invoices via Resend/Brevo free tier — replaces
+- [x] **Real send** for estimates/invoices via Resend/Brevo free tier — replaces
       the manual "mark sent" status flip with an actual delivered document.
+      _(done 2026-07-19: migration 0036 email_outbox + queue_email/claim RPCs +
+      pg_cron kick via pg_net/Vault; send-email edge fn deployed (Resend, dormant
+      until RESEND_API_KEY/EMAIL_FROM/APP_URL/EMAIL_DRAIN_KEY secrets set + domain
+      verified). Email buttons on estimate + invoice detail; sent_at shown in UI.)_
 
 ## Tier 3 — strategic (heavier; not "right now")
 

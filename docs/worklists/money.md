@@ -17,6 +17,6 @@ Apply all four rubric lenses (README) to each item.
 
 ## Flow — lead→done (from e2e-audit-2026-06-24)
 
-- [x] Label revenue **"Billed" vs "Collected"** consistently (job profitability = billed by invoice issued_at; client/dashboard = collected by payment paid_at). _(verified 2026-07-18, already correct: Money tab says "Collected", client economics says "Collected", job economics says "Billed", reports say "Income (collected) · cash basis".)_
+- [x] Label revenue **"Billed" vs "Collected"** consistently (job profitability = billed by invoice issued*at; client/dashboard = collected by payment paid_at). *(verified 2026-07-18, already correct: Money tab says "Collected", client economics says "Collected", job economics says "Billed", reports say "Income (collected) · cash basis".)\_
 - [ ] Reports: surface **job/service-level profitability** (the `job_profitability` data exists but is only shown per-client) — e.g. most/least profitable services.
 - [ ] Reports: empty sections use `EmptyState`; money columns use `tabular-nums`.
