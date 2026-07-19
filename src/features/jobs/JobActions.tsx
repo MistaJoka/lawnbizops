@@ -55,17 +55,25 @@ export function JobActions({ job }: { job: JobWithContext }) {
   const primary = () => void (scheduled ? setJobStatus(job, 'in_progress') : markDone())
 
   // Finishing a job with no price invoices at $0; no service means revenue
-  // can't be tracked by service. Confirm instead of silently under-billing.
+  // can't be tracked by service; jumping scheduled → done skips in_progress, so
+  // no real work time is captured. One combined confirm (never stacked) instead
+  // of silently under-recording.
   async function markDone() {
-    if (job.price_cents === 0 || job.service_id === null) {
-      const body =
-        job.price_cents === 0
-          ? 'This job has no price — it will invoice at $0. You can still mark it done and fix the invoice line later.'
-          : 'This job has no service set, so its revenue won’t be tracked by service.'
+    const skippedStart = job.status === 'scheduled'
+    const notes: string[] = []
+    if (skippedStart)
+      notes.push('This job was never started, so no work time was captured.')
+    if (job.price_cents === 0)
+      notes.push(
+        'It has no price — it will invoice at $0. You can still fix the invoice line later.',
+      )
+    else if (job.service_id === null)
+      notes.push('It has no service set, so its revenue won’t be tracked by service.')
+    if (notes.length > 0) {
       if (
         !(await confirm({
-          title: 'Mark done as-is?',
-          body,
+          title: skippedStart ? 'Mark done without starting?' : 'Mark done as-is?',
+          body: notes.join(' '),
           confirmLabel: 'Mark done',
         }))
       )
@@ -105,9 +113,7 @@ export function JobActions({ job }: { job: JobWithContext }) {
       <div className="mt-3 flex gap-2">
         <button
           onClick={primary}
-          className={`heading-stencil tap-active min-h-12 flex-1 rounded-lg px-2 py-3 text-base ${
-            scheduled ? 'bg-blaze text-on-cta' : 'border-2 border-go text-go'
-          }`}
+          className="heading-stencil tap-active min-h-12 flex-1 rounded-lg bg-blaze px-2 py-3 text-base text-on-cta"
         >
           {primaryLabel}
         </button>

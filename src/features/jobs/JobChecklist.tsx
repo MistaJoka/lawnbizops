@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { EmptyState } from '@/components/EmptyState'
 import { updateJobChecklist, type ChecklistItem, type Job } from '@/features/jobs/hooks'
 
 function parseChecklist(raw: unknown): ChecklistItem[] {
@@ -37,6 +38,12 @@ export function JobChecklist({ job }: { job: Job & { checklist?: unknown } }) {
   return (
     <div className="mt-4 rounded-lg border-2 border-edge bg-panel p-4">
       <p className="label-caps text-khaki">On-site checklist</p>
+      {items.length === 0 && (
+        <EmptyState
+          title="No tasks yet"
+          body="List the on-site work below so nothing gets missed."
+        />
+      )}
       <ul className="mt-3 flex flex-col gap-2">
         {items.map((item) => (
           <li key={item.id}>

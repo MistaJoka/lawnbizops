@@ -118,7 +118,7 @@ function ClientDetailScreen() {
           className="mt-4 flex items-center justify-between rounded-lg border border-edge bg-panel px-4 py-4"
         >
           <span className="heading-stencil text-xs text-faded">Open balance</span>
-          <span className="heading-stencil text-xl text-blaze">
+          <span className="heading-stencil text-xl text-blaze tabular-nums">
             {formatCents(openBalance)} →
           </span>
         </Link>
@@ -290,20 +290,20 @@ function ClientEconomics({ clientId }: { clientId: string }) {
       <div className="mt-3 grid grid-cols-3 gap-2">
         <div>
           <p className="heading-stencil text-[10px] text-faded">Collected</p>
-          <p className="heading-stencil mt-1 truncate text-lg text-sand">
+          <p className="heading-stencil mt-1 truncate text-lg text-sand tabular-nums">
             {formatCents(revenue)}
           </p>
         </div>
         <div>
           <p className="heading-stencil text-[10px] text-faded">Costs</p>
-          <p className="heading-stencil mt-1 truncate text-lg text-sand">
+          <p className="heading-stencil mt-1 truncate text-lg text-sand tabular-nums">
             {formatCents(cost)}
           </p>
         </div>
         <div>
           <p className="heading-stencil text-[10px] text-faded">Profit</p>
           <p
-            className={`heading-stencil mt-1 truncate text-lg ${
+            className={`heading-stencil mt-1 truncate text-lg tabular-nums ${
               profit < 0 ? 'text-alert' : 'text-go'
             }`}
           >

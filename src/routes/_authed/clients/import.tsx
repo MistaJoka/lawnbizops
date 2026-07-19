@@ -80,6 +80,10 @@ function ImportScreen() {
       .filter((d): d is ClientDraft => d !== null)
   }, [dataRows, map])
 
+  // Rows dropped because the mapped name column is blank — surfaced below the
+  // preview so a bad column pick (or dirty data) is visible, not silent.
+  const skippedCount = map.name >= 0 ? dataRows.length - validRows.length : 0
+
   async function runImport() {
     setBusy(true)
     const n = await importClients(validRows)
@@ -175,6 +179,13 @@ function ImportScreen() {
                 <p className="mt-1 text-xs text-faded">+{validRows.length - 3} more</p>
               )}
             </div>
+          )}
+
+          {skippedCount > 0 && (
+            <p className="text-sm text-khaki">
+              {skippedCount} row{skippedCount === 1 ? '' : 's'} will be skipped — no value
+              in the Name column.
+            </p>
           )}
 
           {map.name < 0 && (

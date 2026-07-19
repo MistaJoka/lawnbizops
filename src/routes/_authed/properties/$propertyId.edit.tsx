@@ -1,5 +1,7 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { PropertyForm } from '@/features/properties/PropertyForm'
+import { SkeletonDetail } from '@/components/Skeleton'
+import { QueryError } from '@/components/QueryError'
 import { savePropertyWithGeocode, useProperty } from '@/features/properties/hooks'
 
 export const Route = createFileRoute('/_authed/properties/$propertyId/edit')({
@@ -9,14 +11,14 @@ export const Route = createFileRoute('/_authed/properties/$propertyId/edit')({
 function EditPropertyScreen() {
   const { propertyId } = Route.useParams()
   const navigate = useNavigate()
-  const { data: property, isLoading } = useProperty(propertyId)
+  const { data: property, isLoading, isError, refetch } = useProperty(propertyId)
 
   return (
     <div className="px-edge pt-6">
       <Link
         to="/properties/$propertyId"
         params={{ propertyId }}
-        className="inline-block py-2 pr-4 text-sm text-faded"
+        className="tap-active inline-flex min-h-touch items-center pr-4 text-sm text-faded"
       >
         ← Back
       </Link>
@@ -34,10 +36,12 @@ function EditPropertyScreen() {
               void navigate({ to: '/properties/$propertyId', params: { propertyId } })
             }}
           />
+        ) : isLoading ? (
+          <SkeletonDetail />
+        ) : isError ? (
+          <QueryError onRetry={() => void refetch()} />
         ) : (
-          <p className="mt-12 text-center text-faded">
-            {isLoading ? 'Loading…' : 'Property not found.'}
-          </p>
+          <p className="mt-12 text-center text-faded">Property not found.</p>
         )}
       </div>
     </div>

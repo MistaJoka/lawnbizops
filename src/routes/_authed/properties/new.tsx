@@ -39,7 +39,7 @@ function NewPropertyScreen() {
       <Link
         to="/clients/$clientId"
         params={{ clientId }}
-        className="inline-block py-2 pr-4 text-sm text-faded"
+        className="tap-active inline-flex min-h-touch items-center pr-4 text-sm text-faded"
       >
         ← Back
       </Link>

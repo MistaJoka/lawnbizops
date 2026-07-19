@@ -8,6 +8,8 @@ import {
 } from '@/features/properties/hooks'
 import { unitLabel, useServices, type Service } from '@/features/services/hooks'
 import { cadenceLabel, useSchedulesForProperty } from '@/features/schedules/hooks'
+import { SkeletonDetail } from '@/components/Skeleton'
+import { QueryError } from '@/components/QueryError'
 import { formatCents, parseDollarsToCents } from '@/lib/format'
 
 export const Route = createFileRoute('/_authed/properties/$propertyId/')({
@@ -16,7 +18,7 @@ export const Route = createFileRoute('/_authed/properties/$propertyId/')({
 
 function PropertyDetailScreen() {
   const { propertyId } = Route.useParams()
-  const { data: property, isLoading } = useProperty(propertyId)
+  const { data: property, isLoading, isError, refetch } = useProperty(propertyId)
   const { data: services } = useServices()
   const { data: overrides } = usePropertyServices(propertyId)
   const { data: schedules } = useSchedulesForProperty(propertyId)
@@ -24,12 +26,21 @@ function PropertyDetailScreen() {
   if (!property) {
     return (
       <div className="px-edge pt-6">
-        <Link to="/clients" className="inline-block py-2 pr-4 text-sm text-faded">
+        <Link
+          to="/clients"
+          className="tap-active inline-flex min-h-touch items-center pr-4 text-sm text-faded"
+        >
           ← Clients
         </Link>
-        <p className="mt-16 text-center text-faded">
-          {isLoading ? 'Loading…' : 'Property not found.'}
-        </p>
+        {isLoading ? (
+          <div className="mt-4">
+            <SkeletonDetail />
+          </div>
+        ) : isError ? (
+          <QueryError onRetry={() => void refetch()} />
+        ) : (
+          <p className="mt-16 text-center text-faded">Property not found.</p>
+        )}
       </div>
     )
   }
@@ -43,7 +54,7 @@ function PropertyDetailScreen() {
           <Link
             to="/clients/$clientId"
             params={{ clientId: property.client_id }}
-            className="inline-block py-2 pr-4 text-sm text-faded"
+            className="tap-active inline-flex min-h-touch items-center pr-4 text-sm text-faded"
           >
             ← Client
           </Link>
@@ -112,7 +123,7 @@ function PropertyDetailScreen() {
                   </span>
                 )}
               </span>
-              <span className="heading-stencil shrink-0 text-lg text-sand">
+              <span className="heading-stencil shrink-0 text-lg tabular-nums text-sand">
                 {formatCents(schedule.price_cents)}
               </span>
             </Link>
@@ -201,9 +212,11 @@ function ServicePriceRow({
           </span>
           <span className="shrink-0 text-right">
             {overrideCents !== undefined ? (
-              <span className="text-lg text-go">{formatCents(overrideCents)}</span>
+              <span className="text-lg tabular-nums text-go">
+                {formatCents(overrideCents)}
+              </span>
             ) : (
-              <span className="text-lg text-faded">
+              <span className="text-lg tabular-nums text-faded">
                 {formatCents(service.default_price_cents)}
               </span>
             )}

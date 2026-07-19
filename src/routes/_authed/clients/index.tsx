@@ -64,7 +64,9 @@ function ClientsScreen() {
                 {client.name}
               </span>
               {client.phone && (
-                <span className="block truncate text-sm text-faded">{client.phone}</span>
+                <span className="block truncate text-sm text-faded tabular-nums">
+                  {client.phone}
+                </span>
               )}
             </Link>
             {client.phone && (
@@ -113,6 +115,14 @@ function ClientsScreen() {
             glyph="👤"
             title="No clients yet"
             body="Add your first client to start booking work and sending invoices."
+            action={
+              <Link
+                to="/clients/new"
+                className="heading-stencil tap-active inline-block rounded-lg bg-blaze px-5 py-3 text-on-cta"
+              >
+                + Add client
+              </Link>
+            }
           />
         ))}
 
