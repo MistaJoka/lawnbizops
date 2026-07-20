@@ -7,6 +7,8 @@ import {
   useJobsForRange,
 } from '@/features/jobs/hooks'
 import { StatusChip } from '@/features/jobs/JobActions'
+import { useBusinessSettings } from '@/features/invoices/hooks'
+import { appointmentReminderMessage, smsHref } from '@/lib/outreach'
 import { EmptyState } from '@/components/EmptyState'
 import { SkeletonList } from '@/components/Skeleton'
 import { QueryError } from '@/components/QueryError'
@@ -43,6 +45,8 @@ function ScheduleScreen() {
 
   const { data: weekJobs } = useJobsForRange(today, days[6])
   const { data: dayJobs, isLoading, isError, refetch } = useJobsForDate(selected)
+  const { data: settings } = useBusinessSettings()
+  const business = settings?.business_name ?? ''
 
   const countByDate = new Map<string, number>()
   for (const job of weekJobs ?? []) {
@@ -99,32 +103,56 @@ function ScheduleScreen() {
         <h2 className="heading-stencil text-lg text-sand">{formatShortDate(selected)}</h2>
 
         <ul className="mt-4 flex flex-col gap-3">
-          {(dayJobs ?? []).map((job) => (
-            <li key={job.id}>
-              <Link
-                to="/jobs/$jobId"
-                params={{ jobId: job.id }}
-                className="card-surface tap-active flex items-center justify-between gap-2 p-4"
-              >
-                <span className="min-w-0">
-                  <span className="block truncate font-display text-lg font-semibold text-sand">
-                    {job.property?.client?.name ?? 'Job'}
+          {(dayJobs ?? []).map((job) => {
+            const phone = job.property?.client?.phone
+            // One-tap heads-up for upcoming visits: prefilled sms: composer,
+            // shown only on future scheduled jobs with a phone on file.
+            const canRemind = selected > today && job.status === 'scheduled' && phone
+            return (
+              <li key={job.id} className="flex items-stretch gap-2">
+                <Link
+                  to="/jobs/$jobId"
+                  params={{ jobId: job.id }}
+                  className="card-surface tap-active flex min-w-0 flex-1 items-center justify-between gap-2 p-4"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate font-display text-lg font-semibold text-sand">
+                      {job.property?.client?.name ?? 'Job'}
+                    </span>
+                    <span className="block truncate text-sm text-muted">
+                      {job.start_time && `${formatClockTime(job.start_time)} · `}
+                      {job.property?.label}
+                      {job.title && ` — ${job.title}`}
+                    </span>
                   </span>
-                  <span className="block truncate text-sm text-muted">
-                    {job.start_time && `${formatClockTime(job.start_time)} · `}
-                    {job.property?.label}
-                    {job.title && ` — ${job.title}`}
+                  <span className="flex shrink-0 items-center gap-2">
+                    <StatusChip status={job.status} />
+                    <span className="heading-stencil text-sand tabular-nums">
+                      {formatCents(job.price_cents)}
+                    </span>
                   </span>
-                </span>
-                <span className="flex shrink-0 items-center gap-2">
-                  <StatusChip status={job.status} />
-                  <span className="heading-stencil text-sand tabular-nums">
-                    {formatCents(job.price_cents)}
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
+                </Link>
+                {canRemind && (
+                  <a
+                    href={smsHref(
+                      phone,
+                      appointmentReminderMessage(
+                        business,
+                        job.property?.client?.name ?? 'there',
+                        selected === addDaysISO(today, 1)
+                          ? 'tomorrow'
+                          : `on ${formatShortDate(selected)}`,
+                      ),
+                    )}
+                    aria-label="Text appointment reminder"
+                    className="tap-active flex w-12 shrink-0 items-center justify-center rounded-lg border-2 border-edge text-xl"
+                  >
+                    🔔
+                  </a>
+                )}
+              </li>
+            )
+          })}
         </ul>
 
         {isError && (dayJobs?.length ?? 0) === 0 && (

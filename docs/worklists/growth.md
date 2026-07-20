@@ -16,13 +16,19 @@ estimates · invoices · jobs.
       complete. Replaces the silent hand-off after onboarding. _(done 2026-06-25:
       `src/features/activation/ActivationCard.tsx` on Today; 6 tests; verified in
       demo — visible at 0/3, hidden when populated.)_
-- [ ] **Success → next-step sheet**: after creating an estimate/job/invoice, offer
+- [x] **Success → next-step sheet**: after creating an estimate/job/invoice, offer
       the next action ("Schedule work" / "Create invoice" / "Record payment")
-      with context carried.
-- [ ] **Global quick-create FAB**: client / estimate / job / invoice / expense
-      from anywhere (today only "+ Job" exists on home).
-- [ ] **Default new client to `lead`** when arrived from a lead/pipeline context
-      (`?lead=1`). _(also tracked in clients.md)_
+      with context carried. _(done 2026-07-19: shared NextStepSheet on clients/new + properties/new; estimate/job/invoice creation already lands on detail
+      screens whose primary CTAs ARE the next step (accepted estimate → create
+      job/schedule/convert; done job → create invoice; invoice → record payment)
+      — context carried via route params throughout.)_
+- [x] **Global quick-create FAB**: client / estimate / job / invoice / expense
+      from anywhere (today only "+ Job" exists on home). _(done 2026-07-19:
+      TabBar's center "New" target opens QuickCreateSheet — all five creates +
+      a Go-to grid for the deep-link-only screens; see shared.md.)_
+- [x] **Default new client to `lead`** when arrived from a lead/pipeline context
+      (`?lead=1`). _(done 2026-07-19: clients/new validateSearch + ClientForm
+      defaultLead; pipeline empty-state link carries ?lead=1 — see clients.md.)_
 - [x] **Google review request**: one-tap `sms:` link with the review URL on a
       done job (review URL set in Settings → Profile). _(done 2026-06-25:
       migration 0032 `business_settings.review_url`; profile field; "Request a
@@ -31,8 +37,12 @@ estimates · invoices · jobs.
 - [x] **"On my way" SMS**: native `sms:` deep link from job detail, prefilled
       with client name + business + destination. _(done 2026-06-25: "Text on my
       way" on scheduled/in-progress jobs; verified in demo.)_
-- [ ] **Appointment reminder**: one-tap `sms:` reminder for tomorrow's jobs from
-      the schedule view.
+- [x] **Appointment reminder**: one-tap `sms:` reminder for tomorrow's jobs from
+      the schedule view. _(done 2026-07-19: 🔔 button beside future scheduled jobs
+      with a phone on file in the schedule day list — prefilled
+      appointmentReminderMessage ("tomorrow" / "on <date>"); unit-tested in
+      outreach.test.ts. Complements the automated same-day reminder emails from
+      automation_sweep.)_
 
 ## Tier 2 — customer-facing (light backend)
 

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { mailtoHref, onMyWayMessage, reviewRequestMessage, smsHref } from './outreach'
+import {
+  appointmentReminderMessage,
+  mailtoHref,
+  onMyWayMessage,
+  reviewRequestMessage,
+  smsHref,
+} from './outreach'
 
 describe('smsHref', () => {
   it('strips formatting from the number and url-encodes the body', () => {
@@ -36,6 +42,20 @@ describe('reviewRequestMessage', () => {
   it('includes the review url and signs off with the business', () => {
     expect(reviewRequestMessage('Pierce Lawn', 'Sam', 'https://g.page/x')).toBe(
       "Thanks for your business, Sam! If you have a minute, we'd really appreciate a quick review: https://g.page/x — Pierce Lawn",
+    )
+  })
+})
+
+describe('appointmentReminderMessage', () => {
+  it('includes business, client, and the when clause', () => {
+    expect(appointmentReminderMessage('Pierce Lawn', 'Sam', 'tomorrow')).toBe(
+      "Hi Sam — This is Pierce Lawn. Friendly reminder: we're scheduled to be out tomorrow. Reply here if anything changed!",
+    )
+  })
+
+  it('omits the business clause when blank', () => {
+    expect(appointmentReminderMessage('', 'Sam', 'on Jul 20')).toBe(
+      "Hi Sam — Friendly reminder: we're scheduled to be out on Jul 20. Reply here if anything changed!",
     )
   })
 })

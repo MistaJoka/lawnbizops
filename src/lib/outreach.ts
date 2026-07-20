@@ -30,6 +30,16 @@ export function onMyWayMessage(
   return `Hi ${clientName} —${who} On my way${dest} now. See you soon!`
 }
 
+/** Appointment-reminder text — sent the day before so tomorrow isn't a surprise. */
+export function appointmentReminderMessage(
+  business: string,
+  clientName: string,
+  when: string,
+): string {
+  const who = business.trim() ? ` This is ${business.trim()}.` : ''
+  return `Hi ${clientName} —${who} Friendly reminder: we're scheduled to be out ${when.trim()}. Reply here if anything changed!`
+}
+
 /** Review-request text — sent after a job is done, with the Google review link. */
 export function reviewRequestMessage(
   business: string,
