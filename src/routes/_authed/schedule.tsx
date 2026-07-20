@@ -7,6 +7,8 @@ import {
   useJobsForRange,
 } from '@/features/jobs/hooks'
 import { StatusChip } from '@/features/jobs/JobActions'
+import { EmptyState } from '@/components/EmptyState'
+import { SkeletonList } from '@/components/Skeleton'
 import { QueryError } from '@/components/QueryError'
 import { queryClient } from '@/lib/queryClient'
 import { formatCents, localToday } from '@/lib/format'
@@ -73,9 +75,9 @@ function ScheduleScreen() {
                   : 'h-20 w-16 border-edge bg-surface-high text-sand hover:bg-surface-highest'
               }`}
             >
-              <span className="label-caps">{weekday}</span>
+              <span className="label-caps">{d === today ? 'Today' : weekday}</span>
               <span
-                className={`font-display font-bold ${
+                className={`font-display font-bold tabular-nums ${
                   isSelected ? 'text-3xl' : 'text-2xl'
                 }`}
               >
@@ -116,7 +118,7 @@ function ScheduleScreen() {
                 </span>
                 <span className="flex shrink-0 items-center gap-2">
                   <StatusChip status={job.status} />
-                  <span className="heading-stencil text-sand">
+                  <span className="heading-stencil text-sand tabular-nums">
                     {formatCents(job.price_cents)}
                   </span>
                 </span>
@@ -129,8 +131,17 @@ function ScheduleScreen() {
           <QueryError onRetry={() => void refetch()} />
         )}
 
+        {isLoading && (dayJobs ?? []).length === 0 && (
+          <div className="mt-4">
+            <SkeletonList count={3} variant="card" />
+          </div>
+        )}
+
         {!isLoading && !isError && (dayJobs ?? []).length === 0 && (
-          <p className="mt-12 text-center text-faded">Nothing scheduled this day.</p>
+          <EmptyState
+            title="Nothing scheduled this day"
+            body="Use + Job to put work on the books."
+          />
         )}
       </section>
 

@@ -49,6 +49,7 @@ function QuickAddPicker({ onDone }: { onDone: () => void }) {
       <input
         type="search"
         autoFocus
+        aria-label="Search client or property"
         placeholder="Search client or property"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -78,7 +79,7 @@ function QuickAddPicker({ onDone }: { onDone: () => void }) {
             </span>
             <span className="shrink-0 text-right">
               {t.defaults.price_cents > 0 && (
-                <span className="heading-stencil block text-sand">
+                <span className="heading-stencil block text-sand tabular-nums">
                   {formatCents(t.defaults.price_cents)}
                 </span>
               )}

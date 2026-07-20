@@ -10,6 +10,7 @@ import { CardQuickActions } from '@/features/board/CardQuickActions'
 import { jobQuickActions } from '@/features/board/cardActions'
 import { PipelineBoard } from '@/features/board/PipelineBoard'
 import { QuickAddSheet } from '@/features/board/QuickAddJob'
+import { EmptyState } from '@/components/EmptyState'
 import { Fab } from '@/components/Fab'
 import { SkeletonList } from '@/components/Skeleton'
 import { QueryError } from '@/components/QueryError'
@@ -223,22 +224,24 @@ function RouteView({ onQuickAdd }: { onQuickAdd: () => void }) {
       )}
 
       {!isLoading && !isError && ordered.length === 0 && (
-        <div className="flex flex-col items-center gap-3 px-edge py-16 text-center">
-          <p className="text-lg text-faded">
-            {finished.length > 0 ? 'All done for today.' : 'No jobs on the books yet.'}
-          </p>
-          {finished.length === 0 && (
-            <p className="text-sm text-muted">
-              Jobs you schedule will show up here, in drive order.
-            </p>
-          )}
-          <button
-            onClick={onQuickAdd}
-            className="heading-stencil tap-active mt-2 rounded-lg bg-blaze px-6 py-4 text-lg text-on-cta"
-          >
-            + Add job
-          </button>
-        </div>
+        <EmptyState
+          title={
+            finished.length > 0 ? 'All done for today.' : 'No jobs on the books yet.'
+          }
+          body={
+            finished.length === 0
+              ? 'Jobs you schedule will show up here, in drive order.'
+              : undefined
+          }
+          action={
+            <button
+              onClick={onQuickAdd}
+              className="heading-stencil tap-active rounded-lg bg-blaze px-6 py-4 text-lg text-on-cta"
+            >
+              + Add job
+            </button>
+          }
+        />
       )}
 
       {finished.length > 0 && (

@@ -8,14 +8,14 @@ components: `src/features/board/PipelineBoard.tsx`, `CardQuickActions.tsx`,
 
 Apply all four rubric lenses (README) to each item.
 
-- [ ] Board: columns have consistent width/padding; headers use tokens; counts use `tabular-nums`.
-- [ ] Board: cards have uniform padding/radius; status color from tokens (`text-go`/`text-alert`).
-- [ ] Drag/move + CardQuickActions: writes via `enqueue()`; optimistic update reverts cleanly on failure.
-- [ ] QuickAddJob: fields use `Field`; new job gets `crypto.randomUUID()`; submit disabled while pending.
-- [ ] Empty column / empty board uses `EmptyState`; loading uses `Skeleton`.
-- [ ] Schedule: date handling via `localToday()`; day/week headers align; today is clearly marked.
-- [ ] Tap targets on cards and quick actions ≥44px.
-- [ ] Edge padding `px-edge`; headings `heading-stencil`.
+- [x] Board: columns have consistent width/padding; headers use tokens; counts use `tabular-nums`. _(done 2026-07-19: lanes were already uniform w-[80vw] max-w-sm p-3 with token tints; count badge + lane money total now tabular-nums.)_
+- [x] Board: cards have uniform padding/radius; status color from tokens (`text-go`/`text-alert`). _(verified 2026-07-19, already correct: CardShell gives every card the same rounded-lg border-2 bg-panel p-3; tones are token-only.)_
+- [x] Drag/move + CardQuickActions: writes via `enqueue()`; optimistic update reverts cleanly on failure. _(verified 2026-07-19, already correct: quick actions delegate to setJobStatus/setEstimateStatus/recordPayment/recordReminder which all enqueue + patch caches; a rejected op invalidates back to server truth (outbox poison path).)_
+- [x] QuickAddJob: fields use `Field`; new job gets `crypto.randomUUID()`; submit disabled while pending. _(done 2026-07-19: randomUUID + disabled-while-saving were already right; the label-less search input now carries an aria-label (a search box in a sheet — a visible Field label would be noise); price rows tabular-nums.)_
+- [x] Empty column / empty board uses `EmptyState`; loading uses `Skeleton`. _(done 2026-07-19: loading lanes already show SkeletonCards; settled-empty lanes keep the compact "Empty" marker deliberately — a full EmptyState per 80vw lane would dwarf the cards. Schedule's empty day now uses EmptyState.)_
+- [x] Schedule: date handling via `localToday()`; day/week headers align; today is clearly marked. _(done 2026-07-19: today's chip now reads "Today" instead of its weekday; dates were already localToday()-derived; day numbers tabular-nums.)_
+- [x] Tap targets on cards and quick actions ≥44px. _(verified 2026-07-19, already correct: cards are full-width p-3+ blocks; quick actions min-h-12; day chips h-20+.)_
+- [x] Edge padding `px-edge`; headings `heading-stencil`. _(verified 2026-07-19, already correct across board/pipeline/schedule.)_
 
 ## Flow — lead→done (from e2e-audit-2026-06-24)
 

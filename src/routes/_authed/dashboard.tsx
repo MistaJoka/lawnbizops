@@ -107,7 +107,7 @@ function Metric({
   const body = (
     <>
       <p className="label-caps text-faded">{label}</p>
-      <p className={`heading-stencil mt-1 text-2xl ${toneClass}`}>{value}</p>
+      <p className={`heading-stencil mt-1 text-2xl tabular-nums ${toneClass}`}>{value}</p>
       {sub && (
         <p
           className={`mt-0.5 text-xs ${subTone === 'alert' ? 'text-alert' : 'text-faded'}`}
@@ -130,7 +130,7 @@ function Metric({
 function Stage({ label, n }: { label: string; n: number }) {
   return (
     <div className="text-center">
-      <p className="heading-stencil text-2xl text-sand">{n}</p>
+      <p className="heading-stencil text-2xl text-sand tabular-nums">{n}</p>
       <p className="label-caps mt-1 text-faded">{label}</p>
     </div>
   )

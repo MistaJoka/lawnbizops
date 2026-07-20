@@ -229,13 +229,13 @@ function KanbanColumn({
           {/* Lane money total — the dense, at-a-glance "how much $ is in this
               stage" a contractor actually wants. */}
           {summary.valueCents > 0 && (
-            <span className="heading-stencil text-xs text-faded">
+            <span className="heading-stencil text-xs text-faded tabular-nums">
               {formatCentsShort(summary.valueCents)}
             </span>
           )}
           <span
             title={over ? 'Over the WIP cap — clear this lane' : undefined}
-            className={`label-caps rounded px-1.5 ${over ? 'bg-alert/20 text-alert' : 'text-faded'}`}
+            className={`label-caps rounded px-1.5 tabular-nums ${over ? 'bg-alert/20 text-alert' : 'text-faded'}`}
           >
             {loading && count === 0 ? '·' : count}
           </span>
