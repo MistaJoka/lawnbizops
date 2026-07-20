@@ -54,7 +54,7 @@ function GradeEstimatorScreen() {
 
       <div className="card-surface mt-6 p-6 text-center">
         <p className="label-caps text-faded">Slope</p>
-        <p className="heading-stencil mt-2 text-5xl text-sand">
+        <p className="heading-stencil mt-2 text-5xl text-sand tabular-nums">
           {slope === null ? '—' : `${slope.toFixed(1)}%`}
         </p>
         {drainage && <p className="mt-4 text-lg text-muted">{drainage}</p>}

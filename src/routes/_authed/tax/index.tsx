@@ -66,7 +66,7 @@ function TaxScreen() {
         <p className="label-caps text-faded">Set aside for taxes</p>
         {pct > 0 ? (
           <>
-            <p className="heading-stencil mt-1 text-3xl text-sand">
+            <p className="heading-stencil mt-1 text-3xl text-sand tabular-nums">
               {formatCents(setAside)}
             </p>
             <p className="mt-1 text-sm text-faded">
@@ -95,13 +95,13 @@ function TaxScreen() {
         <div className="mt-3 grid grid-cols-2 gap-2">
           <div>
             <p className="heading-stencil text-[10px] text-faded">Miles (YTD)</p>
-            <p className="heading-stencil mt-1 text-lg text-sand">
+            <p className="heading-stencil mt-1 text-lg text-sand tabular-nums">
               {ytdMiles.toLocaleString('en-US')}
             </p>
           </div>
           <div>
             <p className="heading-stencil text-[10px] text-faded">Deduction</p>
-            <p className="heading-stencil mt-1 text-lg text-sand">
+            <p className="heading-stencil mt-1 text-lg text-sand tabular-nums">
               {rateCents > 0 ? formatCents(mileageDeduction) : '—'}
             </p>
           </div>

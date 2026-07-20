@@ -97,7 +97,7 @@ function ServicesScreen() {
                   )}
                 </span>
                 <span className="shrink-0 text-right">
-                  <span className="block text-lg text-go">
+                  <span className="block text-lg text-go tabular-nums">
                     {formatCents(service.default_price_cents)}
                   </span>
                   <span className="block text-xs text-faded">

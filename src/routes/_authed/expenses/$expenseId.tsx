@@ -225,6 +225,7 @@ function ReceiptsSection({ expenseId }: { expenseId: string }) {
             <div key={photo.id} className="relative aspect-square">
               {photo.url ? (
                 <img
+                  loading="lazy"
                   src={photo.url}
                   alt="Receipt"
                   className="h-full w-full rounded-lg border border-edge object-cover"

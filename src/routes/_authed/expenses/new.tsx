@@ -92,6 +92,7 @@ function NewExpenseScreen() {
           <TextInput
             autoFocus
             inputMode="decimal"
+            className="tabular-nums"
             placeholder="$0.00"
             value={dollars}
             onChange={(e) => setDollars(e.target.value)}

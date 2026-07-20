@@ -16,6 +16,8 @@ function MulchCalculatorScreen() {
     const depthIn = Number(depth)
     if (!Number.isFinite(areaSqFt) || !Number.isFinite(depthIn)) return null
     const yards = mulchVolumeCubicYards(areaSqFt, depthIn)
+    // Zero/negative inputs compute to 0 — show nothing rather than "0.00 cu yd".
+    if (yards <= 0) return null
     return { yards, bags: bagsNeeded(yards) }
   }, [area, depth])
 
@@ -31,6 +33,7 @@ function MulchCalculatorScreen() {
         <Field label="Bed area (sq ft)">
           <TextInput
             inputMode="decimal"
+            className="tabular-nums"
             placeholder="e.g. 450"
             value={area}
             onChange={(e) => setArea(e.target.value)}
@@ -39,6 +42,7 @@ function MulchCalculatorScreen() {
         <Field label="Depth (inches)">
           <TextInput
             inputMode="decimal"
+            className="tabular-nums"
             placeholder="3"
             value={depth}
             onChange={(e) => setDepth(e.target.value)}
@@ -49,10 +53,12 @@ function MulchCalculatorScreen() {
       {result && (
         <div className="card-surface mt-6 p-4">
           <p className="label-caps text-faded">Results</p>
-          <p className="heading-stencil mt-2 text-3xl text-sand">
+          <p className="heading-stencil mt-2 text-3xl text-sand tabular-nums">
             {result.yards.toFixed(2)} cu yd
           </p>
-          <p className="mt-2 text-lg text-muted">≈ {result.bags} bags (2 cu ft each)</p>
+          <p className="mt-2 text-lg text-muted tabular-nums">
+            ≈ {result.bags} bags (2 cu ft each)
+          </p>
         </div>
       )}
     </div>

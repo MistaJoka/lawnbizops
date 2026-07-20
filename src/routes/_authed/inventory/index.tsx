@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { EmptyState } from '@/components/EmptyState'
+import { SkeletonList } from '@/components/Skeleton'
 import {
   adjustInventoryQuantity,
   loadStarterInventory,
@@ -57,6 +59,7 @@ function InventoryScreen() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          aria-label="Search inventory"
           placeholder="Search inventory…"
           className="mt-4 w-full rounded-lg border-2 border-edge bg-panel px-4 py-3 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
         />
@@ -65,11 +68,13 @@ function InventoryScreen() {
       <div className="grid grid-cols-2 gap-3 px-edge py-4">
         <div className="card-surface border-alert p-3">
           <p className="label-caps text-faded">Low stock</p>
-          <p className="heading-stencil mt-1 text-2xl text-alert">{lowCount} alerts</p>
+          <p className="heading-stencil mt-1 text-2xl text-alert tabular-nums">
+            {lowCount} alerts
+          </p>
         </div>
         <div className="card-surface p-3">
           <p className="label-caps text-faded">Total SKUs</p>
-          <p className="heading-stencil mt-1 text-2xl text-sand">
+          <p className="heading-stencil mt-1 text-2xl text-sand tabular-nums">
             {(items ?? []).length}
           </p>
         </div>
@@ -81,9 +86,32 @@ function InventoryScreen() {
         ))}
       </ul>
 
-      {!isLoading && filtered.length === 0 && (
-        <p className="px-edge py-12 text-center text-faded">No matching items.</p>
+      {isLoading && (items ?? []).length === 0 && (
+        <div className="px-edge">
+          <SkeletonList count={4} variant="card" />
+        </div>
       )}
+
+      {!isLoading &&
+        filtered.length === 0 &&
+        ((items ?? []).length === 0 ? (
+          <EmptyState
+            glyph="📦"
+            title="No inventory yet"
+            body="Track fuel, line, bags, and parts — low stock surfaces on Today."
+            action={
+              <button
+                type="button"
+                onClick={() => setShowAdd(true)}
+                className="heading-stencil tap-active rounded-lg bg-blaze px-6 py-4 text-on-cta"
+              >
+                + Add item
+              </button>
+            }
+          />
+        ) : (
+          <p className="px-edge py-12 text-center text-faded">No matching items.</p>
+        ))}
 
       <button
         type="button"
@@ -113,21 +141,21 @@ function InventoryCard({ item }: { item: InventoryItem }) {
           {stockLabel(level)}
         </span>
       </div>
-      <p className="mt-2 text-lg text-sand">
+      <p className="mt-2 text-lg text-sand tabular-nums">
         {item.quantity} {item.unit}
       </p>
       <div className="mt-3 flex gap-2">
         <button
           type="button"
           onClick={() => void adjustInventoryQuantity(item, 1)}
-          className="heading-stencil tap-active flex-1 rounded-lg border-2 border-edge py-2 text-sm text-sand"
+          className="heading-stencil tap-active min-h-11 flex-1 rounded-lg border-2 border-edge py-2 text-sm text-sand"
         >
           + Add
         </button>
         <button
           type="button"
           onClick={() => void adjustInventoryQuantity(item, -1)}
-          className="heading-stencil tap-active flex-1 rounded-lg border-2 border-edge py-2 text-sm text-faded"
+          className="heading-stencil tap-active min-h-11 flex-1 rounded-lg border-2 border-edge py-2 text-sm text-faded"
         >
           Use 1
         </button>
