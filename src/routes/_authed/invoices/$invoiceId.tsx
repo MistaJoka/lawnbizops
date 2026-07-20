@@ -21,6 +21,8 @@ import {
 import { InvoiceStatusChip } from '@/features/invoices/InvoiceStatusChip'
 import { invoiceFilename, shareInvoicePdf } from '@/features/invoices/share'
 import { Field, PrimaryButton, Select, TextInput, DangerButton } from '@/components/Field'
+import { EmptyState } from '@/components/EmptyState'
+import { QueryError } from '@/components/QueryError'
 import { SkeletonDetail } from '@/components/Skeleton'
 import { confirm } from '@/lib/confirm'
 import { toast } from '@/lib/toast'
@@ -41,7 +43,7 @@ function formatNudgeDate(timestamp: string): string {
 function InvoiceDetailScreen() {
   const { invoiceId } = Route.useParams()
   const navigate = useNavigate()
-  const { data: detail, isLoading } = useInvoice(invoiceId)
+  const { data: detail, isLoading, isError, refetch } = useInvoice(invoiceId)
   const { data: settings } = useBusinessSettings()
   const [paying, setPaying] = useState(false)
   const [sharing, setSharing] = useState(false)
@@ -57,6 +59,8 @@ function InvoiceDetailScreen() {
           <div className="mt-4">
             <SkeletonDetail />
           </div>
+        ) : isError ? (
+          <QueryError onRetry={() => void refetch()} />
         ) : (
           <p className="mt-16 text-center text-faded">Invoice not found.</p>
         )}
@@ -220,32 +224,40 @@ function InvoiceDetailScreen() {
             <span className="min-w-0">
               <span className="block text-sand">{item.description}</span>
               {item.quantity !== 1 && (
-                <span className="block text-sm text-faded">
+                <span className="block text-sm text-faded tabular-nums">
                   {item.quantity} × {formatCents(item.unit_price_cents)}
                 </span>
               )}
             </span>
-            <span className="shrink-0 text-sand">
+            <span className="shrink-0 text-right text-sand tabular-nums">
               {formatCents(lineTotalCents(item))}
             </span>
           </div>
         ))}
-        {items.length === 0 && <p className="py-3 text-sm text-faded">No line items.</p>}
+        {items.length === 0 && (
+          <EmptyState
+            glyph="🧾"
+            title="No line items"
+            body="This invoice has no line items yet."
+          />
+        )}
       </div>
 
       <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">
         <div className="flex items-center justify-between text-sm text-faded">
           <span>Total</span>
-          <span>{formatCents(total)}</span>
+          <span className="tabular-nums">{formatCents(total)}</span>
         </div>
         <div className="mt-1 flex items-center justify-between text-sm text-faded">
           <span>Paid</span>
-          <span className={paid > 0 ? 'text-go' : ''}>{formatCents(paid)}</span>
+          <span className={`tabular-nums ${paid > 0 ? 'text-go' : ''}`}>
+            {formatCents(paid)}
+          </span>
         </div>
         <div className="mt-2 flex items-center justify-between border-t border-edge pt-2">
           <span className="heading-stencil text-xs text-faded">Balance</span>
           <span
-            className={`heading-stencil text-3xl ${balance > 0 ? 'text-sand' : 'text-go'}`}
+            className={`heading-stencil text-3xl tabular-nums ${balance > 0 ? 'text-sand' : 'text-go'}`}
           >
             {formatCents(balance)}
           </span>
@@ -276,7 +288,9 @@ function InvoiceDetailScreen() {
                   </span>
                 </span>
                 <span className="flex shrink-0 items-center gap-3">
-                  <span className={isReversal ? 'text-faded' : 'text-go'}>
+                  <span
+                    className={`tabular-nums ${isReversal ? 'text-faded' : 'text-go'}`}
+                  >
                     {formatCents(payment.amount_cents)}
                   </span>
                   {canReverse && (
@@ -387,14 +401,20 @@ function PaymentSheet({
   const [method, setMethod] = useState<PaymentMethod>(getLastPaymentMethod())
   const [date, setDate] = useState(localToday())
   const [note, setNote] = useState('')
-  const [amountError, setAmountError] = useState(false)
+  const [amountError, setAmountError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
   async function handleSave() {
     if (saving) return
     const cents = parseDollarsToCents(dollars)
     if (cents === null || cents <= 0) {
-      setAmountError(true)
+      setAmountError('Enter a dollar amount.')
+      return
+    }
+    if (cents > balance) {
+      setAmountError(
+        `That's more than the ${formatCents(balance)} balance due — check the amount.`,
+      )
       return
     }
     setSaving(true)
@@ -423,13 +443,11 @@ function PaymentSheet({
             value={dollars}
             onChange={(e) => {
               setDollars(e.target.value)
-              setAmountError(false)
+              setAmountError(null)
             }}
           />
         </Field>
-        {amountError && (
-          <p className="-mt-2 text-sm text-alert">Enter a dollar amount.</p>
-        )}
+        {amountError && <p className="-mt-2 text-sm text-alert">{amountError}</p>}
         <Field label="Method">
           <Select
             value={method}

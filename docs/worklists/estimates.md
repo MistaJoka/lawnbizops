@@ -6,14 +6,14 @@ components: `EstimateStatusChip.tsx`, `EstimatePdf.tsx`, `photos.ts`, `share.ts`
 
 Apply all four rubric lenses (README) to each item.
 
-- [ ] Detail: edge padding `px-edge`; heading `heading-stencil`; status via `EstimateStatusChip`.
-- [ ] Line items align into columns; amounts use `tabular-nums` and right-align; totals stand out.
-- [ ] Money is cents end-to-end; formatted only via `src/lib/format.ts`.
-- [ ] New: fields use `Field`; new estimate + line items get `crypto.randomUUID()`; writes via `enqueue()`.
-- [ ] Photos: add/remove has loading + error states; thumbnails uniform; lazy-loaded.
-- [ ] PDF + share: generation is lazy (not on critical render path); share has a disabled-while-working state.
-- [ ] Empty line items uses `EmptyState`; loading uses `Skeleton`.
-- [ ] Primary CTA (`Send`/`Convert`) is `bg-blaze`; destructive uses `ConfirmDialog`.
+- [x] Detail: edge padding `px-edge`; heading `heading-stencil`; status via `EstimateStatusChip`. _(verified 2026-07-19, already correct: root `px-edge pt-6`, h1 `heading-stencil`, `EstimateStatusChip` beside the title.)_
+- [x] Line items align into columns; amounts use `tabular-nums` and right-align; totals stand out. _(done 2026-07-19: line amounts + qty×price now `tabular-nums` and right-aligned; Total span `tabular-nums`; same on the public /e approval page. Total already heading-stencil text-3xl.)_
+- [x] Money is cents end-to-end; formatted only via `src/lib/format.ts`. _(done 2026-07-19: parseDollarsToCents in / formatCents out throughout; the public approval page's total now rounds per line (approvalTotalCents) so fractional quantities match app-side lineTotalCents exactly — approval.test.ts pins it.)_
+- [x] New: fields use `Field`; new estimate + line items get `crypto.randomUUID()`; writes via `enqueue()`. _(verified 2026-07-19, already correct: all inputs in Field, line keys + rows crypto.randomUUID(), saveEstimate enqueues upserts.)_
+- [x] Photos: add/remove has loading + error states; thumbnails uniform; lazy-loaded. _(done 2026-07-19: uploading/error states + aspect-square grid were already right; thumbnails now `loading="lazy"`.)_
+- [x] PDF + share: generation is lazy (not on critical render path); share has a disabled-while-working state. _(verified 2026-07-19, already correct: @react-pdf + EstimatePdf are dynamic imports inside handleSharePdf; button disabled while `sharing`.)_
+- [x] Empty line items uses `EmptyState`; loading uses `Skeleton`. _(done 2026-07-19: zero-line-item card now renders EmptyState; loading already SkeletonDetail.)_
+- [x] Primary CTA (`Send`/`Convert`) is `bg-blaze`; destructive uses `ConfirmDialog`. _(verified 2026-07-19, already correct: Email-estimate (draft), Send-approval-link, and Convert are bg-blaze; photo delete routes through confirm().)_
 
 ## Flow — lead→done (from e2e-audit-2026-06-24)
 

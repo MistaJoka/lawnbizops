@@ -54,5 +54,7 @@ export async function respondToEstimate(
 
 /** Sum of line items, in cents. */
 export function approvalTotalCents(items: ApprovalItem[]): number {
-  return items.reduce((sum, i) => sum + i.quantity * i.unit_price_cents, 0)
+  // Round per line (fractional quantities like 1.5 hrs) so the total stays
+  // integer cents and matches the app-side lineTotalCents math exactly.
+  return items.reduce((sum, i) => sum + Math.round(i.quantity * i.unit_price_cents), 0)
 }

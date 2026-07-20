@@ -15,6 +15,15 @@ describe('approvalTotalCents', () => {
       ]),
     ).toBe(21000)
   })
+
+  it('rounds fractional quantities to integer cents per line', () => {
+    expect(
+      approvalTotalCents([
+        // 1.5 × $33.33 = 4999.5 → rounds to 5000, not a fractional-cent float
+        { description: 'a', quantity: 1.5, unit_price_cents: 3333 },
+      ]),
+    ).toBe(5000)
+  })
 })
 
 describe('fetchEstimateByToken', () => {

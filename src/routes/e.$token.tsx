@@ -109,8 +109,8 @@ function Approval({ bundle, token }: { bundle: ApprovalBundle; token: string }) 
                 </span>
               )}
             </span>
-            <span className="shrink-0 tabular-nums text-sand">
-              {formatCents(item.quantity * item.unit_price_cents)}
+            <span className="shrink-0 text-right tabular-nums text-sand">
+              {formatCents(Math.round(item.quantity * item.unit_price_cents))}
             </span>
           </div>
         ))}

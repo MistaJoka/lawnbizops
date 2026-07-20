@@ -7,6 +7,8 @@ import {
   useIncomeByMethod,
   usePnl,
 } from '@/features/reports/hooks'
+import { useJobProfitability } from '@/features/profitability/hooks'
+import { EmptyState } from '@/components/EmptyState'
 import { reportFilename, sharePdf } from '@/features/reports/share'
 import type { ReportRow } from '@/features/reports/ReportPdf'
 import { categoryLabel } from '@/features/expenses/categories'
@@ -59,6 +61,7 @@ function ReportsScreen() {
   const { data: methods } = useIncomeByMethod(range)
   const { data: invoices } = useInvoiceBalances()
   const { data: settings } = useBusinessSettings()
+  const { data: jobProfits } = useJobProfitability(range)
 
   // A/R aging is computed client-side from invoice_balances (no RPC needed).
   const today = localToday()
@@ -119,6 +122,39 @@ function ReportsScreen() {
   const expense = pnl?.expense_cents ?? 0
   const net = pnl?.net_cents ?? 0
 
+  // Ranked by profit so the best and worst work surfaces first (billed basis —
+  // payments aren't job-tagged, so jobs can't be measured on collected).
+  const rankedJobs = [...(jobProfits ?? [])].sort(
+    (a, b) => b.profit_cents - a.profit_cents,
+  )
+
+  const rangeIsEmpty =
+    !pnlLoading &&
+    income === 0 &&
+    expense === 0 &&
+    categoryRows.length === 0 &&
+    methodRows.length === 0 &&
+    rankedJobs.length === 0
+
+  if (rangeIsEmpty) {
+    return (
+      <div className="px-edge pt-6 pb-28">
+        <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
+          ← Money
+        </Link>
+        <h1 className="heading-stencil mt-2 text-2xl text-khaki">Reports</h1>
+        <div className="mt-4">
+          <DateRangePicker value={range} onChange={setRange} />
+        </div>
+        <EmptyState
+          glyph="📊"
+          title="Nothing in this period"
+          body="No payments, expenses, or billed jobs landed in this range. Widen the range or pick another period."
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="px-edge pt-6 pb-28">
       <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
@@ -144,7 +180,7 @@ function ReportsScreen() {
             <div className="mt-1 flex items-center justify-between border-t-2 border-edge pt-3">
               <span className="heading-stencil text-sand">Net</span>
               <span
-                className={`heading-stencil text-2xl ${net < 0 ? 'text-alert' : 'text-go'}`}
+                className={`heading-stencil text-2xl tabular-nums ${net < 0 ? 'text-alert' : 'text-go'}`}
               >
                 {formatCents(net)}
               </span>
@@ -164,6 +200,38 @@ function ReportsScreen() {
         emptyText="No payments in this period."
       />
 
+      {/* Job profitability — billed basis (payments aren't job-tagged). */}
+      <div className="card-surface mt-4 p-4">
+        <p className="label-caps text-faded">Job profitability · billed</p>
+        {rankedJobs.length === 0 ? (
+          <p className="mt-2 text-sm text-faded">No billed jobs in this period.</p>
+        ) : (
+          <ul className="mt-2 flex flex-col">
+            {rankedJobs.slice(0, 8).map((job) => (
+              <li
+                key={job.job_id}
+                className="flex items-center justify-between gap-3 border-b border-edge py-2 last:border-b-0"
+              >
+                <span className="min-w-0 truncate text-sand">{job.title || 'Job'}</span>
+                <span
+                  className={`shrink-0 text-right tabular-nums ${
+                    job.profit_cents < 0 ? 'text-alert' : 'text-go'
+                  }`}
+                >
+                  {formatCents(job.profit_cents)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {rankedJobs.length > 8 && (
+          <p className="mt-2 text-xs text-faded">
+            Top 8 of {rankedJobs.length} by profit · costs come from expenses tagged to
+            each job
+          </p>
+        )}
+      </div>
+
       {/* A/R aging — reuses the same bucket logic as the Money tab. */}
       <div className="card-surface mt-4 p-4">
         <p className="label-caps text-faded">Accounts receivable · open</p>
@@ -174,7 +242,7 @@ function ReportsScreen() {
             {agingRows.map((r) => (
               <span
                 key={r.bucket}
-                className={`heading-stencil rounded border border-edge px-2 py-1 text-[11px] ${AGING_COLOR[r.bucket]}`}
+                className={`heading-stencil rounded border border-edge px-2 py-1 text-[11px] tabular-nums ${AGING_COLOR[r.bucket]}`}
               >
                 {BUCKET_LABEL[r.bucket]} · {formatCents(r.total)}
               </span>
@@ -196,7 +264,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-sand">{label}</span>
-      <span className="text-sand">{value}</span>
+      <span className="text-right text-sand tabular-nums">{value}</span>
     </div>
   )
 }
@@ -223,7 +291,9 @@ function Breakdown({
               className="flex items-center justify-between border-b border-edge py-2 last:border-b-0"
             >
               <span className="min-w-0 truncate text-sand">{r.label}</span>
-              <span className="shrink-0 text-sand">{formatCents(r.total_cents)}</span>
+              <span className="shrink-0 text-right text-sand tabular-nums">
+                {formatCents(r.total_cents)}
+              </span>
             </li>
           ))}
         </ul>

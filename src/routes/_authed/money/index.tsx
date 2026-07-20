@@ -138,7 +138,9 @@ function MonthHeader() {
           className="rounded-lg border border-edge bg-panel px-3 py-3"
         >
           <p className="heading-stencil text-[10px] text-faded">{cell.label}</p>
-          <p className={`heading-stencil mt-1 truncate text-lg ${cell.tone}`}>
+          <p
+            className={`heading-stencil mt-1 truncate text-lg tabular-nums ${cell.tone}`}
+          >
             {formatCents(cell.value)}
           </p>
         </div>
@@ -188,7 +190,7 @@ function ExpenseRow({ expense }: { expense: ExpenseRow }) {
         <span className="heading-stencil min-w-0 truncate text-sand">
           {categoryLabel(expense.category)}
         </span>
-        <span className="shrink-0 text-lg text-sand">
+        <span className="shrink-0 text-lg text-sand tabular-nums">
           {formatCents(expense.amount_cents)}
         </span>
       </span>
@@ -221,7 +223,7 @@ function InvoicesTab() {
     <>
       <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">
         <p className="heading-stencil text-xs text-faded">Outstanding</p>
-        <p className="heading-stencil mt-1 text-3xl text-sand">
+        <p className="heading-stencil mt-1 text-3xl text-sand tabular-nums">
           {formatCents(outstanding)}
         </p>
         {buckets.size > 0 && (
@@ -229,7 +231,7 @@ function InvoicesTab() {
             {AGING_BUCKETS.filter((b) => buckets.has(b)).map((b) => (
               <span
                 key={b}
-                className={`heading-stencil rounded border border-edge px-2 py-1 text-[10px] ${AGING_COLOR[b]}`}
+                className={`heading-stencil rounded border border-edge px-2 py-1 text-[10px] tabular-nums ${AGING_COLOR[b]}`}
               >
                 {BUCKET_LABEL[b]} · {formatCents(buckets.get(b) ?? 0)}
               </span>
@@ -380,7 +382,7 @@ function EstimateRow({ estimate }: { estimate: EstimateListRow }) {
         <span className="min-w-0 truncate text-lg text-sand">
           {estimate.client?.name ?? 'Client'}
         </span>
-        <span className="shrink-0 text-lg text-sand">
+        <span className="shrink-0 text-lg text-sand tabular-nums">
           {formatCents(estimate.total_cents)}
         </span>
       </span>
@@ -409,14 +411,16 @@ function InvoiceRow({ invoice }: { invoice: InvoiceBalance }) {
         <span className="min-w-0 truncate text-lg text-sand">
           {invoice.client?.name ?? 'Client'}
         </span>
-        <span className="shrink-0 text-lg text-sand">
+        <span className="shrink-0 text-lg text-sand tabular-nums">
           {formatCents(invoice.total_cents)}
         </span>
       </span>
       <span className="mt-1 flex items-center justify-between gap-2 text-sm text-faded">
         <span>{formatShortDate(invoice.issued_at)}</span>
         {invoice.balance_cents !== invoice.total_cents && invoice.balance_cents > 0 && (
-          <span className="text-blaze">{formatCents(invoice.balance_cents)} due</span>
+          <span className="text-blaze tabular-nums">
+            {formatCents(invoice.balance_cents)} due
+          </span>
         )}
       </span>
       {invoice.last_reminded_at && isOpen(invoice) && (

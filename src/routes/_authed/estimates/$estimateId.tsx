@@ -22,6 +22,7 @@ import {
   lineTotalCents,
   useBusinessSettings,
 } from '@/features/invoices/hooks'
+import { EmptyState } from '@/components/EmptyState'
 import { Field, TextInput } from '@/components/Field'
 import { SkeletonDetail } from '@/components/Skeleton'
 import { confirm } from '@/lib/confirm'
@@ -182,31 +183,42 @@ function EstimateDetailScreen() {
         </div>
       )}
 
-      <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-2">
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-start justify-between gap-3 border-b border-edge py-3 last:border-b-0"
-          >
-            <span className="min-w-0">
-              <span className="block text-sand">{item.description}</span>
-              {item.quantity !== 1 && (
-                <span className="block text-sm text-faded">
-                  {item.quantity} × {formatCents(item.unit_price_cents)}
-                </span>
-              )}
-            </span>
-            <span className="shrink-0 text-sand">
-              {formatCents(lineTotalCents(item))}
-            </span>
-          </div>
-        ))}
-        {items.length === 0 && <p className="py-3 text-sm text-faded">No line items.</p>}
-      </div>
+      {items.length > 0 ? (
+        <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-2">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-start justify-between gap-3 border-b border-edge py-3 last:border-b-0"
+            >
+              <span className="min-w-0">
+                <span className="block text-sand">{item.description}</span>
+                {item.quantity !== 1 && (
+                  <span className="block text-sm tabular-nums text-faded">
+                    {item.quantity} × {formatCents(item.unit_price_cents)}
+                  </span>
+                )}
+              </span>
+              <span className="shrink-0 text-right tabular-nums text-sand">
+                {formatCents(lineTotalCents(item))}
+              </span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mt-4 rounded-lg border border-edge bg-panel">
+          <EmptyState
+            glyph="🧾"
+            title="No line items"
+            body="This estimate has no line items yet."
+          />
+        </div>
+      )}
 
       <div className="mt-4 flex items-center justify-between rounded-lg border border-edge bg-panel px-4 py-4">
         <span className="heading-stencil text-xs text-faded">Total</span>
-        <span className="heading-stencil text-3xl text-sand">{formatCents(total)}</span>
+        <span className="heading-stencil text-3xl tabular-nums text-sand">
+          {formatCents(total)}
+        </span>
       </div>
 
       {estimate.notes && (
@@ -456,6 +468,7 @@ function PhotosSection({ estimateId }: { estimateId: string }) {
                 <img
                   src={photo.url}
                   alt="Estimate photo"
+                  loading="lazy"
                   className="h-full w-full rounded-lg border border-edge object-cover"
                 />
               ) : (
