@@ -32,16 +32,10 @@ jobs:
           # Publishable values — public by design (they ship in the JS bundle).
           VITE_SUPABASE_URL: https://kjovmqtcalrfdguccnfm.supabase.co
           VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_OvnOGkNCeBEHUss8G7VjCA_TvZVCFlw
-          # Guest mode: skip the login screen by signing in anonymously. RLS
-          # still isolates each guest in its own org. ⚠️ TEMPORARY — remove this
-          # (and re-enable real auth) before onboarding real customers. Requires
-          # "Anonymous sign-ins" enabled in the Supabase dashboard. See
+          # Real auth: the deployed app shows the login screen (guest mode and
+          # the autologin bypass were removed 2026-07-21 — final-product
+          # posture). Dev-only equivalents live in .env.local; see
           # src/lib/autologin.ts.
-          VITE_GUEST_MODE: '1'
-          # DEV/TEST-ONLY auto-login alternative (unused while guest mode is on).
-          # Empty unless these repo secrets are set. See src/lib/autologin.ts.
-          VITE_AUTOLOGIN_EMAIL: ${{ secrets.AUTOLOGIN_EMAIL }}
-          VITE_AUTOLOGIN_PASSWORD: ${{ secrets.AUTOLOGIN_PASSWORD }}
       # SPA fallback: GitHub Pages serves 404.html for unknown paths
       - run: cp dist/index.html dist/404.html
       - uses: actions/upload-pages-artifact@v5
