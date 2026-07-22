@@ -7,30 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.1"
   }
   public: {
     Tables: {
@@ -97,9 +77,6 @@ export type Database = {
           auto_overdue_days: number
           auto_overdue_reminder: boolean
           business_entity: string
-          mileage_rate_cents: number
-          quarterly_set_aside_pct: number
-          tax_id: string
           business_name: string
           created_at: string
           default_due_days: number
@@ -107,17 +84,21 @@ export type Database = {
           email_appointment_reminders: boolean
           email_overdue_reminders: boolean
           estimate_prefix: string
+          intake_token: string
           invoice_prefix: string
           logo_path: string | null
+          mileage_rate_cents: number
           next_estimate_number: number
           next_invoice_number: number
           onboarded_at: string | null
           org_id: string
           payment_provider: string | null
           payment_provider_config: Json
-          intake_token: string
           phone: string
+          quarterly_set_aside_pct: number
           review_url: string
+          sales_tax_bps: number
+          tax_id: string
           updated_at: string
           user_id: string | null
         }
@@ -128,9 +109,6 @@ export type Database = {
           auto_overdue_days?: number
           auto_overdue_reminder?: boolean
           business_entity?: string
-          mileage_rate_cents?: number
-          quarterly_set_aside_pct?: number
-          tax_id?: string
           business_name?: string
           created_at?: string
           default_due_days?: number
@@ -138,17 +116,21 @@ export type Database = {
           email_appointment_reminders?: boolean
           email_overdue_reminders?: boolean
           estimate_prefix?: string
+          intake_token?: string
           invoice_prefix?: string
           logo_path?: string | null
+          mileage_rate_cents?: number
           next_estimate_number?: number
           next_invoice_number?: number
           onboarded_at?: string | null
           org_id?: string
-          intake_token?: string
           payment_provider?: string | null
           payment_provider_config?: Json
           phone?: string
+          quarterly_set_aside_pct?: number
           review_url?: string
+          sales_tax_bps?: number
+          tax_id?: string
           updated_at?: string
           user_id?: string | null
         }
@@ -159,9 +141,6 @@ export type Database = {
           auto_overdue_days?: number
           auto_overdue_reminder?: boolean
           business_entity?: string
-          mileage_rate_cents?: number
-          quarterly_set_aside_pct?: number
-          tax_id?: string
           business_name?: string
           created_at?: string
           default_due_days?: number
@@ -169,17 +148,21 @@ export type Database = {
           email_appointment_reminders?: boolean
           email_overdue_reminders?: boolean
           estimate_prefix?: string
+          intake_token?: string
           invoice_prefix?: string
           logo_path?: string | null
+          mileage_rate_cents?: number
           next_estimate_number?: number
           next_invoice_number?: number
           onboarded_at?: string | null
           org_id?: string
-          intake_token?: string
           payment_provider?: string | null
           payment_provider_config?: Json
           phone?: string
+          quarterly_set_aside_pct?: number
           review_url?: string
+          sales_tax_bps?: number
+          tax_id?: string
           updated_at?: string
           user_id?: string | null
         }
@@ -436,8 +419,8 @@ export type Database = {
           job_id: string | null
           note: string
           org_id: string
-          payment_method: string
           payee_id: string | null
+          payment_method: string
           spent_on: string
           updated_at: string
           user_id: string | null
@@ -452,8 +435,8 @@ export type Database = {
           job_id?: string | null
           note?: string
           org_id?: string
-          payment_method?: string
           payee_id?: string | null
+          payment_method?: string
           spent_on?: string
           updated_at?: string
           user_id?: string | null
@@ -468,8 +451,8 @@ export type Database = {
           job_id?: string | null
           note?: string
           org_id?: string
-          payment_method?: string
           payee_id?: string | null
+          payment_method?: string
           spent_on?: string
           updated_at?: string
           user_id?: string | null
@@ -495,6 +478,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_payee_id_fkey"
+            columns: ["payee_id"]
+            isOneToOne: false
+            referencedRelation: "vendors_1099"
             referencedColumns: ["id"]
           },
         ]
@@ -640,6 +630,7 @@ export type Database = {
           org_id: string
           sent_at: string | null
           status: string
+          tax_bps: number
           updated_at: string
           user_id: string
         }
@@ -656,6 +647,7 @@ export type Database = {
           org_id?: string
           sent_at?: string | null
           status?: string
+          tax_bps?: number
           updated_at?: string
           user_id?: string
         }
@@ -672,6 +664,7 @@ export type Database = {
           org_id?: string
           sent_at?: string | null
           status?: string
+          tax_bps?: number
           updated_at?: string
           user_id?: string
         }
@@ -1449,6 +1442,9 @@ export type Database = {
           number: string | null
           paid_cents: number | null
           status: string | null
+          subtotal_cents: number | null
+          tax_bps: number | null
+          tax_cents: number | null
           total_cents: number | null
           user_id: string | null
         }
@@ -1485,6 +1481,30 @@ export type Database = {
         Returns: undefined
       }
       automation_sweep: { Args: never; Returns: number }
+      claim_queued_emails: {
+        Args: { p_limit?: number }
+        Returns: {
+          attempts: number
+          created_at: string
+          entity_id: string
+          error: string
+          id: string
+          org_id: string
+          provider_id: string
+          send_date: string
+          sent_at: string | null
+          status: string
+          template: string
+          to_email: string
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "email_outbox"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       client_profitability: {
         Args: { p_end: string; p_start: string }
         Returns: {
@@ -1517,22 +1537,22 @@ export type Database = {
           quoted: number
         }[]
       }
-      estimate_by_token: {
-        Args: { p_token: string }
-        Returns: Json
-      }
+      estimate_by_token: { Args: { p_token: string }; Returns: Json }
       expenses_by_category: {
         Args: { p_end: string; p_start: string }
-        Returns: { category: string; total_cents: number }[]
+        Returns: {
+          category: string
+          total_cents: number
+        }[]
       }
       income_by_method: {
         Args: { p_end: string; p_start: string }
-        Returns: { method: string; total_cents: number }[]
+        Returns: {
+          method: string
+          total_cents: number
+        }[]
       }
-      intake_business_name: {
-        Args: { p_token: string }
-        Returns: string
-      }
+      intake_business_name: { Args: { p_token: string }; Returns: string }
       job_profitability: {
         Args: { p_end: string; p_start: string }
         Returns: {
@@ -1544,15 +1564,20 @@ export type Database = {
           title: string
         }[]
       }
+      kick_email_drain: { Args: never; Returns: undefined }
       materialize_jobs: { Args: { through_date: string }; Returns: number }
       materialize_jobs_all: { Args: never; Returns: number }
       pnl_summary: {
         Args: { p_end: string; p_start: string }
         Returns: {
-          income_cents: number
           expense_cents: number
+          income_cents: number
           net_cents: number
         }[]
+      }
+      queue_email: {
+        Args: { p_entity_id: string; p_id: string; p_template: string }
+        Returns: undefined
       }
       respond_to_estimate: {
         Args: { p_action: string; p_token: string }
@@ -1564,12 +1589,12 @@ export type Database = {
       }
       submit_lead: {
         Args: {
-          p_token: string
-          p_name: string
-          p_phone: string
-          p_email: string
           p_address: string
+          p_email: string
+          p_name: string
           p_notes: string
+          p_phone: string
+          p_token: string
         }
         Returns: Json
       }
@@ -1701,11 +1726,7 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },
 } as const
-

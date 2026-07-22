@@ -33,7 +33,16 @@ function TaxSettingsForm({ settings }: { settings: BusinessSettings | null }) {
   const [pct, setPct] = useState(
     settings?.quarterly_set_aside_pct ? String(settings.quarterly_set_aside_pct) : '',
   )
+  const [salesTaxPct, setSalesTaxPct] = useState(
+    settings?.sales_tax_bps ? String(settings.sales_tax_bps / 100) : '',
+  )
   const [saving, setSaving] = useState(false)
+
+  // Percent with up to 2 decimals → basis points; clamp to the DB check (0–50%).
+  const salesTaxBps = Math.min(
+    5000,
+    Math.max(0, Math.round((parseFloat(salesTaxPct) || 0) * 100)),
+  )
 
   async function handleSave() {
     if (saving) return
@@ -44,6 +53,7 @@ function TaxSettingsForm({ settings }: { settings: BusinessSettings | null }) {
         business_entity: entity,
         mileage_rate_cents: parseDollarsToCents(rateDollars) ?? 0,
         quarterly_set_aside_pct: Number(pct) || 0,
+        sales_tax_bps: salesTaxBps,
       })
       toast.success('Tax setup saved')
     } catch (e) {
@@ -94,6 +104,22 @@ function TaxSettingsForm({ settings }: { settings: BusinessSettings | null }) {
             {parseDollarsToCents(rateDollars)
               ? ` (${formatCents(parseDollarsToCents(rateDollars) ?? 0)}/mi)`
               : ''}
+          </p>
+        </div>
+
+        <div>
+          <Field label="Sales tax rate (%)">
+            <TextInput
+              inputMode="decimal"
+              placeholder="e.g. 7 — leave 0 if you don't charge sales tax"
+              value={salesTaxPct}
+              onChange={(e) => setSalesTaxPct(e.target.value)}
+            />
+          </Field>
+          <p className="mt-1 text-xs text-faded">
+            Added to new invoices from now on (shown as a separate line).
+            Existing invoices keep their original totals. Check your state’s
+            rules on taxing lawn services.
           </p>
         </div>
 

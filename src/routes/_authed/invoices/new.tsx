@@ -4,6 +4,7 @@ import { useClients } from '@/features/clients/hooks'
 import {
   createInvoiceFromJobs,
   invoiceTotalCents,
+  taxCents,
   useBusinessSettings,
   useUninvoicedDoneJobs,
   type UninvoicedJob,
@@ -53,7 +54,7 @@ function NewInvoiceScreen() {
     (item) => item.description !== '' && !Number.isNaN(item.unit_price_cents),
   )
 
-  const total =
+  const subtotal =
     invoiceTotalCents(
       includedJobs.map((j) => ({ quantity: 1, unit_price_cents: j.price_cents })),
     ) +
@@ -65,6 +66,8 @@ function NewInvoiceScreen() {
           })),
         )
       : 0)
+  const taxBps = settings?.sales_tax_bps ?? 0
+  const total = subtotal + taxCents(subtotal, taxBps)
 
   const canCreate =
     clientId !== '' &&
@@ -94,6 +97,7 @@ function NewInvoiceScreen() {
       jobs: includedJobs,
       extraItems,
       defaultDueDays: settings?.default_due_days ?? 14,
+      taxBps: settings?.sales_tax_bps ?? 0,
     })
     void navigate({ to: '/invoices/$invoiceId', params: { invoiceId: id } })
   }
@@ -200,9 +204,25 @@ function NewInvoiceScreen() {
           + Add line
         </button>
 
-        <div className="flex items-center justify-between rounded-lg border border-edge bg-panel px-4 py-4">
-          <span className="heading-stencil text-xs text-faded">Total</span>
-          <span className="heading-stencil text-2xl text-sand">{formatCents(total)}</span>
+        <div className="rounded-lg border border-edge bg-panel px-4 py-4">
+          {taxBps > 0 && (
+            <>
+              <div className="flex items-center justify-between text-sm text-faded">
+                <span>Subtotal</span>
+                <span className="tabular-nums">{formatCents(subtotal)}</span>
+              </div>
+              <div className="mt-1 mb-2 flex items-center justify-between text-sm text-faded">
+                <span>Sales tax ({(taxBps / 100).toFixed(2).replace(/\.?0+$/, '')}%)</span>
+                <span className="tabular-nums">{formatCents(total - subtotal)}</span>
+              </div>
+            </>
+          )}
+          <div className="flex items-center justify-between">
+            <span className="heading-stencil text-xs text-faded">Total</span>
+            <span className="heading-stencil text-2xl text-sand">
+              {formatCents(total)}
+            </span>
+          </div>
         </div>
       </div>
 

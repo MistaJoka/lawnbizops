@@ -70,6 +70,7 @@ const baseInput = (jobs: UninvoicedJob[]): CreateInvoiceInput => ({
   jobs,
   extraItems: [{ description: 'Dump fee', quantity: 2, unit_price_cents: 1500 }],
   defaultDueDays: 7,
+  taxBps: 0,
 })
 
 const balance = (id: string) =>
@@ -101,6 +102,17 @@ describe('createInvoiceFromJobs', () => {
     // INV-n numbering is owned by a DB trigger — the client never sets it.
     expect(detail(id).invoice.number).toBeNull()
     expect(balance(id).number).toBeNull()
+  })
+
+  it('a 7% tax rate is snapshotted and added on top of the subtotal', async () => {
+    const id = await createInvoiceFromJobs({ ...baseInput([job('j1', 5000)]), taxBps: 700 })
+
+    const op = ops().find((o) => o.table === 'invoices' && o.kind === 'upsert')!
+    expect(op.payload.tax_bps).toBe(700) // snapshot rides the row
+    expect(balance(id).subtotal_cents).toBe(8000)
+    expect(balance(id).tax_cents).toBe(560) // round(8000 * 700 / 10000)
+    expect(balance(id).total_cents).toBe(8560)
+    expect(balance(id).balance_cents).toBe(8560)
   })
 
   it('totals job prices + extra lines into cents (5000 + 2*1500)', async () => {

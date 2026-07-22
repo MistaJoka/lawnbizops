@@ -9,9 +9,11 @@ import {
   AGING_BUCKETS,
   AGING_COLOR,
   agingBucket,
+  batchInvoiceUnbilled,
   invoiceBalancesQueryOptions,
   isOpen,
   recordReminder,
+  useBusinessSettings,
   useInvoiceBalances,
   type AgingBucket,
   type InvoiceBalance,
@@ -34,6 +36,7 @@ import {
 import { categoryLabel } from '@/features/expenses/categories'
 import { useDashboard } from '@/features/dashboard/hooks'
 import { queryClient } from '@/lib/queryClient'
+import { confirm } from '@/lib/confirm'
 import { logActivity } from '@/features/activities/hooks'
 import { quoteFollowUpMessage, smsHref } from '@/lib/outreach'
 import { formatCents, localToday } from '@/lib/format'
@@ -211,9 +214,37 @@ function ExpenseRow({ expense }: { expense: ExpenseRow }) {
  *  jobs arrive pre-checked. Hidden entirely when nothing is unbilled. */
 function UnbilledWorkCard() {
   const { data: jobs } = useUnbilledDoneJobs()
+  const { data: settings } = useBusinessSettings()
+  const [batching, setBatching] = useState(false)
   const groups = groupUnbilledByClient(jobs ?? [])
   if (groups.length === 0) return null
   const total = groups.reduce((sum, g) => sum + g.totalCents, 0)
+  const jobCount = groups.reduce((sum, g) => sum + g.jobCount, 0)
+
+  async function handleBatch() {
+    if (!jobs || batching) return
+    if (
+      !(await confirm({
+        title: `Invoice all ${groups.length} clients?`,
+        body:
+          `Creates ${groups.length} draft invoices — one per client — from ` +
+          `${jobCount} finished ${jobCount === 1 ? 'job' : 'jobs'}. ` +
+          'Review and send them from the invoice list.',
+        confirmLabel: 'Create drafts',
+      }))
+    )
+      return
+    setBatching(true)
+    try {
+      await batchInvoiceUnbilled(
+        jobs,
+        settings?.default_due_days ?? 14,
+        settings?.sales_tax_bps ?? 0,
+      )
+    } finally {
+      setBatching(false)
+    }
+  }
 
   return (
     <div className="mt-3 rounded-lg border-2 border-blaze/60 bg-panel px-4 py-4">
@@ -223,6 +254,18 @@ function UnbilledWorkCard() {
           {formatCents(total)}
         </p>
       </div>
+      {groups.length > 1 && (
+        <button
+          type="button"
+          disabled={batching}
+          onClick={() => void handleBatch()}
+          className="heading-stencil tap-active mt-3 w-full rounded-lg border-2 border-blaze py-2 text-xs text-blaze disabled:opacity-50"
+        >
+          {batching
+            ? 'Creating drafts…'
+            : `🧾 Invoice all (${groups.length} clients)`}
+        </button>
+      )}
       <ul className="mt-3 flex flex-col gap-2">
         {groups.map((g) => (
           <li key={g.clientId}>

@@ -904,6 +904,7 @@ function buildData(): DemoData {
       intake_token: 'demo-intake-token',
       invoice_prefix: 'INV-',
       estimate_prefix: 'EST-',
+      sales_tax_bps: 700,
       next_invoice_number: 1043,
       next_estimate_number: 27,
       default_due_days: 15,

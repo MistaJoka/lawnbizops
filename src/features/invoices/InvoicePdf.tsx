@@ -3,6 +3,7 @@ import { formatCents } from '@/lib/format'
 import {
   invoiceTotalCents,
   lineTotalCents,
+  taxCents,
   type BusinessSettings,
   type InvoiceDetail,
 } from './hooks'
@@ -120,7 +121,10 @@ export function InvoicePdf({
   logoDataUrl?: string
 }) {
   const { invoice, items, payments, client } = detail
-  const total = invoiceTotalCents(items)
+  const subtotal = invoiceTotalCents(items)
+  const taxBps = invoice.tax_bps ?? 0
+  const tax = taxCents(subtotal, taxBps)
+  const total = subtotal + tax
   const paid = payments.reduce((sum, p) => sum + p.amount_cents, 0)
   const balance = total - paid
   const businessName = settings?.business_name || 'LawnBizOps'
@@ -175,6 +179,20 @@ export function InvoicePdf({
         ))}
 
         <View style={styles.totalsBlock}>
+          {taxBps > 0 ? (
+            <>
+              <View style={styles.totalsRow}>
+                <Text style={styles.totalsLabel}>Subtotal</Text>
+                <Text>{formatCents(subtotal)}</Text>
+              </View>
+              <View style={styles.totalsRow}>
+                <Text style={styles.totalsLabel}>
+                  Sales tax ({(taxBps / 100).toFixed(2).replace(/\.?0+$/, '')}%)
+                </Text>
+                <Text>{formatCents(tax)}</Text>
+              </View>
+            </>
+          ) : null}
           <View style={styles.grandTotal}>
             <Text style={styles.grandTotalText}>Total</Text>
             <Text style={styles.grandTotalText}>{formatCents(total)}</Text>

@@ -285,7 +285,7 @@ describe('convertToInvoice', () => {
     } as unknown as EstimateDetail
     queryClient.setQueryData<EstimateDetail>(['estimates', 'e1'], detail)
 
-    const invId = await convertToInvoice(detail, 15)
+    const invId = await convertToInvoice(detail, 15, 0)
 
     const inv = queryClient.getQueryData<InvoiceDetail>(['invoices', invId])!
     expect(inv.invoice.status).toBe('draft')

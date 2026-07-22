@@ -6,6 +6,7 @@ import {
   getLastPaymentMethod,
   rememberPaymentMethod,
   invoiceTotalCents,
+  taxCents,
   lineTotalCents,
   markSent,
   recordPayment,
@@ -69,7 +70,10 @@ function InvoiceDetailScreen() {
   }
 
   const { invoice, items, payments, client } = detail
-  const total = invoiceTotalCents(items)
+  const subtotal = invoiceTotalCents(items)
+  const taxBps = invoice.tax_bps ?? 0
+  const tax = taxCents(subtotal, taxBps)
+  const total = subtotal + tax
   const paid = payments.reduce((sum, p) => sum + p.amount_cents, 0)
   const balance = total - paid
   const canRemind =
@@ -244,7 +248,23 @@ function InvoiceDetailScreen() {
       </div>
 
       <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">
-        <div className="flex items-center justify-between text-sm text-faded">
+        {taxBps > 0 && (
+          <>
+            <div className="flex items-center justify-between text-sm text-faded">
+              <span>Subtotal</span>
+              <span className="tabular-nums">{formatCents(subtotal)}</span>
+            </div>
+            <div className="mt-1 flex items-center justify-between text-sm text-faded">
+              <span>Sales tax ({(taxBps / 100).toFixed(2).replace(/\.?0+$/, '')}%)</span>
+              <span className="tabular-nums">{formatCents(tax)}</span>
+            </div>
+          </>
+        )}
+        <div
+          className={`flex items-center justify-between text-sm text-faded ${
+            taxBps > 0 ? 'mt-1' : ''
+          }`}
+        >
           <span>Total</span>
           <span className="tabular-nums">{formatCents(total)}</span>
         </div>

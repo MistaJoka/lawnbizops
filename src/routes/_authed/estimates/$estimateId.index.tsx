@@ -147,7 +147,11 @@ function EstimateDetailScreen() {
     if (!detail || detail.linkedInvoiceId || converting) return
     setConverting(true)
     try {
-      const id = await convertToInvoice(detail, settings?.default_due_days ?? 14)
+      const id = await convertToInvoice(
+        detail,
+        settings?.default_due_days ?? 14,
+        settings?.sales_tax_bps ?? 0,
+      )
       void navigate({ to: '/invoices/$invoiceId', params: { invoiceId: id } })
     } finally {
       setConverting(false)

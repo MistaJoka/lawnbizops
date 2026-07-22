@@ -7,6 +7,7 @@ import { localToday } from '@/lib/format'
 import { addDaysISO } from '@/lib/dates'
 import {
   invoiceTotalCents,
+  taxCents,
   type Invoice,
   type InvoiceBalance,
   type InvoiceDetail,
@@ -389,6 +390,7 @@ export async function renewEstimate(detail: EstimateDetail): Promise<string> {
 export async function convertToInvoice(
   detail: EstimateDetail,
   defaultDueDays: number,
+  taxBps: number,
 ): Promise<string> {
   const id = crypto.randomUUID()
   const issuedAt = localToday()
@@ -402,6 +404,7 @@ export async function convertToInvoice(
     issued_at: issuedAt,
     due_at: dueAt,
     notes: '',
+    tax_bps: taxBps,
   }
   const itemRows = detail.items.map((item, index) => ({
     id: crypto.randomUUID(),
@@ -413,7 +416,8 @@ export async function convertToInvoice(
     sort_order: index,
   }))
 
-  const total = invoiceTotalCents(itemRows)
+  const subtotal = invoiceTotalCents(itemRows)
+  const total = subtotal + taxCents(subtotal, taxBps)
   const now = new Date().toISOString()
 
   const cachedInvoice: Invoice = {
@@ -450,6 +454,9 @@ export async function convertToInvoice(
     total_cents: total,
     paid_cents: 0,
     balance_cents: total,
+    subtotal_cents: subtotal,
+    tax_bps: taxBps,
+    tax_cents: total - subtotal,
     client: detail.client
       ? { name: detail.client.name, phone: detail.client.phone }
       : null,

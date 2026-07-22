@@ -345,6 +345,7 @@ function DoneCard({ job, allDone }: { job: JobWithContext; allDone: JobWithConte
       jobs: jobsToInvoice.map((j) => toInvoiceJob(j, client.id)),
       extraItems: [],
       defaultDueDays: settings?.default_due_days ?? 15,
+      taxBps: settings?.sales_tax_bps ?? 0,
     })
     void navigate({ to: '/invoices/$invoiceId', params: { invoiceId: id } })
   }

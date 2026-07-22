@@ -9,6 +9,7 @@ import {
   markJobsInvoicedInCaches,
   restoreInvoicedJobInCaches,
 } from '@/features/jobs/hooks'
+import type { UnbilledJobRow } from '@/features/jobs/attention'
 import { maybeAdvanceStage } from '@/features/clients/hooks'
 import type { Tables } from '@/lib/database.types'
 
@@ -64,6 +65,10 @@ export interface InvoiceBalance {
   total_cents: number
   paid_cents: number
   balance_cents: number
+  /** New in 0042 — optional so pre-migration caches/demo rows stay valid. */
+  subtotal_cents?: number
+  tax_bps?: number
+  tax_cents?: number
   client: { name: string; phone: string } | null
 }
 
@@ -86,6 +91,21 @@ export function invoiceTotalCents(
   items: { quantity: number; unit_price_cents: number }[],
 ): number {
   return items.reduce((sum, item) => sum + lineTotalCents(item), 0)
+}
+
+/** Sales tax on a subtotal at a bps rate (700 = 7%). Mirrors the rounding in
+ *  the invoice_balances view (0042) — both round half up on positive values. */
+export function taxCents(subtotalCents: number, taxBps: number): number {
+  return Math.round((subtotalCents * taxBps) / 10000)
+}
+
+/** Subtotal + snapshotted sales tax — the number the customer owes. */
+export function invoiceTotalWithTaxCents(
+  items: { quantity: number; unit_price_cents: number }[],
+  taxBps: number,
+): number {
+  const subtotal = invoiceTotalCents(items)
+  return subtotal + taxCents(subtotal, taxBps)
 }
 
 // ---------------------------------------------------------------------------
@@ -230,6 +250,8 @@ export interface CreateInvoiceInput {
   jobs: UninvoicedJob[]
   extraItems: ExtraLineItem[]
   defaultDueDays: number
+  /** Org sales-tax rate in bps, snapshotted onto the invoice (0042). */
+  taxBps: number
 }
 
 /**
@@ -237,7 +259,10 @@ export interface CreateInvoiceInput {
  * the invoice upsert must land before its items, and items before the job
  * status flips (so a halt-and-retry never leaves orphans).
  */
-export async function createInvoiceFromJobs(input: CreateInvoiceInput): Promise<string> {
+export async function createInvoiceFromJobs(
+  input: CreateInvoiceInput,
+  opts: { silent?: boolean } = {},
+): Promise<string> {
   const id = crypto.randomUUID()
   const issuedAt = localToday()
   const dueAt = addDaysISO(issuedAt, input.defaultDueDays)
@@ -249,6 +274,7 @@ export async function createInvoiceFromJobs(input: CreateInvoiceInput): Promise<
     issued_at: issuedAt,
     due_at: dueAt,
     notes: '',
+    tax_bps: input.taxBps,
   }
 
   let sortOrder = 0
@@ -273,7 +299,9 @@ export async function createInvoiceFromJobs(input: CreateInvoiceInput): Promise<
     })),
   ]
 
-  const total = invoiceTotalCents(itemRows)
+  const subtotal = invoiceTotalCents(itemRows)
+  const tax = taxCents(subtotal, input.taxBps)
+  const total = subtotal + tax
   const now = new Date().toISOString()
 
   // Optimistic caches so the detail screen renders fully offline.
@@ -313,6 +341,9 @@ export async function createInvoiceFromJobs(input: CreateInvoiceInput): Promise<
     total_cents: total,
     paid_cents: 0,
     balance_cents: total,
+    subtotal_cents: subtotal,
+    tax_bps: input.taxBps,
+    tax_cents: tax,
     client: input.client,
   }
   queryClient.setQueryData<InvoiceBalance[]>(['invoices'], (old) =>
@@ -322,6 +353,10 @@ export async function createInvoiceFromJobs(input: CreateInvoiceInput): Promise<
   queryClient.setQueryData<UninvoicedJob[]>(
     ['jobs', { uninvoicedFor: input.clientId }],
     (old) => old?.filter((j) => !invoicedJobIds.has(j.id)),
+  )
+  // The global unbilled-work card must drop these rows too.
+  queryClient.setQueryData<{ id: string }[]>(['jobs', { unbilled: 'all' }], (old) =>
+    old?.filter((j) => !invoicedJobIds.has(j.id)),
   )
   // Flip the jobs to 'invoiced' in every cached view (board, day list, detail)
   // so they leave Done everywhere at once — no stale 'done' to re-invoice.
@@ -339,8 +374,65 @@ export async function createInvoiceFromJobs(input: CreateInvoiceInput): Promise<
       payload: { id: job.id, patch: { status: 'invoiced' } },
     })
   }
-  confirmToast('Invoice created')
+  if (!opts.silent) confirmToast('Invoice created')
   return id
+}
+
+/**
+ * The monthly billing motion in one tap: a draft invoice per client with
+ * unbilled done work. Sequential (outbox FIFO keeps each invoice's op chain
+ * intact); returns how many invoices were created. Drafts land in the invoice
+ * list for review — nothing is sent automatically.
+ */
+export async function batchInvoiceUnbilled(
+  jobs: UnbilledJobRow[],
+  defaultDueDays: number,
+  taxBps: number,
+): Promise<number> {
+  const byClient = new Map<string, UnbilledJobRow[]>()
+  for (const job of jobs) {
+    const key = job.property?.client_id ?? job.property?.client?.id
+    if (!key) continue
+    byClient.set(key, [...(byClient.get(key) ?? []), job])
+  }
+
+  const clientsCache = queryClient.getQueryData<
+    { id: string; name: string; phone: string }[]
+  >(['clients'])
+
+  let created = 0
+  for (const [clientId, rows] of byClient) {
+    const cached = clientsCache?.find((c) => c.id === clientId)
+    await createInvoiceFromJobs(
+      {
+        clientId,
+        client: {
+          name: rows[0].property?.client?.name ?? cached?.name ?? 'Client',
+          phone: cached?.phone ?? '',
+        },
+        jobs: rows.map((job) => ({
+          id: job.id,
+          title: job.title,
+          scheduled_date: job.scheduled_date,
+          completed_at: job.completed_at,
+          price_cents: job.price_cents,
+          property: null,
+          service: null,
+        })),
+        extraItems: [],
+        defaultDueDays,
+        taxBps,
+      },
+      { silent: true },
+    )
+    created++
+  }
+  if (created > 0) {
+    confirmToast(
+      created === 1 ? '1 draft invoice created' : `${created} draft invoices created`,
+    )
+  }
+  return created
 }
 
 export interface RecordPaymentInput {
