@@ -193,6 +193,26 @@ export async function rescheduleJob(job: Job, scheduledDate: string): Promise<vo
   confirmToast('Job rescheduled')
 }
 
+/**
+ * Bring a skipped job back onto the schedule — the promise the skip confirm
+ * makes. Reopens onto `date` (rain-outs usually come back on a new day); on
+ * recurring jobs the hand-placed date is stamped so resync keeps it.
+ */
+export async function reopenJob(job: Job, date: string): Promise<void> {
+  const patch: Partial<Job> = { status: 'scheduled', scheduled_date: date }
+  if (job.schedule_id) patch.customized_at = new Date().toISOString()
+  patchJobCaches(job, patch)
+  // Skipped jobs are off the board, so re-insert (not just map) as scheduled.
+  const restored = queryClient.getQueryData<JobWithContext>(['jobs', job.id])
+  if (restored) {
+    queryClient.setQueryData<JobWithContext[]>(['jobs', 'kanban'], (old) =>
+      old ? [...old.filter((j) => j.id !== job.id), restored] : old,
+    )
+  }
+  await enqueue({ table: 'jobs', kind: 'update', payload: { id: job.id, patch } })
+  confirmToast('Job reopened')
+}
+
 /** Fields the edit screen can change on an existing job. */
 export interface JobEditValues {
   service_id: string | null

@@ -10,6 +10,7 @@ vi.mock('@/lib/toast', () => ({ confirmToast: vi.fn() }))
 
 import { queryClient } from '@/lib/queryClient'
 import {
+  reopenJob,
   setJobStatus,
   rescheduleJob,
   updateJob,
@@ -133,6 +134,38 @@ describe('rescheduleJob', () => {
     const patch = lastOp().payload.patch
     expect(patch.scheduled_date).toBe('2026-06-27')
     expect(patch.customized_at).toEqual(expect.any(String))
+  })
+})
+
+describe('reopenJob', () => {
+  it('returns a skipped job to scheduled on the picked date and back onto the board', async () => {
+    const NEXT = '2026-06-27'
+    const skipped = job({ status: 'skipped' })
+    queryClient.setQueryData<JobWithContext>(['jobs', 'j1'], skipped)
+    // Skipped jobs are off the kanban cache — reopen must re-insert, not map.
+    queryClient.setQueryData<JobWithContext[]>(['jobs', 'kanban'], [])
+    queryClient.setQueryData<JobWithContext[]>(['jobs', { date: DAY }], [skipped])
+    queryClient.setQueryData<JobWithContext[]>(['jobs', { date: NEXT }], [])
+
+    await reopenJob(skipped, NEXT)
+
+    expect(detail().status).toBe('scheduled')
+    expect(detail().scheduled_date).toBe(NEXT)
+    expect(kanban().map((j) => j.id)).toContain('j1')
+    expect(lastOp()).toMatchObject({
+      table: 'jobs',
+      kind: 'update',
+      payload: { id: 'j1', patch: { status: 'scheduled', scheduled_date: NEXT } },
+    })
+  })
+
+  it('reopening a recurring job stamps customized_at so resync keeps the date', async () => {
+    const skipped = job({ status: 'skipped', schedule_id: 's1' })
+    queryClient.setQueryData<JobWithContext>(['jobs', 'j1'], skipped)
+
+    await reopenJob(skipped, '2026-06-27')
+
+    expect(lastOp().payload.patch.customized_at).toEqual(expect.any(String))
   })
 })
 

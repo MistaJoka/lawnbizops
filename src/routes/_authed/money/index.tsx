@@ -34,6 +34,7 @@ import {
 import { categoryLabel } from '@/features/expenses/categories'
 import { useDashboard } from '@/features/dashboard/hooks'
 import { queryClient } from '@/lib/queryClient'
+import { quoteFollowUpMessage, smsHref } from '@/lib/outreach'
 import { formatCents, localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
@@ -383,11 +384,73 @@ function NudgeSheet({
   )
 }
 
+/** Sent-and-unanswered quotes — the sales twin of the overdue-invoice nudge.
+ *  Each row deep-links to its estimate; the Follow up button opens a prefilled
+ *  text. Hidden entirely when nothing is waiting. */
+function AwaitingResponseCard({ estimates }: { estimates: EstimateListRow[] }) {
+  const today = localToday()
+  const awaiting = estimates.filter(
+    (e) => e.status === 'sent' && (!e.valid_until || e.valid_until >= today),
+  )
+  if (awaiting.length === 0) return null
+  const total = awaiting.reduce((sum, e) => sum + e.total_cents, 0)
+
+  return (
+    <div className="mt-3 rounded-lg border-2 border-khaki/60 bg-panel px-4 py-4">
+      <div className="flex items-center justify-between gap-2">
+        <p className="heading-stencil text-xs text-khaki">Awaiting response</p>
+        <p className="heading-stencil text-lg text-sand tabular-nums">
+          {formatCents(total)}
+        </p>
+      </div>
+      <ul className="mt-3 flex flex-col gap-2">
+        {awaiting.map((est) => {
+          const name = est.client?.name ?? 'Client'
+          const phone = est.client?.phone ?? ''
+          return (
+            <li key={est.id} className="flex items-center gap-2">
+              <Link
+                to="/estimates/$estimateId"
+                params={{ estimateId: est.id }}
+                className="tap-active min-w-0 flex-1 rounded-lg border border-edge px-3 py-3"
+              >
+                <span className="block truncate font-display font-semibold text-sand">
+                  {name}
+                </span>
+                <span className="block text-sm text-faded">
+                  {est.number ?? 'pending #'} · {formatCents(est.total_cents)} · sent{' '}
+                  {daysAgo(est.sent_at ?? `${est.issued_at}T12:00:00`)}
+                </span>
+              </Link>
+              {phone && (
+                <a
+                  href={smsHref(
+                    phone,
+                    quoteFollowUpMessage(
+                      name,
+                      est.number ?? '',
+                      formatCents(est.total_cents),
+                    ),
+                  )}
+                  className="heading-stencil tap-active shrink-0 rounded-lg border-2 border-khaki px-3 py-2 text-sm text-khaki"
+                >
+                  Follow up
+                </a>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
+}
+
 function EstimatesTab() {
   const { data: estimates, isLoading, isError, refetch } = useEstimates()
 
   return (
     <>
+      <AwaitingResponseCard estimates={estimates ?? []} />
       <ul className="mt-4 flex flex-col gap-2 pb-28">
         {(estimates ?? []).map((est) => (
           <li key={est.id}>

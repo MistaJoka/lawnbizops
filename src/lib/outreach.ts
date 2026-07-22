@@ -40,6 +40,16 @@ export function appointmentReminderMessage(
   return `Hi ${clientName} —${who} Friendly reminder: we're scheduled to be out ${when.trim()}. Reply here if anything changed!`
 }
 
+/** Quote follow-up text — for a sent estimate that's sat unanswered a few days. */
+export function quoteFollowUpMessage(
+  clientName: string,
+  number: string,
+  amount: string,
+): string {
+  const which = number.trim() ? ` ${number.trim()}` : ''
+  return `Hi ${clientName}, just checking in on the estimate${which} (${amount}). Happy to answer questions or adjust the scope — want us to get you on the schedule?`
+}
+
 /** Review-request text — sent after a job is done, with the Google review link. */
 export function reviewRequestMessage(
   business: string,

@@ -440,6 +440,18 @@ function buildData(): DemoData {
       6500,
       -18,
     ],
+    // Rained-out visit — exercises the skipped → reopen path.
+    [
+      'dddddddd-0000-4000-a000-000000000011',
+      'bbbbbbbb-0000-4000-a000-000000000003',
+      '55555555-0000-4000-a000-000000000001',
+      'Weekly mow',
+      -2,
+      '10:00',
+      'skipped',
+      6000,
+      null,
+    ],
   ]
 
   const JOBS: Row[] = JOB_ROWS.map(
@@ -585,6 +597,19 @@ function buildData(): DemoData {
     unit_price_cents,
     sort_order,
   }))
+
+  // The estimates LIST select asks PostgREST for nested `items` + `client`
+  // keys; the demo query builder ignores select strings, so embed them in the
+  // rows themselves (extra keys are harmless to every other consumer).
+  for (const e of ESTIMATES) {
+    e.items = ESTIMATE_ITEMS.filter((i) => i.estimate_id === e.id).map((i) => ({
+      quantity: i.quantity,
+      unit_price_cents: i.unit_price_cents,
+    }))
+    const c = CLIENTS.find((c) => c.id === e.client_id)
+    e.client = c ? { name: c.name, phone: c.phone } : null
+    e.sent_at = e.status === 'draft' ? null : e.created_at
+  }
 
   const INVOICES: Row[] = (
     [

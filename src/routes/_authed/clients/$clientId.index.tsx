@@ -5,7 +5,9 @@ import {
   setClientStage,
   useClient,
   type Client,
+  type ClientStage,
 } from '@/features/clients/hooks'
+import { stageAdvanceWarning } from '@/features/clients/stageGate'
 import { formatAddress, useProperties } from '@/features/properties/hooks'
 import { useEstimates } from '@/features/estimates/hooks'
 import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
@@ -315,7 +317,24 @@ function ClientEconomics({ clientId }: { clientId: string }) {
   )
 }
 
-/** Segmented control over the 4 pipeline stages. */
+/** Segmented control over the 4 pipeline stages. Same soft gate as the
+ *  Pipeline board (G-0/G-H3): a move that skips the target stage's exit
+ *  criteria names what's missing and asks — but never hard-blocks. Un-gated
+ *  moves stay one-tap (this control is the easy-undo path). */
+async function pickStage(client: Client, stage: ClientStage) {
+  if (stage === client.stage) return
+  const warning = await stageAdvanceWarning(client.id, stage)
+  if (warning) {
+    const ok = await confirm({
+      title: warning.title,
+      body: warning.body,
+      confirmLabel: 'Move anyway',
+    })
+    if (!ok) return
+  }
+  await setClientStage(client, stage)
+}
+
 function StageControl({ client }: { client: Client }) {
   return (
     <div className="mt-2 flex gap-1 rounded-lg border-2 border-edge bg-surface-low p-1">
@@ -326,7 +345,7 @@ function StageControl({ client }: { client: Client }) {
             key={stage.value}
             type="button"
             aria-pressed={active}
-            onClick={() => void setClientStage(client, stage.value)}
+            onClick={() => void pickStage(client, stage.value)}
             className={`label-caps tap-active min-h-touch flex-1 rounded-lg px-2 py-2 text-xs ${
               active ? 'bg-blaze text-on-cta' : 'text-faded'
             }`}

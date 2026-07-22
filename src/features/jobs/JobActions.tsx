@@ -5,7 +5,13 @@ import {
 } from '@/components/StatusChip'
 import { confirm } from '@/lib/confirm'
 import { toast } from '@/lib/toast'
-import { rescheduleJob, setJobStatus, type JobWithContext } from '@/features/jobs/hooks'
+import {
+  reopenJob,
+  rescheduleJob,
+  setJobStatus,
+  type JobWithContext,
+} from '@/features/jobs/hooks'
+import { localToday } from '@/lib/format'
 
 const VARIANT: Record<string, StatusVariant> = {
   scheduled: 'info',
@@ -48,6 +54,7 @@ export function JobActions({ job }: { job: JobWithContext }) {
   const [moveBusy, setMoveBusy] = useState(false)
   const [moveDate, setMoveDate] = useState(job.scheduled_date)
 
+  if (job.status === 'skipped') return <ReopenActions job={job} />
   if (job.status !== 'scheduled' && job.status !== 'in_progress') return null
 
   const scheduled = job.status === 'scheduled'
@@ -159,6 +166,51 @@ export function JobActions({ job }: { job: JobWithContext }) {
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+/** The skip confirm promises "you can reopen it later" — this is that path.
+ *  Reopens onto a picked date (default today), since a rained-out visit
+ *  usually comes back on a different day than it was skipped on. */
+function ReopenActions({ job }: { job: JobWithContext }) {
+  const [date, setDate] = useState(localToday())
+  const [busy, setBusy] = useState(false)
+
+  async function reopen() {
+    if (!date || busy) return
+    setBusy(true)
+    try {
+      await reopenJob(job, date)
+    } catch {
+      toast.error('Could not reopen job — try again')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div onClick={(e) => e.stopPropagation()} className="mt-3">
+      <div className="flex items-center gap-2">
+        <input
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          disabled={busy}
+          aria-label="Reopen date"
+          className="w-full rounded-lg border-2 border-edge bg-canvas px-4 py-3 text-lg text-sand focus:border-blaze focus:ring-2 focus:ring-blaze/20 focus:outline-none disabled:opacity-50"
+        />
+        <button
+          onClick={() => void reopen()}
+          disabled={!date || busy}
+          className="heading-stencil tap-active min-h-12 shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta disabled:opacity-50"
+        >
+          {busy ? '…' : '↻ Reopen'}
+        </button>
+      </div>
+      <p className="mt-1 text-xs text-faded">
+        Puts this skipped job back on the schedule for the picked day.
+      </p>
     </div>
   )
 }
