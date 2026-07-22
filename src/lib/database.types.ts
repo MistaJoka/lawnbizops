@@ -1171,6 +1171,7 @@ export type Database = {
           paused_at: string | null
           price_cents: number
           property_id: string
+          resume_on: string | null
           service_id: string | null
           updated_at: string
           user_id: string
@@ -1188,6 +1189,7 @@ export type Database = {
           paused_at?: string | null
           price_cents?: number
           property_id: string
+          resume_on?: string | null
           service_id?: string | null
           updated_at?: string
           user_id?: string
@@ -1205,6 +1207,7 @@ export type Database = {
           paused_at?: string | null
           price_cents?: number
           property_id?: string
+          resume_on?: string | null
           service_id?: string | null
           updated_at?: string
           user_id?: string

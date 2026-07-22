@@ -63,6 +63,7 @@ function asSchedule(
   return {
     ...draft,
     last_materialized_through: existing?.last_materialized_through ?? null,
+    resume_on: existing?.resume_on ?? null,
     created_at: existing?.created_at ?? now,
     updated_at: now,
     user_id: existing?.user_id ?? '',
@@ -115,18 +116,29 @@ export async function saveSchedule(
   }
 }
 
-/** Pause or resume, then resync so future jobs match the new state. */
+/**
+ * Pause or resume, then resync so future jobs match the new state. Pausing may
+ * carry an optional auto-resume date (0043) — the nightly sweep clears the
+ * pause once that day arrives, so a seasonal hold can't be silently forgotten.
+ */
 export async function setSchedulePaused(
   schedule: RecurringSchedule,
   paused: boolean,
+  resumeOn: string | null = null,
 ): Promise<void> {
   const paused_at = paused ? new Date().toISOString() : null
-  setScheduleCaches({ ...schedule, paused_at, updated_at: new Date().toISOString() })
+  const resume_on = paused ? resumeOn : null
+  setScheduleCaches({
+    ...schedule,
+    paused_at,
+    resume_on,
+    updated_at: new Date().toISOString(),
+  })
 
   await enqueue({
     table: 'recurring_schedules',
     kind: 'update',
-    payload: { id: schedule.id, patch: { paused_at } },
+    payload: { id: schedule.id, patch: { paused_at, resume_on } },
   })
   await enqueue({
     table: 'jobs',

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { useJobsForDate, type JobWithContext } from '@/features/jobs/hooks'
+import { setJobStatus, useJobsForDate, type JobWithContext } from '@/features/jobs/hooks'
+import { StatusChip } from '@/features/jobs/JobActions'
 import { RouteMap, type RouteStop } from '@/components/RouteMap'
 import { EmptyState } from '@/components/EmptyState'
 import { QueryError } from '@/components/QueryError'
@@ -142,26 +143,31 @@ export function DispatchScreen() {
             <ol className="mx-edge mt-4 space-y-2">
               {stops.map((s, i) => {
                 const miles = legMiles(i)
+                const job = pinned[i]
+                const selected = s.id === selectedId
                 return (
                   <li key={s.id}>
                     <button
                       type="button"
-                      onClick={() => setSelectedId(s.id)}
+                      onClick={() => setSelectedId(selected ? null : s.id)}
+                      aria-expanded={selected}
                       className={`tap-active flex w-full items-center justify-between rounded-lg border-2 px-4 py-3 text-left ${
-                        s.id === selectedId
-                          ? 'border-blaze bg-panel'
-                          : 'border-edge bg-panel'
+                        selected ? 'border-blaze bg-panel' : 'border-edge bg-panel'
                       }`}
                     >
-                      <span className="text-sm text-sand">
-                        {s.seq}. {s.label}
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className="truncate text-sm text-sand">
+                          {s.seq}. {s.label}
+                        </span>
+                        {selected && <StatusChip status={job.status} />}
                       </span>
                       {miles !== null && (
-                        <span className="font-mono text-xs text-faded">
+                        <span className="shrink-0 font-mono text-xs text-faded">
                           {miles.toFixed(1)} mi
                         </span>
                       )}
                     </button>
+                    {selected && <StopActions job={job} />}
                   </li>
                 )
               })}
@@ -193,6 +199,62 @@ export function DispatchScreen() {
             ))}
           </ul>
         </section>
+      )}
+    </div>
+  )
+}
+
+/**
+ * The selected stop's field actions — dispatch is the screen a crew lives on,
+ * so the next status move, turn-by-turn to THIS stop, and the gate code must
+ * not require opening the job. Marking done drops the stop off the route
+ * (the active filter), which is exactly what finishing a stop should do.
+ */
+function StopActions({ job }: { job: JobWithContext }) {
+  const p = job.property
+  const scheduled = job.status === 'scheduled'
+  const pos = jobPos(job)
+  const navUrl = pos
+    ? `https://www.google.com/maps/dir/?api=1&destination=${pos.lat}%2C${pos.lng}&travelmode=driving`
+    : null
+
+  return (
+    <div className="mt-2 rounded-lg border-2 border-edge bg-surface-low p-2">
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={() =>
+            void setJobStatus(job, scheduled ? 'in_progress' : 'done')
+          }
+          className="heading-stencil tap-active min-h-11 flex-1 rounded-lg bg-blaze px-2 py-2 text-sm text-on-cta"
+        >
+          {scheduled ? '▶ Start' : '✓ Done'}
+        </button>
+        {navUrl && (
+          <a
+            href={navUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="heading-stencil tap-active flex min-h-11 flex-1 items-center justify-center rounded-lg border-2 border-edge px-2 py-2 text-sm text-sand"
+          >
+            Navigate
+          </a>
+        )}
+        <Link
+          to="/jobs/$jobId"
+          params={{ jobId: job.id }}
+          className="heading-stencil tap-active flex min-h-11 flex-1 items-center justify-center rounded-lg border-2 border-edge px-2 py-2 text-sm text-sand"
+        >
+          Details
+        </Link>
+      </div>
+      {p?.gate_code && (
+        <p className="mt-2 px-1 text-sm text-faded">
+          Gate code: <span className="heading-stencil text-blaze">{p.gate_code}</span>
+        </p>
+      )}
+      {job.start_time && (
+        <p className="mt-1 px-1 text-xs text-faded">Window: {job.start_time}</p>
       )}
     </div>
   )

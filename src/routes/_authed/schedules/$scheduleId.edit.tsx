@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ScheduleForm } from '@/features/schedules/ScheduleForm'
 import { confirm } from '@/lib/confirm'
 import { toast } from '@/lib/toast'
+import { formatShortDate } from '@/lib/dates'
 import {
   deleteSchedule,
   saveSchedule,
@@ -73,14 +75,7 @@ function EditScheduleScreen() {
         )}
       </div>
 
-      <button
-        onClick={() => void setSchedulePaused(schedule, !paused)}
-        className={`heading-stencil mt-4 w-full rounded-lg border px-4 py-4 text-lg ${
-          paused ? 'border-go text-go' : 'border-edge text-sand'
-        }`}
-      >
-        {paused ? '▶ Resume schedule' : '⏸ Pause schedule'}
-      </button>
+      <PauseControls schedule={schedule} paused={paused} />
 
       <div className="mt-4">
         <ScheduleForm
@@ -109,6 +104,60 @@ function EditScheduleScreen() {
       >
         Delete schedule
       </button>
+    </div>
+  )
+}
+
+/** Pause with an optional auto-resume date (a seasonal hold that can't be
+ *  forgotten — the nightly sweep clears it when the day arrives). */
+function PauseControls({
+  schedule,
+  paused,
+}: {
+  schedule: NonNullable<ReturnType<typeof useSchedule>['data']>
+  paused: boolean
+}) {
+  const [resumeOn, setResumeOn] = useState('')
+
+  if (paused) {
+    return (
+      <div className="mt-4">
+        <button
+          onClick={() => void setSchedulePaused(schedule, false)}
+          className="heading-stencil w-full rounded-lg border border-go px-4 py-4 text-lg text-go"
+        >
+          ▶ Resume schedule
+        </button>
+        <p className="mt-1 text-center text-xs text-faded">
+          {schedule.resume_on
+            ? `Auto-resumes ${formatShortDate(schedule.resume_on)} — or resume now.`
+            : 'Paused until you resume it — no visits are being scheduled.'}
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">
+      <div className="flex items-center gap-2">
+        <input
+          type="date"
+          value={resumeOn}
+          onChange={(e) => setResumeOn(e.target.value)}
+          aria-label="Auto-resume date (optional)"
+          className="w-full rounded-lg border-2 border-edge bg-canvas px-4 py-3 text-lg text-sand focus:border-blaze focus:outline-none"
+        />
+        <button
+          onClick={() => void setSchedulePaused(schedule, true, resumeOn || null)}
+          className="heading-stencil tap-active shrink-0 rounded-lg border-2 border-edge px-4 py-3 text-sand"
+        >
+          ⏸ Pause
+        </button>
+      </div>
+      <p className="mt-1 text-xs text-faded">
+        Pick a date for a seasonal hold that resumes itself — or leave it blank to
+        pause until you come back.
+      </p>
     </div>
   )
 }
