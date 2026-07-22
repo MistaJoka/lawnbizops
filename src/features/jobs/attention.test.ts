@@ -66,4 +66,19 @@ describe('groupUnbilledByClient', () => {
   it('returns an empty array for no jobs', () => {
     expect(groupUnbilledByClient([])).toEqual([])
   })
+
+  it('derives the client key from the embedded client id when client_id is absent (demo backend shape)', () => {
+    const groups = groupUnbilledByClient([
+      row({ property: { client: { id: 'client-demo', name: 'Demo Client' } } }),
+    ])
+    expect(groups).toHaveLength(1)
+    expect(groups[0].clientId).toBe('client-demo')
+  })
+
+  it('skips rows where no client id is resolvable at all', () => {
+    const groups = groupUnbilledByClient([
+      row({ property: { client: { name: 'No Id Client' } } }),
+    ])
+    expect(groups).toEqual([])
+  })
 })

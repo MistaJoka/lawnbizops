@@ -15,7 +15,12 @@ export interface UnbilledJobRow {
   scheduled_date: string
   completed_at: string | null
   price_cents: number
-  property: { client_id: string; client: { name: string } | null } | null
+  // client_id comes from the real select; the demo backend's pre-joined rows
+  // only carry client.id — the grouper accepts either.
+  property: {
+    client_id?: string
+    client: { id?: string; name: string } | null
+  } | null
 }
 
 export interface UnbilledClientGroup {
@@ -31,7 +36,8 @@ export function groupUnbilledByClient(jobs: UnbilledJobRow[]): UnbilledClientGro
   const byClient = new Map<string, UnbilledClientGroup>()
   for (const job of jobs) {
     if (!job.property) continue
-    const key = job.property.client_id
+    const key = job.property.client_id ?? job.property.client?.id
+    if (!key) continue
     const group = byClient.get(key) ?? {
       clientId: key,
       clientName: job.property.client?.name ?? 'Client',
