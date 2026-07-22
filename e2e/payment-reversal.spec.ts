@@ -15,9 +15,14 @@ test('Reverse a payment restores the balance and reverts status', async ({ page 
   await expect(page.getByText('Partial')).toBeVisible()
   await expect(page.getByText('Deposit (50%)')).toBeVisible()
 
-  // Reverse the deposit (confirm dialog).
-  page.once('dialog', (d) => void d.accept())
+  // Reverse the deposit via the themed confirm dialog. (window.confirm was
+  // replaced by an in-DOM ConfirmDialog, so drive the sheet rather than a
+  // native dialog event — same as money-loop.spec.)
   await page.getByRole('button', { name: /^reverse$/i }).click()
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: /reverse payment/i })
+    .click()
 
   // An offsetting line is recorded, status reverts to Sent, and the now-spent
   // deposit no longer offers a Reverse action (no double-reversal).

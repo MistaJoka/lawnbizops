@@ -119,6 +119,10 @@ export default defineConfig({
         'src/main.tsx',
         'src/routeTree.gen.ts',
         'src/lib/database.types.ts',
+        // Dev-only fake backend (VITE_DEMO), tree-shaken from prod builds —
+        // same category as src/dev. Its ~80 tiny builder fns swamped the
+        // src/lib function ratio and gated PRODUCTION lib code on DEV tooling.
+        'src/lib/demo.ts',
       ],
       // Ratchet on the stable logic layer only. UI/route screens are covered by
       // e2e (invisible to v8 unit coverage), so a global gate would be noise —
