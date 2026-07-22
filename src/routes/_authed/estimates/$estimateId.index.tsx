@@ -3,6 +3,7 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   convertToInvoice,
   createJobFromEstimate,
+  deleteEstimate,
   emailEstimate,
   renewEstimate,
   setEstimateStatus,
@@ -23,13 +24,13 @@ import {
   useBusinessSettings,
 } from '@/features/invoices/hooks'
 import { EmptyState } from '@/components/EmptyState'
-import { Field, TextInput } from '@/components/Field'
+import { DangerButton, Field, TextInput } from '@/components/Field'
 import { SkeletonDetail } from '@/components/Skeleton'
 import { confirm } from '@/lib/confirm'
 import { formatCents, localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
-export const Route = createFileRoute('/_authed/estimates/$estimateId')({
+export const Route = createFileRoute('/_authed/estimates/$estimateId/')({
   component: EstimateDetailScreen,
 })
 
@@ -127,6 +128,21 @@ function EstimateDetailScreen() {
     }
   }
 
+  async function handleDeleteDraft() {
+    if (!detail || detail.estimate.status !== 'draft') return
+    if (
+      !(await confirm({
+        title: 'Delete this draft?',
+        body: 'It was never sent — deleting removes it for good.',
+        confirmLabel: 'Delete',
+        destructive: true,
+      }))
+    )
+      return
+    await deleteEstimate(detail)
+    void navigate({ to: '/money' })
+  }
+
   async function handleConvertToInvoice() {
     if (!detail || detail.linkedInvoiceId || converting) return
     setConverting(true)
@@ -148,7 +164,21 @@ function EstimateDetailScreen() {
         <h1 className="heading-stencil min-w-0 text-2xl text-khaki">
           {estimate.number ?? 'pending #'}
         </h1>
-        <EstimateStatusChip status={estimate.status} validUntil={estimate.valid_until} />
+        <div className="flex shrink-0 items-center gap-2">
+          <EstimateStatusChip
+            status={estimate.status}
+            validUntil={estimate.valid_until}
+          />
+          {(estimate.status === 'draft' || estimate.status === 'sent') && (
+            <Link
+              to="/estimates/$estimateId/edit"
+              params={{ estimateId }}
+              className="heading-stencil rounded-lg border border-edge px-4 py-2 text-sm text-sand"
+            >
+              Edit
+            </Link>
+          )}
+        </div>
       </div>
       <p className="mt-1 text-faded">
         Issued {formatShortDate(estimate.issued_at)}
@@ -365,6 +395,14 @@ function EstimateDetailScreen() {
             </p>
           )}
         </div>
+
+        {estimate.status === 'draft' && (
+          <div className="mt-8">
+            <DangerButton onClick={() => void handleDeleteDraft()}>
+              Delete draft
+            </DangerButton>
+          </div>
+        )}
       </div>
     </div>
   )

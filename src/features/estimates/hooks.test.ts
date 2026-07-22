@@ -25,6 +25,8 @@ import {
   renewEstimate,
   convertToInvoice,
   createJobFromEstimate,
+  updateEstimate,
+  deleteEstimate,
   type EstimateDetail,
   type EstimateListRow,
 } from './hooks'
@@ -156,6 +158,104 @@ describe('setEstimateStatus', () => {
     expect(enqueue).toHaveBeenCalledWith(
       expect.objectContaining({ table: 'estimates', kind: 'update' }),
     )
+  })
+})
+
+describe('updateEstimate', () => {
+  const seededDetail = () => {
+    const detail = {
+      estimate: { id: 'e1', client_id: 'c1', status: 'draft', notes: 'old' },
+      items: [
+        {
+          id: 'i1',
+          estimate_id: 'e1',
+          description: 'Mow',
+          quantity: 1,
+          unit_price_cents: 5000,
+          sort_order: 0,
+        },
+        {
+          id: 'i2',
+          estimate_id: 'e1',
+          description: 'Trim',
+          quantity: 2,
+          unit_price_cents: 1500,
+          sort_order: 1,
+        },
+      ],
+      client: null,
+      property: null,
+      linkedInvoiceId: null,
+    } as unknown as EstimateDetail
+    queryClient.setQueryData<EstimateDetail>(['estimates', 'e1'], detail)
+    queryClient.setQueryData<EstimateListRow[]>(
+      ['estimates'],
+      [{ id: 'e1', status: 'draft', total_cents: 8000 } as EstimateListRow],
+    )
+    return detail
+  }
+
+  it('keeps existing item ids, inserts new lines, deletes removed ones (FIFO)', async () => {
+    const detail = seededDetail()
+
+    // Keep i1 (price bumped), drop i2, add a new line.
+    await updateEstimate(detail, {
+      items: [
+        { id: 'i1', description: 'Mow', quantity: 1, unit_price_cents: 6500 },
+        { description: 'Edge', quantity: 1, unit_price_cents: 2000 },
+      ],
+      notes: 'new notes',
+      validUntil: '2026-08-21',
+    })
+
+    const fresh = queryClient.getQueryData<EstimateDetail>(['estimates', 'e1'])!
+    expect(fresh.estimate.notes).toBe('new notes')
+    expect(fresh.estimate.valid_until).toBe('2026-08-21')
+    expect(fresh.items.map((i) => i.description)).toEqual(['Mow', 'Edge'])
+    expect(fresh.items[0].id).toBe('i1') // existing row kept its id
+    expect(fresh.items[0].unit_price_cents).toBe(6500)
+
+    const list = queryClient.getQueryData<EstimateListRow[]>(['estimates'])!
+    expect(list[0].total_cents).toBe(8500) // 1×6500 + 1×2000, i2 gone
+
+    // FIFO: estimate patch → item upserts → item delete.
+    expect(tables()).toEqual([
+      'estimates',
+      'estimate_items',
+      'estimate_items',
+      'estimate_items',
+    ])
+    const kinds = enqueue.mock.calls.map((c) => (c[0] as { kind: string }).kind)
+    expect(kinds).toEqual(['update', 'upsert', 'upsert', 'delete'])
+    const deleted = enqueue.mock.calls.at(-1)![0] as { payload: { id: string } }
+    expect(deleted.payload.id).toBe('i2')
+  })
+})
+
+describe('deleteEstimate', () => {
+  it('drops caches and deletes items before the estimate row (FK order)', async () => {
+    const detail = {
+      estimate: { id: 'e1', status: 'draft' },
+      items: [{ id: 'i1' }, { id: 'i2' }],
+      client: null,
+      property: null,
+      linkedInvoiceId: null,
+    } as unknown as EstimateDetail
+    queryClient.setQueryData<EstimateDetail>(['estimates', 'e1'], detail)
+    queryClient.setQueryData<EstimateListRow[]>(
+      ['estimates'],
+      [{ id: 'e1' } as EstimateListRow, { id: 'e2' } as EstimateListRow],
+    )
+
+    await deleteEstimate(detail)
+
+    const list = queryClient.getQueryData<EstimateListRow[]>(['estimates'])!
+    expect(list.map((r) => r.id)).toEqual(['e2'])
+    expect(queryClient.getQueryData(['estimates', 'e1'])).toBeUndefined()
+
+    expect(tables()).toEqual(['estimate_items', 'estimate_items', 'estimates'])
+    const kinds = enqueue.mock.calls.map((c) => (c[0] as { kind: string }).kind)
+    expect(kinds).toEqual(['delete', 'delete', 'delete'])
   })
 })
 

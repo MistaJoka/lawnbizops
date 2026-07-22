@@ -10,6 +10,7 @@ import {
   stockLevel,
   saveInventoryItem,
   adjustInventoryQuantity,
+  archiveInventoryItem,
   type InventoryItem,
   type InventoryDraft,
 } from './hooks'
@@ -103,5 +104,24 @@ describe('adjustInventoryQuantity', () => {
 
     expect(list()[0].quantity).toBe(0)
     expect(lastOp().payload.quantity).toBe(0)
+  })
+})
+
+describe('archiveInventoryItem', () => {
+  it('removes the item from the list cache and enqueues an archived_at patch', async () => {
+    queryClient.setQueryData<InventoryItem[]>(
+      ['inventory_items'],
+      [item({ id: 'a', name: 'Air filter' }), item({ id: 'z', name: 'Zip ties' })],
+    )
+
+    await archiveInventoryItem(item({ id: 'a', name: 'Air filter' }))
+
+    expect(list().map((i) => i.id)).toEqual(['z'])
+    const op = lastOp()
+    expect(op).toMatchObject({ table: 'inventory_items', kind: 'update' })
+    expect((op.payload as { id: string }).id).toBe('a')
+    expect(
+      (op.payload as { patch: { archived_at: unknown } }).patch.archived_at,
+    ).toEqual(expect.any(String))
   })
 })

@@ -193,6 +193,29 @@ export async function rescheduleJob(job: Job, scheduledDate: string): Promise<vo
   confirmToast('Job rescheduled')
 }
 
+/** Fields the edit screen can change on an existing job. */
+export interface JobEditValues {
+  service_id: string | null
+  price_cents: number
+  title: string
+  scheduled_date: string
+  start_time: string
+  notes: string
+}
+
+/**
+ * Edit a job's facts (price, title, date, time, scope). On recurring jobs the
+ * edit is a hand-customization — stamp customized_at so resync_schedule
+ * regenerates around it instead of overwriting the operator's changes.
+ */
+export async function updateJob(job: Job, values: JobEditValues): Promise<void> {
+  const patch: Partial<Job> = { ...values }
+  if (job.schedule_id) patch.customized_at = new Date().toISOString()
+  patchJobCaches(job, patch)
+  await enqueue({ table: 'jobs', kind: 'update', payload: { id: job.id, patch } })
+  confirmToast('Job updated')
+}
+
 export interface ChecklistItem {
   id: string
   text: string

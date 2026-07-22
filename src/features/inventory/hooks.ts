@@ -102,6 +102,18 @@ export async function adjustInventoryQuantity(
   await saveInventoryItem(draft)
 }
 
+/** Soft-remove an item (archived_at) — the list query filters it out; history stays. */
+export async function archiveInventoryItem(item: InventoryItem): Promise<void> {
+  queryClient.setQueryData<InventoryItem[]>(['inventory_items'], (old) =>
+    old?.filter((i) => i.id !== item.id),
+  )
+  await enqueue({
+    table: 'inventory_items',
+    kind: 'update',
+    payload: { id: item.id, patch: { archived_at: new Date().toISOString() } },
+  })
+}
+
 /** Landscaping starter SKUs from the stitch inventory mock. */
 export async function loadStarterInventory(): Promise<void> {
   const existing = queryClient.getQueryData<InventoryItem[]>(['inventory_items']) ?? []

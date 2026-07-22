@@ -15,7 +15,7 @@ import { jobPipelineStage } from '@/lib/jobPipeline'
 import { formatCents } from '@/lib/format'
 import { formatClockTime, formatShortDate } from '@/lib/dates'
 
-export const Route = createFileRoute('/_authed/jobs/$jobId')({
+export const Route = createFileRoute('/_authed/jobs/$jobId/')({
   component: JobDetailScreen,
 })
 
@@ -80,7 +80,20 @@ function JobDetailScreen() {
         <h1 className="heading-stencil min-w-0 text-2xl text-khaki">
           {job.title || 'Job'}
         </h1>
-        <StatusChip status={job.status} />
+        <div className="flex shrink-0 items-center gap-2">
+          <StatusChip status={job.status} />
+          {(job.status === 'scheduled' ||
+            job.status === 'in_progress' ||
+            job.status === 'done') && (
+            <Link
+              to="/jobs/$jobId/edit"
+              params={{ jobId }}
+              className="heading-stencil rounded-lg border border-edge px-4 py-2 text-sm text-sand"
+            >
+              Edit
+            </Link>
+          )}
+        </div>
       </div>
       <p className="mt-1 text-faded">
         {formatShortDate(job.scheduled_date)}

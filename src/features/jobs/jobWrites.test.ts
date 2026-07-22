@@ -12,6 +12,7 @@ import { queryClient } from '@/lib/queryClient'
 import {
   setJobStatus,
   rescheduleJob,
+  updateJob,
   type Job,
   type JobStatus,
   type JobWithContext,
@@ -132,5 +133,50 @@ describe('rescheduleJob', () => {
     const patch = lastOp().payload.patch
     expect(patch.scheduled_date).toBe('2026-06-27')
     expect(patch.customized_at).toEqual(expect.any(String))
+  })
+})
+
+describe('updateJob', () => {
+  const values = {
+    service_id: 'svc1',
+    price_cents: 7500,
+    title: 'Mow + edge',
+    scheduled_date: DAY,
+    start_time: '09:30',
+    notes: 'gate in back',
+  }
+
+  it('patches caches and enqueues the edited fields (no owned columns)', async () => {
+    seed(job({ schedule_id: null }))
+
+    await updateJob(job({ schedule_id: null }), values)
+
+    expect(detail().price_cents).toBe(7500)
+    expect(detail().title).toBe('Mow + edge')
+    const op = lastOp()
+    expect(op).toMatchObject({ table: 'jobs', kind: 'update' })
+    expect(op.payload.patch).toEqual(values) // one-off: no customized_at
+    for (const key of ['user_id', 'created_at', 'updated_at', 'org_id']) {
+      expect(op.payload.patch).not.toHaveProperty(key)
+    }
+  })
+
+  it('editing a recurring job stamps customized_at so resync keeps the edit', async () => {
+    seed(job({ schedule_id: 's1' }))
+
+    await updateJob(job({ schedule_id: 's1' }), values)
+
+    expect(lastOp().payload.patch.customized_at).toEqual(expect.any(String))
+  })
+
+  it('a date change moves the job between day caches', async () => {
+    const NEXT = '2026-06-27'
+    seed(job())
+    queryClient.setQueryData<JobWithContext[]>(['jobs', { date: NEXT }], [])
+
+    await updateJob(job(), { ...values, scheduled_date: NEXT })
+
+    expect(dayList(DAY).map((j) => j.id)).not.toContain('j1')
+    expect(dayList(NEXT).map((j) => j.id)).toContain('j1')
   })
 })

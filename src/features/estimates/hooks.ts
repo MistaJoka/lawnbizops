@@ -225,6 +225,94 @@ export async function createEstimate(input: CreateEstimateInput): Promise<string
   return id
 }
 
+/** A line on the edit screen — carries its row id when it already exists. */
+export interface EstimateLineEdit extends EstimateLineInput {
+  id?: string
+}
+
+export interface UpdateEstimateInput {
+  items: EstimateLineEdit[]
+  notes: string
+  validUntil: string | null
+}
+
+/**
+ * Edit a draft/sent estimate in place: patch its fields and reconcile line
+ * items (existing ids update, new lines insert, missing lines delete). FIFO
+ * order matters: the estimate update lands before its item writes.
+ */
+export async function updateEstimate(
+  detail: EstimateDetail,
+  input: UpdateEstimateInput,
+): Promise<void> {
+  const estimateId = detail.estimate.id
+  const patch = { notes: input.notes, valid_until: input.validUntil }
+  const itemRows = input.items.map((item, index) => ({
+    id: item.id ?? crypto.randomUUID(),
+    estimate_id: estimateId,
+    description: item.description,
+    quantity: item.quantity,
+    unit_price_cents: item.unit_price_cents,
+    sort_order: index,
+  }))
+  const keptIds = new Set(itemRows.map((item) => item.id))
+  const removedIds = detail.items
+    .filter((item) => !keptIds.has(item.id))
+    .map((item) => item.id)
+
+  const now = new Date().toISOString()
+  const cachedItems: EstimateItem[] = itemRows.map((item) => {
+    const existing = detail.items.find((it) => it.id === item.id)
+    return existing
+      ? { ...existing, ...item, updated_at: now }
+      : { ...item, created_at: now, updated_at: now, user_id: '', org_id: '' }
+  })
+  queryClient.setQueryData<EstimateDetail>(['estimates', estimateId], (old) =>
+    old
+      ? { ...old, estimate: { ...old.estimate, ...patch }, items: cachedItems }
+      : old,
+  )
+  queryClient.setQueryData<EstimateListRow[]>(['estimates'], (old) =>
+    old?.map((row) =>
+      row.id === estimateId
+        ? { ...row, ...patch, total_cents: invoiceTotalCents(itemRows) }
+        : row,
+    ),
+  )
+
+  // FIFO: estimate → item upserts → item deletes.
+  await enqueue({
+    table: 'estimates',
+    kind: 'update',
+    payload: { id: estimateId, patch },
+  })
+  for (const item of itemRows) {
+    await enqueue({ table: 'estimate_items', kind: 'upsert', payload: item })
+  }
+  for (const id of removedIds) {
+    await enqueue({ table: 'estimate_items', kind: 'delete', payload: { id } })
+  }
+  confirmToast('Estimate updated')
+}
+
+/**
+ * Delete a draft estimate for good (junk-draft cleanup). Call sites guard on
+ * status === 'draft' — sent/answered quotes keep their history. FIFO: items
+ * before the estimate row (FK).
+ */
+export async function deleteEstimate(detail: EstimateDetail): Promise<void> {
+  const estimateId = detail.estimate.id
+  queryClient.setQueryData<EstimateListRow[]>(['estimates'], (old) =>
+    old?.filter((row) => row.id !== estimateId),
+  )
+  queryClient.removeQueries({ queryKey: ['estimates', estimateId] })
+  for (const item of detail.items) {
+    await enqueue({ table: 'estimate_items', kind: 'delete', payload: { id: item.id } })
+  }
+  await enqueue({ table: 'estimates', kind: 'delete', payload: { id: estimateId } })
+  confirmToast('Draft deleted')
+}
+
 /**
  * Queue a real email of this estimate (with its approval link) through the
  * server-side email outbox. Offline-safe: the op waits in the client outbox,
