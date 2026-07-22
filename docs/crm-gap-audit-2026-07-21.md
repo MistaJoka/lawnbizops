@@ -1,0 +1,125 @@
+# CRM gap audit — 2026-07-21
+
+Senior-CRM-developer pass over the whole app: missing buttons, dead-end
+workflows, pipeline gaps, and industry must-haves. Five parallel deep audits
+(sales pipeline, scheduling/dispatch/field ops, money, communications &
+automation, UI completeness), every finding verified against current code —
+items fixed since the 2026-06 audits are excluded (a partial list is at the
+bottom).
+
+Companion docs: `e2e-audit-2026-06-24.md`, `competitive-gap-analysis-2026-06-25.md`,
+`pipeline-stage-spec.md`, `worklists/growth.md` (tracks Stripe pay-link,
+autopay, job costing, measurement quoting, booking windows — not re-argued
+here, but cross-referenced).
+
+Severity: **P0** = core capability absent that daily operation or the business
+model depends on; **P1** = a daily operator will hit it and there is no
+workaround or the workaround destroys data/history; **P2** = missing
+contextual action, inconsistency, or captured-but-unusable data.
+
+---
+
+## A. Missing CRUD — records you can create but not fix
+
+| # | Gap | Evidence | Sev |
+|---|-----|----------|-----|
+| A1 | **Jobs cannot be edited after creation.** Price, title, date, start_time, scope/materials are all frozen; `JobActions` offers only status/reschedule/skip/cancel. The mark-done confirm even admits it ("no price — it will invoice at $0. You can still fix the invoice line later"). | no `jobs/*.edit.tsx`; `src/features/jobs/JobActions.tsx:45-164` | P1 |
+| A2 | **Estimates cannot be edited or deleted.** Only fix path is Renew, which clones to a brand-new draft, discarding number/history. No revision/change-order model; junk drafts are permanent. | `estimates/$estimateId.tsx` (no edit affordance); `estimates/hooks.ts` `renewEstimate` :278 | P1 |
+| A3 | **Inventory items: no edit, no delete; reorder level hardcoded.** `QuickAddSheet` hardcodes `category:'general'`, `reorder_level:2`; low-stock alerts on Today are driven by a threshold that can never be changed. | `inventory/index.tsx:167-221`; `inventory/hooks.ts` has no delete | P1 |
+| A4 | **Skipped jobs are a dead end and the copy lies.** Skip confirm promises "You can reopen it later" but no UI ever calls `setJobStatus(_, 'scheduled')`; a skipped job appears in no board lane and has no detail action. | `JobActions.tsx:51,89`; `board/hooks.ts:31-36` | P1 |
+| A5 | **Property: no delete/archive**, no "jobs at this property" list, no property-level "new job/estimate" CTA, `property_type` saved but never displayed, and a per-property service-price override can be set but never cleared back to catalog default. | `properties/hooks.ts`; `properties/$propertyId.index.tsx:107-159,169-259`; `PropertyForm.tsx:151` | P2 |
+| A6 | **Expense→client link shown but not editable** — only settable via `clientId` search param at creation. | `expenses/$expenseId.tsx:51-177,107-109` | P2 |
+
+## B. Pipeline & sales workflow
+
+| # | Gap | Evidence | Sev |
+|---|-----|----------|-----|
+| B1 | **Stage gate not wired into client detail.** `stageAdvanceWarning` runs only on the Pipeline board; the client-detail StageControl calls `setClientStage` directly — any stage, any direction, one tap, no readiness check. The exact root-gap `pipeline-stage-spec.md` targeted is still open on the primary surface. | `clients/stageGate.ts:70` used only in `pipeline.tsx:34`; `clients/$clientId.index.tsx:329` | P1 |
+| B2 | **No estimate follow-up anywhere.** Sent quotes with no response have no "awaiting response / expiring soon" surface (invoices get one-tap overdue nudges; estimates get a plain list), no automation rule keys off `estimates.sent_at`, and `sent→expired` is computed client-side only — nothing ever persists `expired`, so open-pipeline value is overstated. | `money/index.tsx:287-373` vs `:416`; `0037_email_automations.sql:16`; `estimates/hooks.ts:22` | P1 |
+| B3 | **No decline / lost-lead reason captured** on operator decline or customer decline — win/loss reporting is impossible. | `estimates/$estimateId.tsx:292`; `approval.ts:43`; grep `decline_reason\|lost_reason` = 0 | P1 |
+| B4 | **No deposits / partial billing from an accepted estimate.** Convert-to-invoice copies all lines at full price; the demo seed even models a 50% paver deposit, but no code path can produce one. Also no credit-balance/prepayment concept (PaymentSheet hard-blocks overpayment). | `estimates/hooks.ts:301-382`; `src/lib/demo.ts:152,629,707`; `$invoiceId.tsx:414-418` | P1 |
+| B5 | **Duplicate detection / merge absent.** The public quote form creates a new client+property on every submission; manual saves have no dup check; no merge flow; clients can only be soft-archived. Repeat prospects guarantee duplicates. | `leads/intake.ts` `submitLead`; `clients/hooks.ts:97,180` | P1 |
+| B6 | **Accepted estimate / scheduled work does not advance stage.** `maybeAdvanceStage(_, 'active')` is called only from `recordPayment`; a won-and-working client stays "Quoted" until first payment. | `invoices/hooks.ts:418`; `estimates/hooks.ts:268` | P2 |
+| B7 | **Estimate→job drops the service** (`service_id: null` hardcoded), zeroing revenue-by-service for converted work. | `estimates/hooks.ts:398` | P2 |
+| B8 | **Property-less accepted estimate is a scheduling dead end** — "Create recurring schedule" is rendered only when a property exists; the job path offers inline "+ Add property", the schedule path just disappears. | `estimates/$estimateId.tsx:304-312` vs `:403-415` | P2 |
+| B9 | **Dormant is a manual label** — nothing detects inactivity or moves lapsed clients to Dormant, and nothing targets them (see D5 win-back). | `clients/hooks.ts:169` | P2 |
+| B10 | **Public approval is token-possession only** — no typed name/signature, no customer comment/question channel on approve/decline. Weak as work authorization, and loses the light back-and-forth. | `e.$token.tsx:145-161`; `approval.ts:14-53` | P2 |
+
+## C. Money
+
+| # | Gap | Evidence | Sev |
+|---|-----|----------|-----|
+| C1 | **Customers cannot pay an invoice — at all.** No public invoice route, no pay link; settings literally say "Online card collection isn't built yet"; `payment_provider` preference is stored but never used. All payments are operator-keyed (cash/check/zelle/card_external/other). *(Tracked in `worklists/growth.md` — remains the single biggest competitive gap.)* | `settings/payments.tsx:51`; `invoices/hooks.ts:22`; `0006_invoicing.sql:37` | P1 |
+| C2 | **No sales tax anywhere.** No tax column on invoice/estimate items, no tax line rendered, no configurable rate (Settings→Tax is income-tax only: mileage, set-aside, EIN), no sales-tax-collected report. Jurisdictions that tax lawn services can't get a compliant invoice. | `0006:19-30`; `invoices/hooks.ts:85-89`; `settings/tax.tsx` | P1 |
+| C3 | **No batch / recurring invoicing.** Recurring schedules auto-generate jobs, but invoicing is one client at a time (`createInvoiceFromJobs(clientId)`); the monthly "invoice all completed work" run — the core billing motion for recurring accounts — is fully manual per client. | `invoices/hooks.ts:227-240`; `invoices/new.tsx:32,109-124` | P1 |
+| C4 | **Job costing omits labor and materials.** `job_profitability` cost side = tagged expenses only; jobs have no labor/cost columns; inventory has no job link or consumption costing; and there is no clock in/out — `in_progress` writes no timestamp (`jobs` has `completed_at` but no `started_at`; `start_time` is free text). Margins are structurally overstated. *(Job costing is tracked in growth.md; the missing time-capture plumbing is the field half of it.)* | `0028_profitability.sql:36-38`; `0005:23-40`; `jobs/hooks.ts:146-153`; `JobActions.tsx:64-65` | P1 |
+| C5 | **Receivables toolkit thin:** no late fees, no per-client statements, no invoice "viewed" tracking, no distinct refund/credit-note (only payment reversal), and write-off = destructive Void (returns jobs to `done`, erases from A/R) — no bad-debt bucket. | greps `late_fee\|statement` = 0; `0031:43-49`; `invoices/hooks.ts:435,549-601` | P2 |
+| C6 | **No discounts** on invoices or line items (no field, no percent-off). | `0006:19-30`; `invoices/new.tsx` line editor | P2 |
+| C7 | **Reports missing owner staples:** no revenue-by-month trend, no revenue-by-service (income bucketed by payment method), and client profitability exists (`useClientProfitability`, used on client detail) but is not surfaced in Reports. | `money/reports.tsx`; `clients/$clientId.index.tsx:276` | P2 |
+
+## D. Communications & automation
+
+| # | Gap | Evidence | Sev |
+|---|-----|----------|-----|
+| D1 | **No owner notifications for anything.** New lead → activity row only; quote approved/declined → activity row only; payment → nothing. No notifications backend (prefs comment: "no backend yet"). The three moments a CRM must surface immediately are silent; leads rot until the owner happens to look. | `0034:78`; `0033:79`; `preferences.tsx:68` | P1 |
+| D2 | **SMS never logged to the client timeline.** On-my-way, reminders, review requests fire `sms:` deep links with no `logActivity` — the primary channel on an Android-first app leaves no trace (server emails do log). | `outreach.ts:13`; `jobs/$jobId.tsx:140,154`; `schedule.tsx:140` vs `send-email/index.ts:232` | P1 |
+| D3 | **Strictly one-way comms.** No inbound webhook (email or SMS), outbound email has no `reply-to` and a single global `EMAIL_FROM` (not per-org) — customer replies land in a black hole. Web lead form is the only inbound channel. | `_shared/email.ts:32-52`; `supabase/functions/` | P1 |
+| D4 | **Message content hardcoded** — email HTML inline in the edge function, SMS strings inline in `outreach.ts`; no editable templates or merge fields. | `send-email/index.ts:137-214`; `outreach.ts:23-51` | P2 |
+| D5 | **Review request & win-back not automated** — review is a manual gated tap; `dormant` stage exists but nothing targets lapsed clients. | `jobs/$jobId.tsx:154`; `0013:11` | P2 |
+| D6 | **Tasks have due dates but nothing fires when due** — "call John Tuesday" surfaces only in a passively-sorted list. | `0020:44`; cron sweeps have no task rule | P2 |
+| D7 | **Notes/calls can only be logged on clients** — `logActivity` requires `clientId`; `activities.job_id` exists but no UI logs against a job/estimate/invoice. | `activities/hooks.ts:12,35`; timeline mounted only at `clients/$clientId.index.tsx:136` | P2 |
+
+## E. Scheduling, dispatch & field ops
+
+| # | Gap | Evidence | Sev |
+|---|-----|----------|-----|
+| E1 | **Dispatch stops aren't actionable.** Each stop only highlights on the map — no per-stop Start/Done, no per-stop Navigate (whole-route only), no `en_route` status. Acting on a job means leaving dispatch for `/jobs/$jobId`. The screen a crew lives on all day is read-only. | `DispatchScreen.tsx:131-168`; status enum `0005:31-32` | P1 |
+| E2 | **Recurrence has no per-visit exception.** Pause is all-or-nothing on the whole schedule (silent revenue-loss risk if resume is forgotten); no "skip next occurrence" / hold-until-date. | `schedules/hooks.ts:118-139`; `$scheduleId.edit.tsx:82` | P1 |
+| E3 | **Schedule is a fixed rolling 7-day strip** anchored to today — no prev/next week, no month view; work booked >6 days out is invisible on the tab. No drag-to-reschedule, no conflict/capacity detection. | `schedule.tsx:44-101`; `JobActions.tsx:141-158` | P1 |
+| E4 | **No bulk / weather-day reschedule** — raining out a day means opening N job screens. | `jobs/hooks.ts:188-194` single-job only | P2 |
+| E5 | **No crew/assignment seam.** Jobs key only to the owner; no nullable `assigned_to`/crew label anywhere. Fine solo-forever, expensive to retrofit later. | `0005:23-40`; grep crew/assignee = 0 | P2 |
+| E6 | **No "running late" message** (only on-my-way exists). | `outreach.ts:23` | P2 |
+| E7 | **Route order is auto-only** — nearest-neighbor can't be overridden; no manual reorder or pinned first/last stop for fixed appointment windows. | `DispatchScreen.tsx:61-64,142-168`; `lib/route.ts:24-53` | P2 |
+| E8 | **Property service data thin:** no lot size/sqft (yet services price by `sqft`), and gate code/notes aren't surfaced on the dispatch stop list — crew opens each job to find the gate code. | `PropertyForm.tsx:9-21`; `services/hooks.ts:9` | P2 |
+| E9 | **Photos have no before/after tag** — untyped bucket; "before/after" exists only in placeholder copy, so pairs can't be shown to a customer or used in disputes. | `estimates/photos.ts:10`; `jobs/$jobId.tsx:281-378` | P2 |
+
+## F. Findability & small affordances
+
+| # | Gap | Evidence | Sev |
+|---|-----|----------|-----|
+| F1 | **Money lists (invoices/estimates/expenses) have no search/filter/pagination** — a season of records becomes an unscrollable wall. Clients and Inventory do have search. | `money/index.tsx:153,252,386` | P2 |
+| F2 | **Client search matches name only** — not phone or email, though phone is the primary contact shown per row. | `clients/index.tsx:22-24` | P2 |
+| F3 | **No global cross-entity search** — no way to look up a client/invoice/job from anywhere. | `TabBar.tsx`; `QuickCreateSheet.tsx` | P2 |
+| F4 | **Email shown but never actionable** — plain text, no `mailto:`, while phone gets tel/sms buttons (client, invoice, estimate, job cards). | `clients/$clientId.index.tsx:106`; `$invoiceId.tsx:207-214` | P2 |
+| F5 | **Tools screen ships 3 dead "Coming soon" cards** (irrigation tester, plant health lab, custom scripts). Honestly labeled, but placeholder UI in a final-product app. | `tools/index.tsx:22-80` | P2 |
+
+---
+
+## Suggested attack order
+
+1. **Editability trio (A1–A3)** — job edit, estimate edit/delete, inventory
+   edit/delete. Pure CRUD, no design questions, removes the worst daily
+   operator pain ("I can't fix a price").
+2. **Un-dead-end the pipeline (A4, B1, B2)** — reopen skipped jobs, wire the
+   stage gate into client detail, add an "awaiting response" estimate nudge +
+   persist `expired`. Small, uses existing patterns (invoice nudges).
+3. **Owner notification surface (D1) + SMS logging (D2)** — even a simple
+   in-app "Needs attention" inbox (new lead / approved quote / payment) closes
+   the biggest silent-failure hole; SMS logging is a one-liner per call site.
+4. **Monthly money motion (C3, C2)** — batch "invoice all completed jobs" +
+   a configurable sales-tax rate. Then the already-tracked Stripe pay link
+   (C1) has a clean substrate.
+5. **Dispatch actionability (E1) + per-visit skip (E2)** — field-ops
+   quality of life; both fit existing components.
+6. Everything else per severity as loop-worklist fodder.
+
+## Verified fixed since the 2026-06 audits (spot-checked, not gaps)
+
+Create-estimate-from-lead CTAs + context carry, customer approval link
+(`e.$token`), public lead intake (`quote.$token`), estimate→schedule/job/invoice
+carry, renew estimate, real email send via Resend outbox (+ overdue & visit
+reminder automations), review + on-my-way SMS deep links, void-with-reversal +
+per-payment reverse, A/R aging + manual dunning, unbilled-work card, missed-job
+surfacing, recurring materialization with pause/season-end, activation
+checklist, global quick-create, configurable invoice/estimate number prefixes,
+business profile (logo/address/due days), guest-mode removal / real login.
