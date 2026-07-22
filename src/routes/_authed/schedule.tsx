@@ -10,6 +10,7 @@ import { StatusChip } from '@/features/jobs/JobActions'
 import { useMissedJobs } from '@/features/jobs/attention'
 import { useBusinessSettings } from '@/features/invoices/hooks'
 import { appointmentReminderMessage, smsHref } from '@/lib/outreach'
+import { logActivity } from '@/features/activities/hooks'
 import { EmptyState } from '@/components/EmptyState'
 import { SkeletonList } from '@/components/Skeleton'
 import { QueryError } from '@/components/QueryError'
@@ -147,6 +148,16 @@ function ScheduleScreen() {
                           : `on ${formatShortDate(selected)}`,
                       ),
                     )}
+                    onClick={() => {
+                      const clientId = job.property?.client?.id
+                      if (clientId)
+                        void logActivity({
+                          clientId,
+                          jobId: job.id,
+                          kind: 'note',
+                          body: `Texted an appointment reminder for ${formatShortDate(selected)}.`,
+                        })
+                    }}
                     aria-label="Text appointment reminder"
                     className="tap-active flex w-12 shrink-0 items-center justify-center rounded-lg border-2 border-edge text-xl"
                   >

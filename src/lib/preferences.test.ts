@@ -32,6 +32,7 @@ const DEFAULTS = {
   pushNotifications: false,
   todayView: 'board',
   activationDismissed: false,
+  attentionSeenAt: '',
 } as const
 
 beforeEach(() => vi.stubGlobal('localStorage', memStorage()))

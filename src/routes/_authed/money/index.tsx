@@ -34,6 +34,7 @@ import {
 import { categoryLabel } from '@/features/expenses/categories'
 import { useDashboard } from '@/features/dashboard/hooks'
 import { queryClient } from '@/lib/queryClient'
+import { logActivity } from '@/features/activities/hooks'
 import { quoteFollowUpMessage, smsHref } from '@/lib/outreach'
 import { formatCents, localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
@@ -371,7 +372,14 @@ function NudgeSheet({
               </span>
               <a
                 href={`sms:${phone}?&body=${encodeURIComponent(nudgeBody)}`}
-                onClick={() => void recordReminder(inv.invoice_id)}
+                onClick={() => {
+                  void recordReminder(inv.invoice_id)
+                  void logActivity({
+                    clientId: inv.client_id,
+                    kind: 'note',
+                    body: `Texted a payment reminder for ${inv.number ?? 'invoice'}.`,
+                  })
+                }}
                 className="heading-stencil tap-active shrink-0 rounded-lg border-2 border-blaze px-4 py-2 text-sm text-blaze"
               >
                 🔔 Nudge
@@ -432,6 +440,13 @@ function AwaitingResponseCard({ estimates }: { estimates: EstimateListRow[] }) {
                       formatCents(est.total_cents),
                     ),
                   )}
+                  onClick={() =>
+                    void logActivity({
+                      clientId: est.client_id,
+                      kind: 'note',
+                      body: `Texted a follow-up on ${est.number ?? 'the quote'}.`,
+                    })
+                  }
                   className="heading-stencil tap-active shrink-0 rounded-lg border-2 border-khaki px-3 py-2 text-sm text-khaki"
                 >
                   Follow up

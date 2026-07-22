@@ -9,6 +9,9 @@ export interface AppPreferences {
   todayView: 'board' | 'route'
   /** User hid the home-screen activation checklist. */
   activationDismissed: boolean
+  /** ISO timestamp of the last "Needs attention" mark-seen — items newer than
+   *  this count as unseen. Empty = never marked. */
+  attentionSeenAt: string
 }
 
 const KEY = 'lawnbizops:prefs'
@@ -20,6 +23,7 @@ const DEFAULTS: AppPreferences = {
   pushNotifications: false,
   todayView: 'board',
   activationDismissed: false,
+  attentionSeenAt: '',
 }
 
 export function loadPreferences(): AppPreferences {

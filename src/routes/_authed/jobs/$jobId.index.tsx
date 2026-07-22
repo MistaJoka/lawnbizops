@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { JobChecklist } from '@/features/jobs/JobChecklist'
 import { setJobStatus, useJob } from '@/features/jobs/hooks'
+import { logActivity } from '@/features/activities/hooks'
 import { useBusinessSettings } from '@/features/invoices/hooks'
 import { useExpensesForJob } from '@/features/expenses/hooks'
 import { onMyWayMessage, reviewRequestMessage, smsHref } from '@/lib/outreach'
@@ -154,6 +155,14 @@ function JobDetailScreen() {
                 client.phone,
                 onMyWayMessage(business, client.name, p?.label || p?.city || ''),
               )}
+              onClick={() =>
+                void logActivity({
+                  clientId: client.id,
+                  jobId,
+                  kind: 'note',
+                  body: 'Texted “on my way”.',
+                })
+              }
               className="heading-stencil tap-active mt-3 block rounded-lg border-2 border-edge py-3 text-center text-sm text-sand"
             >
               Text “on my way”
@@ -168,6 +177,14 @@ function JobDetailScreen() {
             client.phone,
             reviewRequestMessage(business, client.name, reviewUrl),
           )}
+          onClick={() =>
+            void logActivity({
+              clientId: client.id,
+              jobId,
+              kind: 'note',
+              body: 'Texted a Google review request.',
+            })
+          }
           className="heading-stencil tap-active mt-4 block rounded-lg border-2 border-go py-4 text-center text-lg text-go"
         >
           Request a Google review

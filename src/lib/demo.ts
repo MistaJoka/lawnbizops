@@ -845,6 +845,19 @@ function buildData(): DemoData {
         'Sent friendly payment reminder + PDF.',
         -12,
       ],
+      // Notable events (AttentionCard): arrive without the operator present.
+      [
+        'cccccccc-0000-4000-a000-000000000006',
+        'note',
+        'New lead from the online quote-request form.',
+        -1,
+      ],
+      [
+        'cccccccc-0000-4000-a000-000000000008',
+        'status_change',
+        'Customer approved the estimate online.',
+        -2,
+      ],
     ] as const
   ).map(([client_id, kind, body, off], i) => ({
     ...base,
@@ -853,6 +866,11 @@ function buildData(): DemoData {
     kind,
     body,
     created_at: ts(off),
+    // Nested key the notable-activities select asks PostgREST for.
+    client: (() => {
+      const c = CLIENTS.find((c) => c.id === client_id)
+      return c ? { name: c.name } : null
+    })(),
   }))
 
   const INVENTORY: Row[] = (
