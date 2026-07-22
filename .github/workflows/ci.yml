@@ -49,6 +49,10 @@ jobs:
         run: |
           psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
             -v ON_ERROR_STOP=1 -f supabase/tests/invariants.sql
+      - name: Automation sweep rules (unbilled + missed task creation, dedup)
+        run: |
+          psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
+            -v ON_ERROR_STOP=1 -f supabase/tests/automation_sweep.sql
 
   # Drives the real app (vite dev server) against a seeded local Supabase stack
   # through the critical multi-step flows — the money loop (incl. void→restore

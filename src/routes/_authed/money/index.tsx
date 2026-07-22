@@ -17,6 +17,7 @@ import {
   type InvoiceBalance,
 } from '@/features/invoices/hooks'
 import { InvoiceStatusChip } from '@/features/invoices/InvoiceStatusChip'
+import { groupUnbilledByClient, useUnbilledDoneJobs } from '@/features/jobs/attention'
 import {
   estimatesQueryOptions,
   useEstimates,
@@ -203,6 +204,51 @@ function ExpenseRow({ expense }: { expense: ExpenseRow }) {
   )
 }
 
+/** Done-but-uninvoiced work across every client — the revenue-leak view.
+ *  Each row deep-links into New Invoice prefilled for that client, where the
+ *  jobs arrive pre-checked. Hidden entirely when nothing is unbilled. */
+function UnbilledWorkCard() {
+  const { data: jobs } = useUnbilledDoneJobs()
+  const groups = groupUnbilledByClient(jobs ?? [])
+  if (groups.length === 0) return null
+  const total = groups.reduce((sum, g) => sum + g.totalCents, 0)
+
+  return (
+    <div className="mt-3 rounded-lg border-2 border-blaze/60 bg-panel px-4 py-4">
+      <div className="flex items-center justify-between gap-2">
+        <p className="heading-stencil text-xs text-blaze">Unbilled work</p>
+        <p className="heading-stencil text-lg text-sand tabular-nums">
+          {formatCents(total)}
+        </p>
+      </div>
+      <ul className="mt-3 flex flex-col gap-2">
+        {groups.map((g) => (
+          <li key={g.clientId}>
+            <Link
+              to="/invoices/new"
+              search={{ clientId: g.clientId }}
+              className="tap-active flex items-center justify-between gap-2 rounded-lg border border-edge px-3 py-3"
+            >
+              <span className="min-w-0">
+                <span className="block truncate font-display font-semibold text-sand">
+                  {g.clientName}
+                </span>
+                <span className="block text-sm text-faded">
+                  {g.jobCount === 1 ? '1 finished job' : `${g.jobCount} finished jobs`} to
+                  invoice
+                </span>
+              </span>
+              <span className="heading-stencil shrink-0 text-sand tabular-nums">
+                {formatCents(g.totalCents)}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 function InvoicesTab() {
   const { data: invoices, isLoading, isError, refetch } = useInvoiceBalances()
   const [nudgeOpen, setNudgeOpen] = useState(false)
@@ -256,6 +302,8 @@ function InvoicesTab() {
           onClose={() => setNudgeOpen(false)}
         />
       )}
+
+      <UnbilledWorkCard />
 
       <ul className="mt-4 flex flex-col gap-2 pb-28">
         {(invoices ?? []).map((inv) => (

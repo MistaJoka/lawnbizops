@@ -7,6 +7,7 @@ import {
   useJobsForRange,
 } from '@/features/jobs/hooks'
 import { StatusChip } from '@/features/jobs/JobActions'
+import { useMissedJobs } from '@/features/jobs/attention'
 import { useBusinessSettings } from '@/features/invoices/hooks'
 import { appointmentReminderMessage, smsHref } from '@/lib/outreach'
 import { EmptyState } from '@/components/EmptyState'
@@ -99,6 +100,8 @@ function ScheduleScreen() {
         })}
       </section>
 
+      <MissedJobsSection today={today} />
+
       <section className="px-edge py-6">
         <h2 className="heading-stencil text-lg text-sand">{formatShortDate(selected)}</h2>
 
@@ -175,5 +178,47 @@ function ScheduleScreen() {
 
       <Fab to="/jobs/new" search={{ date: selected }} label="Job" />
     </div>
+  )
+}
+
+/** Jobs still `scheduled` after their day passed. Without this they vanish
+ *  from Today and the week strip and are never seen again — the operator
+ *  either reschedules (job detail → Move) or closes them out. Hidden when
+ *  everything is on track. */
+function MissedJobsSection({ today }: { today: string }) {
+  const { data: missed } = useMissedJobs(today)
+  if ((missed ?? []).length === 0) return null
+
+  return (
+    <section className="border-b-2 border-edge px-edge py-4">
+      <h2 className="heading-stencil text-sm text-alert">
+        Missed — needs a new day ({missed?.length})
+      </h2>
+      <ul className="mt-3 flex flex-col gap-2">
+        {(missed ?? []).map((job) => (
+          <li key={job.id}>
+            <Link
+              to="/jobs/$jobId"
+              params={{ jobId: job.id }}
+              className="tap-active flex items-center justify-between gap-2 rounded-lg border-2 border-alert/50 bg-panel px-4 py-3"
+            >
+              <span className="min-w-0">
+                <span className="block truncate font-display font-semibold text-sand">
+                  {job.property?.client?.name ?? 'Job'}
+                </span>
+                <span className="block truncate text-sm text-faded">
+                  {formatShortDate(job.scheduled_date)}
+                  {job.property?.label && ` · ${job.property.label}`}
+                  {job.title && ` — ${job.title}`}
+                </span>
+              </span>
+              <span className="heading-stencil shrink-0 text-sand tabular-nums">
+                {formatCents(job.price_cents)}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   )
 }
