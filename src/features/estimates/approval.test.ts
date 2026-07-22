@@ -53,8 +53,19 @@ describe('respondToEstimate', () => {
     expect(rpc).toHaveBeenCalledWith('respond_to_estimate', {
       p_token: 'tok',
       p_action: 'accept',
+      p_reason: '',
     })
     expect(out).toBe('accepted')
+  })
+
+  it('a decline carries the trimmed optional reason', async () => {
+    rpc.mockResolvedValue({ data: 'declined', error: null })
+    await respondToEstimate('tok', 'decline', '  too pricey  ')
+    expect(rpc).toHaveBeenCalledWith('respond_to_estimate', {
+      p_token: 'tok',
+      p_action: 'decline',
+      p_reason: 'too pricey',
+    })
   })
 
   it('throws on RPC error', async () => {

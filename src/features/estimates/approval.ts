@@ -39,14 +39,17 @@ export async function fetchEstimateByToken(
   return (data as ApprovalBundle | null) ?? null
 }
 
-/** Approve or decline. Returns the resulting status (no-op if already answered). */
+/** Approve or decline (with an optional decline reason, 0044). Returns the
+ *  resulting status (no-op if already answered). */
 export async function respondToEstimate(
   token: string,
   action: 'accept' | 'decline',
+  reason = '',
 ): Promise<string> {
   const { data, error } = await supabase.rpc('respond_to_estimate', {
     p_token: token,
     p_action: action,
+    p_reason: reason.trim().slice(0, 500),
   })
   if (error) throw error
   return data as string

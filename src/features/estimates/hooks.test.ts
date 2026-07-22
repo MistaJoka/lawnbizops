@@ -21,6 +21,7 @@ import { queryClient } from '@/lib/queryClient'
 import { localToday } from '@/lib/format'
 import {
   createEstimate,
+  declineEstimate,
   setEstimateStatus,
   renewEstimate,
   convertToInvoice,
@@ -158,6 +159,36 @@ describe('setEstimateStatus', () => {
     expect(enqueue).toHaveBeenCalledWith(
       expect.objectContaining({ table: 'estimates', kind: 'update' }),
     )
+  })
+})
+
+describe('declineEstimate', () => {
+  it('flips status and stores the trimmed loss reason', async () => {
+    queryClient.setQueryData<EstimateListRow[]>(
+      ['estimates'],
+      [{ id: 'e1', status: 'sent' } as EstimateListRow],
+    )
+    queryClient.setQueryData<EstimateDetail>(['estimates', 'e1'], {
+      estimate: { id: 'e1', status: 'sent' },
+      items: [],
+      client: null,
+      property: null,
+      linkedInvoiceId: null,
+    } as unknown as EstimateDetail)
+
+    await declineEstimate('e1', '  Price too high  ')
+
+    const row = queryClient.getQueryData<EstimateListRow[]>(['estimates'])![0]
+    expect(row.status).toBe('declined')
+    expect(row.decline_reason).toBe('Price too high')
+    expect(enqueue).toHaveBeenCalledWith({
+      table: 'estimates',
+      kind: 'update',
+      payload: {
+        id: 'e1',
+        patch: { status: 'declined', decline_reason: 'Price too high' },
+      },
+    })
   })
 })
 

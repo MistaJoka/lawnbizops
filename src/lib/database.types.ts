@@ -341,6 +341,7 @@ export type Database = {
           approval_token: string
           client_id: string
           created_at: string
+          decline_reason: string
           id: string
           issued_at: string
           notes: string
@@ -357,6 +358,7 @@ export type Database = {
           approval_token?: string
           client_id: string
           created_at?: string
+          decline_reason?: string
           id?: string
           issued_at?: string
           notes?: string
@@ -373,6 +375,7 @@ export type Database = {
           approval_token?: string
           client_id?: string
           created_at?: string
+          decline_reason?: string
           id?: string
           issued_at?: string
           notes?: string
@@ -1583,7 +1586,7 @@ export type Database = {
         Returns: undefined
       }
       respond_to_estimate: {
-        Args: { p_action: string; p_token: string }
+        Args: { p_action: string; p_reason?: string; p_token: string }
         Returns: string
       }
       resync_schedule: {

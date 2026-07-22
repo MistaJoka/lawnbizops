@@ -3,6 +3,7 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   convertToInvoice,
   createJobFromEstimate,
+  declineEstimate,
   deleteEstimate,
   emailEstimate,
   renewEstimate,
@@ -10,6 +11,7 @@ import {
   useEstimate,
   type EstimateDetail,
 } from '@/features/estimates/hooks'
+import { Sheet } from '@/components/Sheet'
 import {
   deletePhoto,
   uploadPhoto,
@@ -43,6 +45,7 @@ function EstimateDetailScreen() {
   const [converting, setConverting] = useState(false)
   const [renewing, setRenewing] = useState(false)
   const [emailing, setEmailing] = useState(false)
+  const [declining, setDeclining] = useState(false)
   const [linkMsg, setLinkMsg] = useState<string | null>(null)
 
   if (!detail) {
@@ -262,6 +265,15 @@ function EstimateDetailScreen() {
         </div>
       )}
 
+      {estimate.status === 'declined' && estimate.decline_reason && (
+        <div className="mt-4 rounded-lg border border-alert/50 bg-panel px-4 py-4">
+          <p className="heading-stencil text-xs text-alert">Declined — reason</p>
+          <p className="mt-1 whitespace-pre-wrap text-sand">
+            {estimate.decline_reason}
+          </p>
+        </div>
+      )}
+
       <PhotosSection estimateId={estimate.id} />
 
       <div className="mt-6 flex flex-col gap-3 pb-8">
@@ -323,12 +335,21 @@ function EstimateDetailScreen() {
               </button>
               <button
                 type="button"
-                onClick={() => void setEstimateStatus(estimate.id, 'declined')}
+                onClick={() => setDeclining(true)}
                 className="heading-stencil flex-1 rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-alert"
               >
                 Declined
               </button>
             </div>
+            {declining && (
+              <DeclineSheet
+                onClose={() => setDeclining(false)}
+                onDecline={async (reason) => {
+                  await declineEstimate(estimate.id, reason)
+                  setDeclining(false)
+                }}
+              />
+            )}
           </>
         )}
 
@@ -409,6 +430,80 @@ function EstimateDetailScreen() {
         )}
       </div>
     </div>
+  )
+}
+
+const DECLINE_REASONS = ['Price too high', 'Bad timing', 'Went with someone else', 'No response']
+
+/** Why did we lose it? Quick picks + free text — skippable, never blocking. */
+function DeclineSheet({
+  onClose,
+  onDecline,
+}: {
+  onClose: () => void
+  onDecline: (reason: string) => Promise<void>
+}) {
+  const [picked, setPicked] = useState('')
+  const [note, setNote] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  async function handleDecline() {
+    if (busy) return
+    setBusy(true)
+    try {
+      const reason = [picked, note.trim()].filter(Boolean).join(' — ')
+      await onDecline(reason)
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Sheet open onClose={onClose}>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="heading-stencil text-lg text-khaki">Mark declined</h2>
+        <button
+          type="button"
+          onClick={onClose}
+          className="label-caps text-faded"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
+      <p className="text-sm text-faded">
+        Why was it lost? Optional — but it's how you spot patterns.
+      </p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {DECLINE_REASONS.map((r) => (
+          <button
+            key={r}
+            type="button"
+            onClick={() => setPicked((p) => (p === r ? '' : r))}
+            aria-pressed={picked === r}
+            className={`heading-stencil rounded-lg border-2 px-3 py-2 text-xs ${
+              picked === r ? 'border-blaze text-blaze' : 'border-edge text-sand'
+            }`}
+          >
+            {r}
+          </button>
+        ))}
+      </div>
+      <TextInput
+        placeholder="Anything else? (optional)"
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        className="mt-3"
+      />
+      <button
+        type="button"
+        disabled={busy}
+        onClick={() => void handleDecline()}
+        className="heading-stencil tap-active mt-4 w-full rounded-lg border-2 border-alert py-4 text-lg text-alert disabled:opacity-50"
+      >
+        {busy ? 'Saving…' : 'Mark declined'}
+      </button>
+    </Sheet>
   )
 }
 

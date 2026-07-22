@@ -47,6 +47,7 @@ export interface NotableActivity extends Omit<Activity, 'client_id'> {
 export function isNotable(activity: Activity): boolean {
   return (
     activity.body.startsWith('New lead from') ||
+    activity.body.startsWith('Repeat inquiry') ||
     activity.body.startsWith('Customer approved') ||
     activity.body.startsWith('Customer declined')
   )

@@ -63,6 +63,9 @@ function Approval({ bundle, token }: { bundle: ApprovalBundle; token: string }) 
   const [status, setStatus] = useState(bundle.status)
   const [busy, setBusy] = useState<'accept' | 'decline' | null>(null)
   const [error, setError] = useState(false)
+  // First "Decline" tap reveals an optional why — second tap confirms.
+  const [declining, setDeclining] = useState(false)
+  const [declineReason, setDeclineReason] = useState('')
 
   const total = approvalTotalCents(bundle.items)
   const expired =
@@ -73,7 +76,11 @@ function Approval({ bundle, token }: { bundle: ApprovalBundle; token: string }) 
     setBusy(action)
     setError(false)
     try {
-      const next = await respondToEstimate(token, action)
+      const next = await respondToEstimate(
+        token,
+        action,
+        action === 'decline' ? declineReason : '',
+      )
       setStatus(next)
     } catch {
       setError(true)
@@ -150,13 +157,27 @@ function Approval({ bundle, token }: { bundle: ApprovalBundle; token: string }) 
           >
             {busy === 'accept' ? 'Approving…' : 'Approve this estimate'}
           </button>
+          {declining && (
+            <textarea
+              rows={2}
+              value={declineReason}
+              onChange={(e) => setDeclineReason(e.target.value)}
+              placeholder="Mind sharing why? (optional)"
+              aria-label="Reason for declining (optional)"
+              className="w-full rounded-lg border-2 border-edge bg-panel px-4 py-3 text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
+            />
+          )}
           <button
             type="button"
             disabled={busy !== null}
-            onClick={() => void respond('decline')}
+            onClick={() => (declining ? void respond('decline') : setDeclining(true))}
             className="heading-stencil tap-active w-full rounded-lg border-2 border-edge px-4 py-4 text-lg text-alert disabled:opacity-50"
           >
-            {busy === 'decline' ? 'Declining…' : 'Decline'}
+            {busy === 'decline'
+              ? 'Declining…'
+              : declining
+                ? 'Confirm decline'
+                : 'Decline'}
           </button>
         </div>
       )}

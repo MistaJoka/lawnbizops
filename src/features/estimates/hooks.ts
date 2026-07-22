@@ -189,6 +189,7 @@ export async function createEstimate(input: CreateEstimateInput): Promise<string
     number: null,
     // Placeholder until the server assigns the real default on sync.
     approval_token: crypto.randomUUID(),
+    decline_reason: '',
     sent_at: null,
     created_at: now,
     updated_at: now,
@@ -357,6 +358,20 @@ export async function setEstimateStatus(
       await maybeAdvanceStage(detail.estimate.client_id, 'quoted')
     }
   }
+}
+
+/**
+ * Operator-side decline with a captured loss reason (0044) — the win/loss
+ * analysis primitive. Reason may be '' when the operator skips it.
+ */
+export async function declineEstimate(id: string, reason: string): Promise<void> {
+  const decline_reason = reason.trim().slice(0, 500)
+  patchEstimateCaches(id, { status: 'declined', decline_reason })
+  await enqueue({
+    table: 'estimates',
+    kind: 'update',
+    payload: { id, patch: { status: 'declined', decline_reason } },
+  })
 }
 
 /**

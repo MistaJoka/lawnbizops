@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
 import { Field, PrimaryButton, TextArea, TextInput } from '@/components/Field'
-import type { Client, ClientStage } from './hooks'
+import { useClients, type Client, type ClientStage } from './hooks'
 
 export interface ClientFormValues {
   name: string
@@ -33,6 +34,20 @@ export function ClientForm({
   // quoted, invoiced, or reminded. Warn — don't block — so quick capture still
   // works and the detail can be filled in later.
   const noContact = phone.trim() === '' && email.trim() === ''
+
+  // Duplicate soft-warn (new clients only): same phone digits or email as an
+  // existing client is almost certainly the same person. Warn with a link —
+  // never block (shared office numbers exist).
+  const { data: existingClients } = useClients()
+  const phoneDigits = phone.replace(/\D/g, '')
+  const emailNorm = email.trim().toLowerCase()
+  const duplicate = initial
+    ? undefined
+    : (existingClients ?? []).find(
+        (c) =>
+          (phoneDigits.length >= 7 && c.phone.replace(/\D/g, '') === phoneDigits) ||
+          (emailNorm !== '' && c.email.trim().toLowerCase() === emailNorm),
+      )
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -84,6 +99,18 @@ export function ClientForm({
       {noContact && (
         <p className="-mt-2 text-sm text-khaki">
           Add a phone or email so you can quote, invoice, and remind them.
+        </p>
+      )}
+      {duplicate && (
+        <p className="-mt-2 text-sm text-alert">
+          <Link
+            to="/clients/$clientId"
+            params={{ clientId: duplicate.id }}
+            className="underline"
+          >
+            {duplicate.name}
+          </Link>{' '}
+          already has this contact info — open them instead of adding a twin?
         </p>
       )}
       <Field label="Notes">

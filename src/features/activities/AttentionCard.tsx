@@ -59,6 +59,7 @@ export function AttentionCard() {
 
 function glyphFor(activity: NotableActivity): string {
   if (activity.body.startsWith('New lead')) return '🌱'
+  if (activity.body.startsWith('Repeat inquiry')) return '🔁'
   if (activity.body.startsWith('Customer approved')) return '✅'
   return '❌'
 }
