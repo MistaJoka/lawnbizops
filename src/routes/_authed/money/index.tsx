@@ -79,6 +79,28 @@ const TAB_LABEL = {
 
 type MoneyTab = keyof typeof TAB_LABEL
 
+/** Shared list search for the three Money tabs — a season of records needs it. */
+function TabSearch({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string
+  onChange: (v: string) => void
+  placeholder: string
+}) {
+  return (
+    <input
+      type="search"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      aria-label={placeholder}
+      className="mt-4 w-full rounded-lg border border-edge bg-panel px-4 py-3 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
+    />
+  )
+}
+
 function MoneyScreen() {
   const [tab, setTab] = useState<MoneyTab>('invoices')
 
@@ -157,16 +179,29 @@ function MonthHeader() {
 
 function ExpensesTab() {
   const { data: expenses, isLoading, isError, refetch } = useExpenses()
+  const [search, setSearch] = useState('')
+  const q = search.trim().toLowerCase()
+  const visible = (expenses ?? []).filter(
+    (e) =>
+      !q ||
+      categoryLabel(e.category).toLowerCase().includes(q) ||
+      (e.vendor ?? '').toLowerCase().includes(q) ||
+      (e.client?.name ?? '').toLowerCase().includes(q),
+  )
 
   return (
     <>
+      <TabSearch value={search} onChange={setSearch} placeholder="Search expenses" />
       <ul className="mt-4 flex flex-col gap-2 pb-28">
-        {(expenses ?? []).map((expense) => (
+        {visible.map((expense) => (
           <li key={expense.id}>
             <ExpenseRow expense={expense} />
           </li>
         ))}
       </ul>
+      {q && visible.length === 0 && (expenses ?? []).length > 0 && (
+        <p className="py-8 text-center text-faded">No matching expenses.</p>
+      )}
       {(expenses ?? []).length === 0 &&
         (isError ? (
           <QueryError onRetry={() => void refetch()} />
@@ -297,7 +332,15 @@ function UnbilledWorkCard() {
 function InvoicesTab() {
   const { data: invoices, isLoading, isError, refetch } = useInvoiceBalances()
   const [nudgeOpen, setNudgeOpen] = useState(false)
+  const [search, setSearch] = useState('')
   const today = localToday()
+  const q = search.trim().toLowerCase()
+  const visible = (invoices ?? []).filter(
+    (inv) =>
+      !q ||
+      (inv.number ?? '').toLowerCase().includes(q) ||
+      (inv.client?.name ?? '').toLowerCase().includes(q),
+  )
 
   const open = (invoices ?? []).filter(isOpen)
   const outstanding = open.reduce((sum, inv) => sum + inv.balance_cents, 0)
@@ -350,13 +393,18 @@ function InvoicesTab() {
 
       <UnbilledWorkCard />
 
+      <TabSearch value={search} onChange={setSearch} placeholder="Search invoices" />
+
       <ul className="mt-4 flex flex-col gap-2 pb-28">
-        {(invoices ?? []).map((inv) => (
+        {visible.map((inv) => (
           <li key={inv.invoice_id}>
             <InvoiceRow invoice={inv} />
           </li>
         ))}
       </ul>
+      {q && visible.length === 0 && (invoices ?? []).length > 0 && (
+        <p className="py-8 text-center text-faded">No matching invoices.</p>
+      )}
       {(invoices ?? []).length === 0 &&
         (isError ? (
           <QueryError onRetry={() => void refetch()} />
@@ -505,17 +553,29 @@ function AwaitingResponseCard({ estimates }: { estimates: EstimateListRow[] }) {
 
 function EstimatesTab() {
   const { data: estimates, isLoading, isError, refetch } = useEstimates()
+  const [search, setSearch] = useState('')
+  const q = search.trim().toLowerCase()
+  const visible = (estimates ?? []).filter(
+    (est) =>
+      !q ||
+      (est.number ?? '').toLowerCase().includes(q) ||
+      (est.client?.name ?? '').toLowerCase().includes(q),
+  )
 
   return (
     <>
       <AwaitingResponseCard estimates={estimates ?? []} />
+      <TabSearch value={search} onChange={setSearch} placeholder="Search estimates" />
       <ul className="mt-4 flex flex-col gap-2 pb-28">
-        {(estimates ?? []).map((est) => (
+        {visible.map((est) => (
           <li key={est.id}>
             <EstimateRow estimate={est} />
           </li>
         ))}
       </ul>
+      {q && visible.length === 0 && (estimates ?? []).length > 0 && (
+        <p className="py-8 text-center text-faded">No matching estimates.</p>
+      )}
       {(estimates ?? []).length === 0 &&
         (isError ? (
           <QueryError onRetry={() => void refetch()} />

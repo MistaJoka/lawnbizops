@@ -208,14 +208,25 @@ function InvoiceDetailScreen() {
               {client.name}
             </Link>
           </span>
-          {client.phone && (
-            <a
-              href={`tel:${client.phone}`}
-              className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta"
-            >
-              📞 Call
-            </a>
-          )}
+          <span className="flex shrink-0 items-center gap-2">
+            {client.email && (
+              <a
+                href={`mailto:${client.email}`}
+                aria-label="Email client"
+                className="heading-stencil rounded-lg border border-edge px-4 py-3 text-sand"
+              >
+                ✉️
+              </a>
+            )}
+            {client.phone && (
+              <a
+                href={`tel:${client.phone}`}
+                className="heading-stencil rounded-lg bg-blaze px-4 py-3 text-on-cta"
+              >
+                📞 Call
+              </a>
+            )}
+          </span>
         </div>
       )}
 

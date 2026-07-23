@@ -19,8 +19,16 @@ function ClientsScreen() {
   const { data: clients, isLoading, isError, refetch } = useClients()
   const [search, setSearch] = useState('')
 
-  const filtered = (clients ?? []).filter((c) =>
-    c.name.toLowerCase().includes(search.trim().toLowerCase()),
+  // Match name, email, or phone — phone matches on digits, so "(954) 555"
+  // and "954555" both hit. Phone is the primary contact shown on each row;
+  // searching by it must work.
+  const q = search.trim().toLowerCase()
+  const qDigits = q.replace(/\D/g, '')
+  const filtered = (clients ?? []).filter(
+    (c) =>
+      c.name.toLowerCase().includes(q) ||
+      (q !== '' && c.email.toLowerCase().includes(q)) ||
+      (qDigits !== '' && c.phone.replace(/\D/g, '').includes(qDigits)),
   )
 
   return (

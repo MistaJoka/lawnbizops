@@ -110,7 +110,14 @@ function ClientDetailScreen() {
         </div>
       )}
 
-      {client.email && <p className="mt-4 text-faded">{client.email}</p>}
+      {client.email && (
+        <a
+          href={`mailto:${client.email}`}
+          className="mt-4 inline-block text-faded underline decoration-edge"
+        >
+          ✉️ {client.email}
+        </a>
+      )}
 
       {client.notes && (
         <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">
