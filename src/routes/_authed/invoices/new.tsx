@@ -212,7 +212,9 @@ function NewInvoiceScreen() {
                 <span className="tabular-nums">{formatCents(subtotal)}</span>
               </div>
               <div className="mt-1 mb-2 flex items-center justify-between text-sm text-faded">
-                <span>Sales tax ({(taxBps / 100).toFixed(2).replace(/\.?0+$/, '')}%)</span>
+                <span>
+                  Sales tax ({(taxBps / 100).toFixed(2).replace(/\.?0+$/, '')}%)
+                </span>
                 <span className="tabular-nums">{formatCents(total - subtotal)}</span>
               </div>
             </>

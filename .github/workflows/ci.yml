@@ -17,6 +17,12 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run format:check
+      # Regression guards: migration ledger stays linear (cold case CC-005) and
+      # every cold case in .qa/registry.json still has a living guard file.
+      - name: migration ledger
+        run: node scripts/check-migrations.mjs
+      - name: cold-case registry
+        run: node scripts/qa-registry-check.mjs
       # test:coverage enforces the src/lib coverage thresholds (see vite.config).
       - run: npm run test:coverage
       - run: npm run build
@@ -53,6 +59,10 @@ jobs:
         run: |
           psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
             -v ON_ERROR_STOP=1 -f supabase/tests/automation_sweep.sql
+      - name: Cold-case regression pins (past prod bugs stay dead)
+        run: |
+          psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" \
+            -v ON_ERROR_STOP=1 -f supabase/tests/cold_cases.sql
 
   # Drives the real app (vite dev server) against a seeded local Supabase stack
   # through the critical multi-step flows — the money loop (incl. void→restore

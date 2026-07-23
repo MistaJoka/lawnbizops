@@ -278,13 +278,7 @@ function MissedJobsSection({ today }: { today: string }) {
  * date in one action (in-progress/done jobs stay put). Collapsed behind one
  * tap so the common single-job day isn't cluttered.
  */
-function BulkMoveDay({
-  jobs,
-  selected,
-}: {
-  jobs: JobWithContext[]
-  selected: string
-}) {
+function BulkMoveDay({ jobs, selected }: { jobs: JobWithContext[]; selected: string }) {
   const navigate = useNavigate()
   const movable = jobs.filter((j) => j.status === 'scheduled')
   const [open, setOpen] = useState(false)

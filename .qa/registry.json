@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "$comment": "Cold-case registry — every past prod/user-facing bug and the guard that keeps it dead. Policy: docs/qa-playbook.md. Guards are verified to exist by scripts/qa-registry-check.mjs (CI). A guard that fails = the case is REOPENED — louder than a new bug.",
+  "bars": {
+    "coverage_branch": 0.65,
+    "coverage_branch_s1": 0.8,
+    "mutation": 0.55,
+    "mutation_s1": 0.7
+  },
+  "s1_paths": [
+    "src/lib/outbox.ts",
+    "src/features/invoices/**",
+    "src/features/estimates/**",
+    "supabase/migrations/**"
+  ],
+  "cold_cases": [
+    {
+      "id": "CC-001",
+      "title": "Prod rendered Not Found on every route — router had no basepath under /lawnbizops/",
+      "severity": "S1",
+      "root_cause": "dev/e2e/preview all ran at base '/', so nothing exercised the GitHub Pages sub-path; latent since first deploy",
+      "regression_test": "scripts/smoke-basepath.mjs",
+      "ci_step": "e2e / Sub-path routing smoke",
+      "fixed_in": "78b3747",
+      "opened": "2026-06-20T00:00:00Z",
+      "status": "closed"
+    },
+    {
+      "id": "CC-002",
+      "title": "Invoice creation broke in prod — numbering triggers still keyed business_settings by dropped user_id after org re-key",
+      "severity": "S1",
+      "root_cause": "migration 0012 re-keyed business_settings to org_id but the 0006/0007 numbering triggers kept `on conflict (user_id)`",
+      "regression_test": "supabase/tests/cold_cases.sql",
+      "ci_step": "rls-test / Cold-case regression pins",
+      "fixed_in": "migration 0019",
+      "opened": "2026-06-14T00:00:00Z",
+      "status": "closed"
+    },
+    {
+      "id": "CC-003",
+      "title": "Fully reversed invoice stuck at 'paid' — apply_payment recompute never reverted status",
+      "severity": "S2",
+      "root_cause": "status case ended in `else status`; correct for forward-only payments, wrong once offsetting negative lines exist",
+      "regression_test": "supabase/tests/cold_cases.sql",
+      "also_guarded_by": "e2e/payment-reversal.spec.ts",
+      "fixed_in": "migration 0031",
+      "opened": "2026-06-23T00:00:00Z",
+      "status": "closed"
+    },
+    {
+      "id": "CC-004",
+      "title": "Duplicate estimate→invoice conversion could double-bill a client",
+      "severity": "S1",
+      "root_cause": "client-side Convert guard can't see the window between two offline devices or a retry racing the cache; no DB backstop",
+      "regression_test": "supabase/tests/cold_cases.sql",
+      "fixed_in": "migration 0035 (partial unique index invoices.estimate_id)",
+      "opened": "2026-07-19T00:00:00Z",
+      "status": "closed"
+    },
+    {
+      "id": "CC-005",
+      "title": "Two branches both claimed migration 0027 — hand-renumbered to 0031 at merge",
+      "severity": "S2",
+      "root_cause": "nothing enforced unique/contiguous migration numbers, so parallel branches could silently collide",
+      "regression_test": "scripts/check-migrations.mjs",
+      "ci_step": "check / migration ledger",
+      "fixed_in": "renumber commit (accounting-suite merge)",
+      "opened": "2026-06-23T00:00:00Z",
+      "status": "closed"
+    },
+    {
+      "id": "CC-006",
+      "title": "EstimateStatusChip expiry tests flaked — asserted against the real clock",
+      "severity": "S3",
+      "root_cause": "date-relative fixtures crossed expiry boundaries depending on the day the suite ran (hermeticity violation: unfrozen clock)",
+      "regression_test": "src/features/estimates/EstimateStatusChip.test.tsx",
+      "fixed_in": "fa58753",
+      "opened": "2026-06-22T00:00:00Z",
+      "status": "closed"
+    }
+  ],
+  "flaky_quarantine": []
+}

@@ -52,7 +52,6 @@ function ToolsScreen() {
             </div>
           </Link>
         ))}
-
       </div>
     </div>
   )

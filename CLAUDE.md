@@ -61,6 +61,11 @@ statuses, `set_updated_at` trigger.
   `heading-stencil`. Big glove-friendly tap targets.
 - Verify before claiming done:
   `npx prettier --write . && npm run lint && npm test && npm run build`
+- QA policy: `docs/qa-playbook.md`. Every bug that reached prod gets a cold
+  case in `.qa/registry.json` + a regression test that failed before the fix
+  (`supabase/tests/cold_cases.sql` for DB bugs). Guards live forever —
+  `scripts/qa-registry-check.mjs` (CI) fails if one disappears. Never weaken a
+  failing test to green; floors (coverage/mutation/bundle) only ratchet up.
 - Preview server: `.claude/launch.json` → `dev` (port 5173). preview_fill
   doesn't trigger React onChange — use native-setter + input event via
   preview_eval when driving forms.

@@ -1,9 +1,6 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import {
-  useNotableActivities,
-  type NotableActivity,
-} from '@/features/activities/hooks'
+import { useNotableActivities, type NotableActivity } from '@/features/activities/hooks'
 import { loadPreferences, savePreferences } from '@/lib/preferences'
 
 /**

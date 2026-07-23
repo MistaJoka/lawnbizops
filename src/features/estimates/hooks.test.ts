@@ -345,7 +345,13 @@ describe('deposits', () => {
     ({
       estimate: { id: 'e1', client_id: 'c1', number: 'EST-1', status: 'accepted' },
       items: [
-        { id: 'i1', description: 'Pavers', quantity: 1, unit_price_cents: 10000, sort_order: 0 },
+        {
+          id: 'i1',
+          description: 'Pavers',
+          quantity: 1,
+          unit_price_cents: 10000,
+          sort_order: 0,
+        },
       ],
       client: { id: 'c1', name: 'Pat', phone: '555' },
       property: null,

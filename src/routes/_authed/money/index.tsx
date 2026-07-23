@@ -296,9 +296,7 @@ function UnbilledWorkCard() {
           onClick={() => void handleBatch()}
           className="heading-stencil tap-active mt-3 w-full rounded-lg border-2 border-blaze py-2 text-xs text-blaze disabled:opacity-50"
         >
-          {batching
-            ? 'Creating drafts…'
-            : `🧾 Invoice all (${groups.length} clients)`}
+          {batching ? 'Creating drafts…' : `🧾 Invoice all (${groups.length} clients)`}
         </button>
       )}
       <ul className="mt-3 flex flex-col gap-2">

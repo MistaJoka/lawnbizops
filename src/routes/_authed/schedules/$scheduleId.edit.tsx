@@ -155,8 +155,8 @@ function PauseControls({
         </button>
       </div>
       <p className="mt-1 text-xs text-faded">
-        Pick a date for a seasonal hold that resumes itself — or leave it blank to
-        pause until you come back.
+        Pick a date for a seasonal hold that resumes itself — or leave it blank to pause
+        until you come back.
       </p>
     </div>
   )

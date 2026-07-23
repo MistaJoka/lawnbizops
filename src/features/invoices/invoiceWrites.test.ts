@@ -105,7 +105,10 @@ describe('createInvoiceFromJobs', () => {
   })
 
   it('a 7% tax rate is snapshotted and added on top of the subtotal', async () => {
-    const id = await createInvoiceFromJobs({ ...baseInput([job('j1', 5000)]), taxBps: 700 })
+    const id = await createInvoiceFromJobs({
+      ...baseInput([job('j1', 5000)]),
+      taxBps: 700,
+    })
 
     const op = ops().find((o) => o.table === 'invoices' && o.kind === 'upsert')!
     expect(op.payload.tax_bps).toBe(700) // snapshot rides the row

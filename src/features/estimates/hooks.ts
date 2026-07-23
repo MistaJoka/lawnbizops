@@ -136,8 +136,7 @@ export function useEstimate(id: string) {
         items,
         client: client ?? null,
         property,
-        linkedInvoiceId:
-          linkedInvoices.find((li) => !li.is_deposit)?.invoice_id ?? null,
+        linkedInvoiceId: linkedInvoices.find((li) => !li.is_deposit)?.invoice_id ?? null,
         linkedInvoices,
       }
     },
@@ -290,9 +289,7 @@ export async function updateEstimate(
       : { ...item, created_at: now, updated_at: now, user_id: '', org_id: '' }
   })
   queryClient.setQueryData<EstimateDetail>(['estimates', estimateId], (old) =>
-    old
-      ? { ...old, estimate: { ...old.estimate, ...patch }, items: cachedItems }
-      : old,
+    old ? { ...old, estimate: { ...old.estimate, ...patch }, items: cachedItems } : old,
   )
   queryClient.setQueryData<EstimateListRow[]>(['estimates'], (old) =>
     old?.map((row) =>

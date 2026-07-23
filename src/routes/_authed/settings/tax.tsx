@@ -117,9 +117,9 @@ function TaxSettingsForm({ settings }: { settings: BusinessSettings | null }) {
             />
           </Field>
           <p className="mt-1 text-xs text-faded">
-            Added to new invoices from now on (shown as a separate line).
-            Existing invoices keep their original totals. Check your state’s
-            rules on taxing lawn services.
+            Added to new invoices from now on (shown as a separate line). Existing
+            invoices keep their original totals. Check your state’s rules on taxing lawn
+            services.
           </p>
         </div>
 

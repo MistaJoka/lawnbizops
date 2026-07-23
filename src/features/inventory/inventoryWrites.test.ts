@@ -120,8 +120,8 @@ describe('archiveInventoryItem', () => {
     const op = lastOp()
     expect(op).toMatchObject({ table: 'inventory_items', kind: 'update' })
     expect((op.payload as { id: string }).id).toBe('a')
-    expect(
-      (op.payload as { patch: { archived_at: unknown } }).patch.archived_at,
-    ).toEqual(expect.any(String))
+    expect((op.payload as { patch: { archived_at: unknown } }).patch.archived_at).toEqual(
+      expect.any(String),
+    )
   })
 })

@@ -239,13 +239,7 @@ function ClientDetailScreen() {
  * and every property, quote, invoice, and note moves there — this record is
  * archived. The strong confirm carries the full consequence; the RPC is atomic.
  */
-function MergeSheet({
-  duplicate,
-  onClose,
-}: {
-  duplicate: Client
-  onClose: () => void
-}) {
+function MergeSheet({ duplicate, onClose }: { duplicate: Client; onClose: () => void }) {
   const navigate = useNavigate()
   const { data: clients } = useClients()
   const [query, setQuery] = useState('')

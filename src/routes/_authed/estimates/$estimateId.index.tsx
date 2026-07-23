@@ -284,9 +284,7 @@ function EstimateDetailScreen() {
       {estimate.status === 'declined' && estimate.decline_reason && (
         <div className="mt-4 rounded-lg border border-alert/50 bg-panel px-4 py-4">
           <p className="heading-stencil text-xs text-alert">Declined — reason</p>
-          <p className="mt-1 whitespace-pre-wrap text-sand">
-            {estimate.decline_reason}
-          </p>
+          <p className="mt-1 whitespace-pre-wrap text-sand">{estimate.decline_reason}</p>
         </div>
       )}
 
@@ -538,14 +536,19 @@ function DepositCard({
         </button>
       </div>
       <p className="mt-2 text-xs text-faded">
-        Makes a draft deposit invoice you can email now — the final invoice
-        deducts it automatically.
+        Makes a draft deposit invoice you can email now — the final invoice deducts it
+        automatically.
       </p>
     </div>
   )
 }
 
-const DECLINE_REASONS = ['Price too high', 'Bad timing', 'Went with someone else', 'No response']
+const DECLINE_REASONS = [
+  'Price too high',
+  'Bad timing',
+  'Went with someone else',
+  'No response',
+]
 
 /** Why did we lose it? Quick picks + free text — skippable, never blocking. */
 function DeclineSheet({
