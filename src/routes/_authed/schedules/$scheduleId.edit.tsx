@@ -145,7 +145,7 @@ function PauseControls({
           value={resumeOn}
           onChange={(e) => setResumeOn(e.target.value)}
           aria-label="Auto-resume date (optional)"
-          className="w-full rounded-lg border-2 border-edge bg-canvas px-4 py-3 text-lg text-sand focus:border-blaze focus:outline-none"
+          className="min-w-0 flex-1 rounded-lg border-2 border-edge bg-canvas px-4 py-3 text-lg text-sand focus:border-blaze focus:outline-none"
         />
         <button
           onClick={() => void setSchedulePaused(schedule, true, resumeOn || null)}
