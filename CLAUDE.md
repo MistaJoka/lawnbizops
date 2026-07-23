@@ -59,8 +59,8 @@ statuses, `set_updated_at` trigger.
 - Theme tokens (Tailwind v4, dark tactical): bg-canvas/panel, border-edge,
   text-sand/faded/khaki, bg-blaze (CTA), text-go/alert. Headers:
   `heading-stencil`. Big glove-friendly tap targets.
-- Verify before claiming done:
-  `npx prettier --write . && npm run lint && npm test && npm run build`
+- Verify before claiming done (one command — the full local gate):
+  `npx prettier --write . && npm run verify`
 - QA policy: `docs/qa-playbook.md`. Every bug that reached prod gets THREE
   artifacts in one commit: a regression test that failed before the fix
   (`supabase/tests/cold_cases.sql` for DB bugs), a cold case in

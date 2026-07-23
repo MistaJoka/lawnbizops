@@ -43,7 +43,8 @@ Two hard lessons shape everything below:
 | A11y             | axe scan of every authed screen                             | e2e suite     | yes          |
 | Mutation         | Stryker on scoped logic + money-path files, `break: 55`     | CI `mutation` | yes          |
 
-Local shortcut before any push: `npm run lint && npm run typecheck && npm test`.
+Local gate before any push — one command, no remembering (L-007):
+`npm run verify` (lint, format, types, tests, ledger guards, build, bundle).
 
 ## Severity — what the words mean
 

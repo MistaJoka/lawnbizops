@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   addDaysISO,
   formatClockTime,
@@ -22,6 +22,10 @@ describe('formatClockTime', () => {
   it('passes empty/invalid through as empty', () => {
     expect(formatClockTime('')).toBe('')
     expect(formatClockTime('garbage')).toBe('')
+  })
+  it('rejects partial matches — the whole string must be a clock time', () => {
+    expect(formatClockTime('9:30 pm')).toBe('') // trailing junk
+    expect(formatClockTime('x19:30')).toBe('') // leading junk
   })
 })
 
@@ -50,6 +54,30 @@ describe('relativeTime', () => {
     expect(relativeTime(new Date(Date.now() - 3 * 3600 * 1000).toISOString())).toMatch(
       /^\d+h ago$/,
     )
+  })
+})
+
+describe('relativeTime unit boundaries (frozen clock)', () => {
+  beforeEach(() => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-07-23T12:00:00'))
+  })
+  afterEach(() => vi.useRealTimers())
+
+  const agoSec = (s: number) =>
+    relativeTime(new Date(Date.now() - s * 1000).toISOString())
+
+  it('flips just-now → minutes at exactly 45s', () => {
+    expect(agoSec(44)).toBe('just now')
+    expect(agoSec(45)).toBe('1m ago')
+  })
+  it('flips minutes → hours at exactly 60m', () => {
+    expect(agoSec(59 * 60)).toBe('59m ago')
+    expect(agoSec(60 * 60)).toBe('1h ago')
+  })
+  it('flips hours → days at exactly 24h', () => {
+    expect(agoSec(23 * 3600)).toBe('23h ago')
+    expect(agoSec(24 * 3600)).toBe('1d ago')
   })
 })
 

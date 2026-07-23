@@ -80,4 +80,16 @@ describe('parseCsv', () => {
     expect(parseCsv('')).toEqual([])
     expect(parseCsv('\n\n')).toEqual([])
   })
+  it('handles bare-CR line endings (classic Mac exports)', () => {
+    expect(parseCsv('a,b\r1,2')).toEqual([
+      ['a', 'b'],
+      ['1', '2'],
+    ])
+  })
+  it('keeps a single unterminated cell', () => {
+    expect(parseCsv('x')).toEqual([['x']])
+  })
+  it('keeps a trailing empty field at end-of-file', () => {
+    expect(parseCsv('a\nb,')).toEqual([['a'], ['b', '']])
+  })
 })

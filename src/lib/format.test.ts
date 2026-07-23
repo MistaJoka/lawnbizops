@@ -1,5 +1,20 @@
-import { describe, expect, it } from 'vitest'
-import { formatCents, formatCentsShort, parseDollarsToCents, shortAgo } from './format'
+import { describe, expect, it, vi } from 'vitest'
+import {
+  formatCents,
+  formatCentsShort,
+  localToday,
+  parseDollarsToCents,
+  shortAgo,
+} from './format'
+
+describe('localToday', () => {
+  it('renders the device-local date zero-padded (frozen clock)', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date(2026, 0, 5)) // Jan 5, local
+    expect(localToday()).toBe('2026-01-05')
+    vi.useRealTimers()
+  })
+})
 
 describe('formatCents', () => {
   it('formats whole dollars', () => {
@@ -39,6 +54,12 @@ describe('formatCentsShort', () => {
   it('handles negatives', () => {
     expect(formatCentsShort(-840000)).toBe('-$8.4k')
   })
+  it('switches format exactly at $1k and $10k', () => {
+    expect(formatCentsShort(99900)).toBe('$999')
+    expect(formatCentsShort(100000)).toBe('$1.0k')
+    expect(formatCentsShort(999900)).toBe('$10.0k') // still one decimal at 9,999
+    expect(formatCentsShort(1000000)).toBe('$10k')
+  })
 })
 
 describe('parseDollarsToCents', () => {
@@ -55,6 +76,12 @@ describe('parseDollarsToCents', () => {
     expect(parseDollarsToCents('abc')).toBeNull()
     expect(parseDollarsToCents('')).toBeNull()
     expect(parseDollarsToCents('1.2.3')).toBeNull()
+  })
+  it('rejects inputs that clean down to nothing or a bare sign', () => {
+    expect(parseDollarsToCents('$')).toBeNull()
+    expect(parseDollarsToCents('$ ,')).toBeNull()
+    expect(parseDollarsToCents('-')).toBeNull()
+    expect(parseDollarsToCents('1.234')).toBeNull() // 3 decimals is not money
   })
 })
 
@@ -78,5 +105,13 @@ describe('shortAgo', () => {
     // 2 days earlier → "Jun 22" in the local timezone of the test runner.
     const out = shortAgo(now - 2 * 86_400_000, now)
     expect(out).toMatch(/^[A-Z][a-z]{2} \d{1,2}$/)
+  })
+  it('flips units exactly at 1m, 1h, and 1d', () => {
+    expect(shortAgo(now - 59_999, now)).toBe('now')
+    expect(shortAgo(now - 60_000, now)).toBe('1m')
+    expect(shortAgo(now - 3_599_999, now)).toBe('59m')
+    expect(shortAgo(now - 3_600_000, now)).toBe('1h')
+    expect(shortAgo(now - 86_399_999, now)).toBe('23h')
+    expect(shortAgo(now - 86_400_000, now)).toMatch(/^[A-Z][a-z]{2} \d{1,2}$/)
   })
 })
