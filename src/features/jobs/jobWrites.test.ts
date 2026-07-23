@@ -88,12 +88,32 @@ describe('setJobStatus', () => {
     }
   })
 
-  it('a non-done transition patches status only (no completed_at)', async () => {
+  it('first start clocks in: in_progress stamps started_at (job costing 0047)', async () => {
     seed(job())
 
     await setJobStatus(job(), 'in_progress')
 
+    expect(lastOp().payload.patch).toEqual({
+      status: 'in_progress',
+      started_at: expect.any(String),
+    })
+  })
+
+  it('a re-start keeps the original clock-in — started_at is never overwritten', async () => {
+    const started = job({ status: 'scheduled', started_at: '2026-07-23T13:00:00Z' })
+    seed(started)
+
+    await setJobStatus(started, 'in_progress')
+
     expect(lastOp().payload.patch).toEqual({ status: 'in_progress' })
+  })
+
+  it('non-start transitions patch status only (no stamps)', async () => {
+    seed(job())
+
+    await setJobStatus(job(), 'canceled')
+
+    expect(lastOp().payload.patch).toEqual({ status: 'canceled' })
   })
 })
 

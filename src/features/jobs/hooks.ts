@@ -142,10 +142,15 @@ const JOB_STATUS_TOAST: Partial<Record<JobStatus, string>> = {
   canceled: 'Job canceled',
 }
 
-/** Set job status; 'done' stamps completed_at. */
+/** Set job status; 'done' stamps completed_at, first 'in_progress' clocks in. */
 export async function setJobStatus(job: Job, status: JobStatus): Promise<void> {
   const patch: Partial<Job> =
     status === 'done' ? { status, completed_at: new Date().toISOString() } : { status }
+  // Clock-in for job costing (0047): first start only — a re-start after a
+  // pause/reopen keeps the original stamp, so time-on-site spans the visit.
+  if (status === 'in_progress' && !job.started_at) {
+    patch.started_at = new Date().toISOString()
+  }
   patchJobCaches(job, patch)
   await enqueue({ table: 'jobs', kind: 'update', payload: { id: job.id, patch } })
   const message = JOB_STATUS_TOAST[status]
@@ -271,6 +276,7 @@ export async function createOneOffJob(
     occurrence_date: null,
     status: 'scheduled' as const,
     completed_at: null,
+    started_at: null,
   }
   const cached: JobWithContext = {
     ...row,

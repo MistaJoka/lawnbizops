@@ -86,6 +86,7 @@ export type Database = {
           estimate_prefix: string
           intake_token: string
           invoice_prefix: string
+          labor_rate_cents_per_hour: number
           logo_path: string | null
           mileage_rate_cents: number
           next_estimate_number: number
@@ -118,6 +119,7 @@ export type Database = {
           estimate_prefix?: string
           intake_token?: string
           invoice_prefix?: string
+          labor_rate_cents_per_hour?: number
           logo_path?: string | null
           mileage_rate_cents?: number
           next_estimate_number?: number
@@ -150,6 +152,7 @@ export type Database = {
           estimate_prefix?: string
           intake_token?: string
           invoice_prefix?: string
+          labor_rate_cents_per_hour?: number
           logo_path?: string | null
           mileage_rate_cents?: number
           next_estimate_number?: number
@@ -714,6 +717,7 @@ export type Database = {
           scheduled_date: string
           service_id: string | null
           start_time: string
+          started_at: string | null
           status: string
           title: string
           updated_at: string
@@ -734,6 +738,7 @@ export type Database = {
           scheduled_date: string
           service_id?: string | null
           start_time?: string
+          started_at?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -754,6 +759,7 @@ export type Database = {
           scheduled_date?: string
           service_id?: string | null
           start_time?: string
+          started_at?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -1577,6 +1583,8 @@ export type Database = {
           client_id: string
           cost_cents: number
           job_id: string
+          labor_cents: number
+          labor_minutes: number
           profit_cents: number
           revenue_cents: number
           title: string

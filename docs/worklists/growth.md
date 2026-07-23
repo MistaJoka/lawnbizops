@@ -76,6 +76,13 @@ estimates · invoices · jobs.
 
 - [ ] Recurring autopay / card-on-file (after Stripe payment link).
 - [ ] Instant property-measurement quoting (mapping/measurement build).
-- [ ] Job costing / time-on-site (real clock, replaces free-text `start_time`).
+- [x] Job costing / time-on-site (real clock). _(v1 done 2026-07-23, migration
+      0047: `jobs.started_at` stamped on first Start (setJobStatus), duration =
+      started→completed; org `labor_rate_cents_per_hour` in Settings → Profile
+      (0 = off, so profit numbers never move silently); labor priced into
+      `job_profitability` (SQL) and the job-detail economics card (JS mirror
+      `timeOnSite.ts`, differential-tested against the RPC). `start_time`
+      free-text stays as the *planned* time; the clock is the *actual*.
+      Deferred: crew/multi-rate, materials from inventory, live running timer.)_
 - [ ] Online booking windows (customer self-schedules).
       </content>

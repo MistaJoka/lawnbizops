@@ -7,7 +7,10 @@ export interface JobProfit {
   title: string
   client_id: string | null
   revenue_cents: number
+  /** Includes the labor leg (0047) — expenses + time-on-site at the org rate. */
   cost_cents: number
+  labor_cents: number
+  labor_minutes: number
   profit_cents: number
 }
 

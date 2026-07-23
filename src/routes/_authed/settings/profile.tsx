@@ -8,6 +8,7 @@ import {
   TextInput,
 } from '@/components/Field'
 import { confirm } from '@/lib/confirm'
+import { parseDollarsToCents } from '@/lib/format'
 import { SkeletonDetail } from '@/components/Skeleton'
 import { shareLink } from '@/features/estimates/share'
 import { useBusinessSettings, type BusinessSettings } from '@/features/invoices/hooks'
@@ -55,6 +56,11 @@ function ProfileForm({ initial }: { initial: BusinessSettings | null }) {
   const [invoicePrefix, setInvoicePrefix] = useState(initial?.invoice_prefix ?? 'INV-')
   const [estimatePrefix, setEstimatePrefix] = useState(initial?.estimate_prefix ?? 'EST-')
   const [dueDays, setDueDays] = useState(String(initial?.default_due_days ?? 14))
+  const [laborRate, setLaborRate] = useState(
+    initial?.labor_rate_cents_per_hour
+      ? (initial.labor_rate_cents_per_hour / 100).toFixed(2)
+      : '',
+  )
   const [reviewUrl, setReviewUrl] = useState(initial?.review_url ?? '')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<{ text: string; ok: boolean } | null>(null)
@@ -79,6 +85,9 @@ function ProfileForm({ initial }: { initial: BusinessSettings | null }) {
         invoice_prefix: invoicePrefix.trim(),
         estimate_prefix: estimatePrefix.trim(),
         default_due_days: days,
+        labor_rate_cents_per_hour: laborRate.trim()
+          ? (parseDollarsToCents(laborRate) ?? 0)
+          : 0,
         review_url: reviewUrl.trim(),
       })
       setMessage({ text: 'Saved', ok: true })
@@ -142,14 +151,28 @@ function ProfileForm({ initial }: { initial: BusinessSettings | null }) {
           />
         </Field>
       </div>
-      <Field label="Default due days">
-        <TextInput
-          inputMode="numeric"
-          placeholder="14"
-          value={dueDays}
-          onChange={(e) => setDueDays(e.target.value)}
-        />
-      </Field>
+      <div className="grid grid-cols-2 gap-4">
+        <Field label="Default due days">
+          <TextInput
+            inputMode="numeric"
+            placeholder="14"
+            value={dueDays}
+            onChange={(e) => setDueDays(e.target.value)}
+          />
+        </Field>
+        <Field label="Labor rate ($/hr)">
+          <TextInput
+            inputMode="decimal"
+            placeholder="45.00"
+            value={laborRate}
+            onChange={(e) => setLaborRate(e.target.value)}
+          />
+        </Field>
+      </div>
+      <span className="-mt-3 text-xs text-faded">
+        Labor rate prices time on site into job costs. Leave blank to keep labor costing
+        off.
+      </span>
       <Field label="Google review link">
         <TextInput
           type="url"

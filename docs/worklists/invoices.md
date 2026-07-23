@@ -19,5 +19,6 @@ Apply all four rubric lenses (README) to each item.
 
 - [x] Payment form: default **method** to the last-used method, not always `cash`. _(done 2026-06-25: device-local localStorage memory, falls back to cash; unit-tested.)_
 - [x] Money aging buckets: add a **one-tap "send reminder"** on overdue invoices (wire the existing `auto_overdue_reminder` setting into a visible action). _(verified 2026-07-19, already covered twice over: Money → Invoices has the "🔔 Nudge overdue (n)" NudgeSheet (per-invoice SMS + recordReminder), and automated overdue-reminder EMAILS now send via automation_sweep + email_outbox behind Settings → Automations.)_
-- [ ] Support a **deposit / partial invoice** created from an accepted estimate.
+- [x] Support a **deposit / partial invoice** created from an accepted estimate.
   - _2026-07-19: deferred — needs a schema decision first. Migration 0035 added `unique(invoices.estimate_id)` (double-convert guard), so a deposit invoice would consume the estimate link and block the final invoice. Clean support wants either a `kind` column + relaxed uniqueness or a deposit line convention; punted to a dedicated pass rather than half-shipping._
+  - _2026-07-22: SHIPPED (commit 8833132, migration 0045 `is_deposit` + partial unique index on non-deposit invoices): `createDepositInvoice` on accepted estimates; final `convertToInvoice` deducts non-void deposits with a negative line; unit-tested (deposits describe in estimates/hooks.test.ts) + backstop pinned by cold case CC-004._

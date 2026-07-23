@@ -13,6 +13,11 @@ import { DangerButton } from '@/components/Field'
 import { confirm } from '@/lib/confirm'
 import { deletePhoto, uploadPhoto, usePhotos } from '@/features/estimates/photos'
 import { jobPipelineStage } from '@/lib/jobPipeline'
+import {
+  formatMinutes,
+  laborCostCents,
+  timeOnSiteMinutes,
+} from '@/features/jobs/timeOnSite'
 import { formatCents } from '@/lib/format'
 import { formatClockTime, formatShortDate } from '@/lib/dates'
 
@@ -113,6 +118,8 @@ function JobDetailScreen() {
         jobId={jobId}
         clientId={client?.id ?? null}
         priceCents={job.price_cents}
+        startedAt={job.started_at}
+        completedAt={job.completed_at}
       />
 
       <JobActions job={job} />
@@ -259,13 +266,20 @@ function JobEconomics({
   jobId,
   clientId,
   priceCents,
+  startedAt,
+  completedAt,
 }: {
   jobId: string
   clientId: string | null
   priceCents: number
+  startedAt: string | null
+  completedAt: string | null
 }) {
   const { data: expenses } = useExpensesForJob(jobId)
-  const cost = (expenses ?? []).reduce((sum, e) => sum + e.amount_cents, 0)
+  const { data: settings } = useBusinessSettings()
+  const minutes = timeOnSiteMinutes(startedAt, completedAt)
+  const labor = laborCostCents(minutes, settings?.labor_rate_cents_per_hour ?? 0)
+  const cost = (expenses ?? []).reduce((sum, e) => sum + e.amount_cents, 0) + labor
   const profit = priceCents - cost
 
   return (
@@ -304,6 +318,15 @@ function JobEconomics({
           </p>
         </div>
       </div>
+      {minutes !== null && (
+        <p className="mt-2 text-xs text-faded">
+          ⏱ {formatMinutes(minutes)} on site
+          {labor > 0 &&
+            ` — ${formatCents(labor)} labor included in costs (${formatCents(
+              settings?.labor_rate_cents_per_hour ?? 0,
+            )}/hr)`}
+        </p>
+      )}
     </div>
   )
 }

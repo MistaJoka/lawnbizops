@@ -479,6 +479,9 @@ function buildData(): DemoData {
         status,
         price_cents,
         completed_at: doneOff == null ? null : ts(doneOff),
+        // Done jobs clocked in ~85 minutes before completion (ts() completes
+        // at hour 9) — exercises the time-on-site chip + labor costing (0047).
+        started_at: doneOff == null ? null : ts(doneOff, 7.58),
         created_at: ts(off - 1),
         property: prop
           ? {
