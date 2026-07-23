@@ -422,6 +422,55 @@ describe('deposits', () => {
       .find((b) => b.invoice_id === invId)!
     expect(bal.total_cents).toBe(6000) // 10000 − 4000
   })
+
+  it('handles a client-less estimate (lead without a contact card) without crashing', async () => {
+    const detail = acceptedDetail()
+    detail.client = null
+
+    const invId = await createDepositInvoice(detail, 5000, 14, 0)
+
+    expect(
+      queryClient.getQueryData<InvoiceDetail>(['invoices', invId])!.client,
+    ).toBeNull()
+    expect(queryClient.getQueryData<InvoiceBalance[]>(['invoices'])![0].client).toBeNull()
+  })
+
+  it('prepends to a warm invoice list instead of clobbering it', async () => {
+    const existing = { invoice_id: 'other' } as InvoiceBalance
+    queryClient.setQueryData<InvoiceBalance[]>(['invoices'], [existing])
+
+    const invId = await createDepositInvoice(acceptedDetail(), 5000, 14, 0)
+
+    const list = queryClient.getQueryData<InvoiceBalance[]>(['invoices'])!
+    expect(list.map((b) => b.invoice_id)).toEqual([invId, 'other'])
+  })
+
+  it('falls back to generic labels when numbers are not assigned yet', async () => {
+    // Offline-created rows have no server-assigned numbers — labels degrade.
+    const detail = acceptedDetail()
+    detail.estimate = { ...detail.estimate, number: null }
+    detail.linkedInvoices = [
+      {
+        invoice_id: 'dep1',
+        number: null,
+        status: 'sent',
+        is_deposit: true,
+        subtotal_cents: 1000,
+      },
+    ]
+
+    await createDepositInvoice(detail, 5000, 14, 0)
+    const depositLine = enqueue.mock.calls
+      .map((c) => c[0] as { table: string; payload: { description?: string } })
+      .find((o) => o.table === 'invoice_items')!
+    expect(depositLine.payload.description).toBe('Deposit — estimate')
+
+    const invId = await convertToInvoice(detail, 14, 0)
+    const inv = queryClient.getQueryData<InvoiceDetail>(['invoices', invId])!
+    expect(inv.items.map((i) => i.description)).toContain(
+      'Less deposit received (deposit)',
+    )
+  })
 })
 
 describe('createJobFromEstimate', () => {

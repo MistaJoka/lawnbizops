@@ -8,7 +8,9 @@
     "src/lib/dates.ts",
     "src/lib/format.ts",
     "src/lib/recurrence.ts",
-    "src/features/board/hooks.ts"
+    "src/features/board/hooks.ts",
+    "src/features/invoices/hooks.ts",
+    "src/features/estimates/hooks.ts"
   ],
   "reporters": ["clear-text", "progress"],
   "clearTextReporter": { "allowColor": false },

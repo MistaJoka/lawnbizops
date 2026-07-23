@@ -154,6 +154,23 @@ describe('createInvoiceFromJobs', () => {
     expect(firstJob).toBeGreaterThan(firstItem) // jobs flip only after items land
   })
 
+  it('labels each line with the job title and date, falling back to service then Job', async () => {
+    await createInvoiceFromJobs(
+      baseInput([
+        job('titled', 1000),
+        { ...job('untitled', 1000), title: '' },
+        { ...job('bare', 1000), title: '', service: null },
+      ]),
+    )
+
+    const lines = ops()
+      .filter((o) => o.table === 'invoice_items')
+      .map((o) => o.payload.description)
+    expect(lines).toContain('Job titled — 2026-06-20')
+    expect(lines).toContain('Mow — 2026-06-20') // no title → service name
+    expect(lines).toContain('Job — 2026-06-20') // nothing at all → generic
+  })
+
   it('never puts number/user_id/timestamps in the invoice or item payloads', async () => {
     await createInvoiceFromJobs(baseInput([job('j1', 5000)]))
 

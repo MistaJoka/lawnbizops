@@ -41,7 +41,7 @@ Two hard lessons shape everything below:
 | E2E regression   | money loop, quick-add, auth, board toggle, offline outbox   | CI `e2e`      | yes          |
 | Render smoke     | every authed route paints in demo mode, zero console errors | CI `e2e-demo` | yes          |
 | A11y             | axe scan of every authed screen                             | e2e suite     | yes          |
-| Mutation         | Stryker on scoped pure-logic files, `break: 55`             | CI `mutation` | yes          |
+| Mutation         | Stryker on scoped logic + money-path files, `break: 55`     | CI `mutation` | yes          |
 
 Local shortcut before any push: `npm run lint && npm run typecheck && npm test`.
 
