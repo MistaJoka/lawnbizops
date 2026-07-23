@@ -39,13 +39,24 @@ export interface EstimateListRow extends Estimate {
   client: { name: string; phone: string } | null
 }
 
+/** An invoice already created from this estimate (deposit or final). */
+export interface LinkedInvoice {
+  invoice_id: string
+  number: string | null
+  status: string
+  is_deposit: boolean
+  subtotal_cents: number
+}
+
 export interface EstimateDetail {
   estimate: Estimate
   items: EstimateItem[]
   client: { id: string; name: string; phone: string; email?: string } | null
   property: EstimateProperty | null
-  /** Invoice already created from this estimate, if any. */
+  /** FINAL (non-deposit) invoice already created from this estimate, if any. */
   linkedInvoiceId: string | null
+  /** Every invoice linked to this estimate — deposits first, then final. */
+  linkedInvoices: LinkedInvoice[]
 }
 
 // ---------------------------------------------------------------------------
@@ -108,18 +119,26 @@ export function useEstimate(id: string) {
           .maybeSingle()
         property = data ?? null
       }
+      // invoice_balances carries estimate_id + is_deposit + subtotal (0045) —
+      // one query gives every linked invoice WITH the amount the final
+      // conversion must deduct. Older backends without the columns yield [].
       const { data: linked } = await supabase
-        .from('invoices')
-        .select('id')
+        .from('invoice_balances')
+        .select('invoice_id, number, status, is_deposit, subtotal_cents')
         .eq('estimate_id', id)
-        .limit(1)
-        .maybeSingle()
+      const linkedInvoices = ((linked ?? []) as LinkedInvoice[]).map((li) => ({
+        ...li,
+        is_deposit: li.is_deposit ?? false,
+        subtotal_cents: li.subtotal_cents ?? 0,
+      }))
       return {
         estimate,
         items,
         client: client ?? null,
         property,
-        linkedInvoiceId: linked?.id ?? null,
+        linkedInvoiceId:
+          linkedInvoices.find((li) => !li.is_deposit)?.invoice_id ?? null,
+        linkedInvoices,
       }
     },
   })
@@ -209,6 +228,7 @@ export async function createEstimate(input: CreateEstimateInput): Promise<string
     client: input.client ? { id: input.clientId, ...input.client } : null,
     property: input.property,
     linkedInvoiceId: null,
+    linkedInvoices: [],
   })
   const listRow: EstimateListRow = {
     ...cachedEstimate,
@@ -398,8 +418,111 @@ export async function renewEstimate(detail: EstimateDetail): Promise<string> {
 }
 
 /**
+ * Collect a deposit on an accepted estimate: a normal draft invoice (same
+ * email / payment / A/R lifecycle) with one "Deposit — EST-x" line, flagged
+ * is_deposit so the final conversion can deduct it. Returns the invoice id.
+ */
+export async function createDepositInvoice(
+  detail: EstimateDetail,
+  amountCents: number,
+  defaultDueDays: number,
+  taxBps: number,
+): Promise<string> {
+  const id = crypto.randomUUID()
+  const issuedAt = localToday()
+  const dueAt = addDaysISO(issuedAt, defaultDueDays)
+
+  const invoiceRow = {
+    id,
+    client_id: detail.estimate.client_id,
+    estimate_id: detail.estimate.id,
+    status: 'draft' as const,
+    issued_at: issuedAt,
+    due_at: dueAt,
+    notes: '',
+    tax_bps: taxBps,
+    is_deposit: true,
+  }
+  const itemRow = {
+    id: crypto.randomUUID(),
+    invoice_id: id,
+    job_id: null,
+    description: `Deposit — ${detail.estimate.number ?? 'estimate'}`,
+    quantity: 1,
+    unit_price_cents: amountCents,
+    sort_order: 0,
+  }
+
+  const total = amountCents + taxCents(amountCents, taxBps)
+  const now = new Date().toISOString()
+
+  const cachedInvoice: Invoice = {
+    ...invoiceRow,
+    number: null,
+    last_reminded_at: null,
+    sent_at: null,
+    created_at: now,
+    updated_at: now,
+    user_id: '',
+    org_id: '',
+  }
+  queryClient.setQueryData<InvoiceDetail>(['invoices', id], {
+    invoice: cachedInvoice,
+    items: [{ ...itemRow, created_at: now, updated_at: now, user_id: '', org_id: '' }],
+    payments: [],
+    client: detail.client,
+  })
+  const balanceRow: InvoiceBalance = {
+    invoice_id: id,
+    client_id: detail.estimate.client_id,
+    number: null,
+    status: 'draft',
+    issued_at: issuedAt,
+    due_at: dueAt,
+    last_reminded_at: null,
+    total_cents: total,
+    paid_cents: 0,
+    balance_cents: total,
+    subtotal_cents: amountCents,
+    tax_bps: taxBps,
+    tax_cents: total - amountCents,
+    client: detail.client
+      ? { name: detail.client.name, phone: detail.client.phone }
+      : null,
+  }
+  queryClient.setQueryData<InvoiceBalance[]>(['invoices'], (old) =>
+    old ? [balanceRow, ...old] : [balanceRow],
+  )
+  queryClient.setQueryData<EstimateDetail>(['estimates', detail.estimate.id], (old) =>
+    old
+      ? {
+          ...old,
+          linkedInvoices: [
+            ...old.linkedInvoices,
+            {
+              invoice_id: id,
+              number: null,
+              status: 'draft',
+              is_deposit: true,
+              subtotal_cents: amountCents,
+            },
+          ],
+        }
+      : old,
+  )
+
+  // FIFO: invoice → item.
+  await enqueue({ table: 'invoices', kind: 'upsert', payload: invoiceRow })
+  await enqueue({ table: 'invoice_items', kind: 'upsert', payload: itemRow })
+  confirmToast('Deposit invoice created')
+  return id
+}
+
+/**
  * Create a draft invoice from an accepted estimate (estimate_id linked, items
- * copied). Reuses the invoice cache shapes so the invoice detail renders
+ * copied). Deposit invoices already collected against this estimate are
+ * deducted with a negative "Less deposit received" line, so the final bill is
+ * the remainder. Reuses the invoice cache shapes so the invoice detail renders
  * fully offline. Returns the new invoice id for navigation.
  */
 export async function convertToInvoice(
@@ -421,15 +544,29 @@ export async function convertToInvoice(
     notes: '',
     tax_bps: taxBps,
   }
-  const itemRows = detail.items.map((item, index) => ({
-    id: crypto.randomUUID(),
-    invoice_id: id,
-    job_id: null,
-    description: item.description,
-    quantity: item.quantity,
-    unit_price_cents: item.unit_price_cents,
-    sort_order: index,
-  }))
+  const deposits = detail.linkedInvoices.filter(
+    (li) => li.is_deposit && li.status !== 'void' && li.subtotal_cents > 0,
+  )
+  const itemRows = [
+    ...detail.items.map((item, index) => ({
+      id: crypto.randomUUID(),
+      invoice_id: id,
+      job_id: null,
+      description: item.description,
+      quantity: item.quantity,
+      unit_price_cents: item.unit_price_cents,
+      sort_order: index,
+    })),
+    ...deposits.map((dep, index) => ({
+      id: crypto.randomUUID(),
+      invoice_id: id,
+      job_id: null,
+      description: `Less deposit received (${dep.number ?? 'deposit'})`,
+      quantity: 1,
+      unit_price_cents: -dep.subtotal_cents,
+      sort_order: detail.items.length + index,
+    })),
+  ]
 
   const subtotal = invoiceTotalCents(itemRows)
   const total = subtotal + taxCents(subtotal, taxBps)
@@ -438,6 +575,7 @@ export async function convertToInvoice(
   const cachedInvoice: Invoice = {
     ...invoiceRow,
     number: null,
+    is_deposit: false,
     last_reminded_at: null,
     sent_at: null,
     created_at: now,
@@ -480,7 +618,22 @@ export async function convertToInvoice(
     old ? [balanceRow, ...old] : [balanceRow],
   )
   queryClient.setQueryData<EstimateDetail>(['estimates', detail.estimate.id], (old) =>
-    old ? { ...old, linkedInvoiceId: id } : old,
+    old
+      ? {
+          ...old,
+          linkedInvoiceId: id,
+          linkedInvoices: [
+            ...old.linkedInvoices,
+            {
+              invoice_id: id,
+              number: null,
+              status: 'draft',
+              is_deposit: false,
+              subtotal_cents: subtotal,
+            },
+          ],
+        }
+      : old,
   )
 
   // FIFO: invoice → items.

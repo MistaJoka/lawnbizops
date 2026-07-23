@@ -626,6 +626,7 @@ export type Database = {
           due_at: string | null
           estimate_id: string | null
           id: string
+          is_deposit: boolean
           issued_at: string
           last_reminded_at: string | null
           notes: string
@@ -643,6 +644,7 @@ export type Database = {
           due_at?: string | null
           estimate_id?: string | null
           id?: string
+          is_deposit?: boolean
           issued_at?: string
           last_reminded_at?: string | null
           notes?: string
@@ -660,6 +662,7 @@ export type Database = {
           due_at?: string | null
           estimate_id?: string | null
           id?: string
+          is_deposit?: boolean
           issued_at?: string
           last_reminded_at?: string | null
           notes?: string
@@ -1442,7 +1445,9 @@ export type Database = {
           balance_cents: number | null
           client_id: string | null
           due_at: string | null
+          estimate_id: string | null
           invoice_id: string | null
+          is_deposit: boolean | null
           issued_at: string | null
           last_reminded_at: string | null
           number: string | null
@@ -1460,6 +1465,13 @@ export type Database = {
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_estimate_id_fkey"
+            columns: ["estimate_id"]
+            isOneToOne: false
+            referencedRelation: "estimates"
             referencedColumns: ["id"]
           },
         ]

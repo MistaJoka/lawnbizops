@@ -309,6 +309,7 @@ export async function createInvoiceFromJobs(
     ...invoiceRow,
     number: null,
     estimate_id: null,
+    is_deposit: false,
     last_reminded_at: null,
     sent_at: null,
     created_at: now,

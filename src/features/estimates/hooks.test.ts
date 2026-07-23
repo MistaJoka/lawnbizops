@@ -20,6 +20,7 @@ vi.mock('@/features/clients/hooks', () => ({
 import { queryClient } from '@/lib/queryClient'
 import { localToday } from '@/lib/format'
 import {
+  createDepositInvoice,
   createEstimate,
   declineEstimate,
   setEstimateStatus,
@@ -313,6 +314,7 @@ describe('convertToInvoice', () => {
       client: { id: 'c1', name: 'Pat', phone: '555' },
       property: null,
       linkedInvoiceId: null,
+      linkedInvoices: [],
     } as unknown as EstimateDetail
     queryClient.setQueryData<EstimateDetail>(['estimates', 'e1'], detail)
 
@@ -335,6 +337,84 @@ describe('convertToInvoice', () => {
 
     // FIFO: the invoice row must land before its item rows.
     expect(tables()).toEqual(['invoices', 'invoice_items', 'invoice_items'])
+  })
+})
+
+describe('deposits', () => {
+  const acceptedDetail = () =>
+    ({
+      estimate: { id: 'e1', client_id: 'c1', number: 'EST-1', status: 'accepted' },
+      items: [
+        { id: 'i1', description: 'Pavers', quantity: 1, unit_price_cents: 10000, sort_order: 0 },
+      ],
+      client: { id: 'c1', name: 'Pat', phone: '555' },
+      property: null,
+      linkedInvoiceId: null,
+      linkedInvoices: [],
+    }) as unknown as EstimateDetail
+
+  it('createDepositInvoice makes a flagged single-line invoice with taxed balance', async () => {
+    const detail = acceptedDetail()
+    queryClient.setQueryData<EstimateDetail>(['estimates', 'e1'], detail)
+
+    const invId = await createDepositInvoice(detail, 5000, 14, 700)
+
+    const invoiceOp = enqueue.mock.calls
+      .map((c) => c[0] as { table: string; payload: Record<string, unknown> })
+      .find((o) => o.table === 'invoices')!
+    expect(invoiceOp.payload.is_deposit).toBe(true)
+    expect(invoiceOp.payload.estimate_id).toBe('e1')
+    expect(invoiceOp.payload.tax_bps).toBe(700)
+
+    const inv = queryClient.getQueryData<InvoiceDetail>(['invoices', invId])!
+    expect(inv.items).toHaveLength(1)
+    expect(inv.items[0].description).toBe('Deposit — EST-1')
+    expect(inv.items[0].unit_price_cents).toBe(5000)
+
+    const bal = queryClient.getQueryData<InvoiceBalance[]>(['invoices'])![0]
+    expect(bal.total_cents).toBe(5350) // 5000 + 7% tax
+
+    // The estimate now knows about its deposit (drives the deduct note).
+    const est = queryClient.getQueryData<EstimateDetail>(['estimates', 'e1'])!
+    expect(est.linkedInvoices).toEqual([
+      expect.objectContaining({ is_deposit: true, subtotal_cents: 5000 }),
+    ])
+    expect(est.linkedInvoiceId).toBeNull() // a deposit is not the final invoice
+  })
+
+  it('convertToInvoice deducts non-void deposits with a negative line', async () => {
+    const detail = acceptedDetail()
+    detail.linkedInvoices = [
+      {
+        invoice_id: 'dep1',
+        number: 'INV-9',
+        status: 'sent',
+        is_deposit: true,
+        subtotal_cents: 4000,
+      },
+      {
+        invoice_id: 'dep2',
+        number: 'INV-10',
+        status: 'void',
+        is_deposit: true,
+        subtotal_cents: 9999,
+      },
+    ]
+    queryClient.setQueryData<EstimateDetail>(['estimates', 'e1'], detail)
+
+    const invId = await convertToInvoice(detail, 14, 0)
+
+    const inv = queryClient.getQueryData<InvoiceDetail>(['invoices', invId])!
+    expect(inv.items.map((i) => i.description)).toEqual([
+      'Pavers',
+      'Less deposit received (INV-9)', // void deposit excluded
+    ])
+    expect(inv.items[1].unit_price_cents).toBe(-4000)
+
+    const bal = queryClient
+      .getQueryData<InvoiceBalance[]>(['invoices'])!
+      .find((b) => b.invoice_id === invId)!
+    expect(bal.total_cents).toBe(6000) // 10000 − 4000
   })
 })
 

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   convertToInvoice,
+  createDepositInvoice,
   createJobFromEstimate,
   declineEstimate,
   deleteEstimate,
@@ -29,7 +30,7 @@ import { EmptyState } from '@/components/EmptyState'
 import { DangerButton, Field, TextInput } from '@/components/Field'
 import { SkeletonDetail } from '@/components/Skeleton'
 import { confirm } from '@/lib/confirm'
-import { formatCents, localToday } from '@/lib/format'
+import { formatCents, localToday, parseDollarsToCents } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
 export const Route = createFileRoute('/_authed/estimates/$estimateId/')({
@@ -67,6 +68,10 @@ function EstimateDetailScreen() {
 
   const { estimate, items, client, property } = detail
   const total = invoiceTotalCents(items)
+  const depositInvoices = detail.linkedInvoices.filter((li) => li.is_deposit)
+  const depositTotal = depositInvoices
+    .filter((li) => li.status !== 'void')
+    .reduce((sum, li) => sum + li.subtotal_cents, 0)
 
   async function handleSharePdf() {
     if (!detail || !detail.estimate.number || sharing) return
@@ -365,6 +370,22 @@ function EstimateDetailScreen() {
                 Create recurring schedule
               </Link>
             )}
+            {detail.linkedInvoices.length === 0 && (
+              <DepositCard detail={detail} totalCents={total} />
+            )}
+            {depositInvoices.map((dep) => (
+              <p key={dep.invoice_id} className="text-center text-xs text-faded">
+                Deposit invoice {dep.number ?? '(number pending)'} ·{' '}
+                {formatCents(dep.subtotal_cents)} —{' '}
+                <Link
+                  to="/invoices/$invoiceId"
+                  params={{ invoiceId: dep.invoice_id }}
+                  className="underline"
+                >
+                  view
+                </Link>
+              </p>
+            ))}
             <div>
               <button
                 type="button"
@@ -374,7 +395,7 @@ function EstimateDetailScreen() {
               >
                 Convert to invoice
               </button>
-              {detail.linkedInvoiceId && (
+              {detail.linkedInvoiceId ? (
                 <p className="mt-1 text-center text-xs text-faded">
                   Already invoiced —{' '}
                   <Link
@@ -385,6 +406,12 @@ function EstimateDetailScreen() {
                     view invoice
                   </Link>
                 </p>
+              ) : (
+                depositTotal > 0 && (
+                  <p className="mt-1 text-center text-xs text-faded">
+                    The final invoice deducts the {formatCents(depositTotal)} deposit.
+                  </p>
+                )
               )}
             </div>
           </>
@@ -429,6 +456,80 @@ function EstimateDetailScreen() {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+/** Collect money before the work: 25% / 50% quick picks or a custom amount →
+ *  a normal draft invoice (email it, take payment, it ages like any other)
+ *  flagged is_deposit so the final conversion deducts it. */
+function DepositCard({
+  detail,
+  totalCents,
+}: {
+  detail: EstimateDetail
+  totalCents: number
+}) {
+  const navigate = useNavigate()
+  const { data: settings } = useBusinessSettings()
+  const [dollars, setDollars] = useState('')
+  const [creating, setCreating] = useState(false)
+
+  const customCents = parseDollarsToCents(dollars)
+  const amount = customCents ?? 0
+
+  async function handleCreate(cents: number) {
+    if (creating || cents <= 0 || cents > totalCents) return
+    setCreating(true)
+    try {
+      const id = await createDepositInvoice(
+        detail,
+        cents,
+        settings?.default_due_days ?? 14,
+        settings?.sales_tax_bps ?? 0,
+      )
+      void navigate({ to: '/invoices/$invoiceId', params: { invoiceId: id } })
+    } finally {
+      setCreating(false)
+    }
+  }
+
+  return (
+    <div className="rounded-lg border border-edge bg-panel px-4 py-4">
+      <p className="heading-stencil text-xs text-faded">Collect a deposit first?</p>
+      <div className="mt-3 flex gap-2">
+        {[25, 50].map((pct) => (
+          <button
+            key={pct}
+            type="button"
+            disabled={creating}
+            onClick={() => void handleCreate(Math.round((totalCents * pct) / 100))}
+            className="heading-stencil tap-active flex-1 rounded-lg border-2 border-edge px-2 py-3 text-sm text-sand disabled:opacity-50"
+          >
+            {pct}% · {formatCents(Math.round((totalCents * pct) / 100))}
+          </button>
+        ))}
+      </div>
+      <div className="mt-2 flex gap-2">
+        <TextInput
+          inputMode="decimal"
+          placeholder="Custom amount ($)"
+          value={dollars}
+          onChange={(e) => setDollars(e.target.value)}
+        />
+        <button
+          type="button"
+          disabled={creating || amount <= 0 || amount > totalCents}
+          onClick={() => void handleCreate(amount)}
+          className="heading-stencil tap-active shrink-0 rounded-lg border-2 border-edge px-4 py-3 text-sm text-sand disabled:opacity-50"
+        >
+          {creating ? '…' : 'Invoice it'}
+        </button>
+      </div>
+      <p className="mt-2 text-xs text-faded">
+        Makes a draft deposit invoice you can email now — the final invoice
+        deducts it automatically.
+      </p>
     </div>
   )
 }
