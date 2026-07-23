@@ -1,10 +1,13 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { useState } from 'react'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { Fab } from '@/components/Fab'
 import {
   jobsForDateQueryOptions,
   jobsForRangeQueryOptions,
+  rescheduleJob,
   useJobsForDate,
   useJobsForRange,
+  type JobWithContext,
 } from '@/features/jobs/hooks'
 import { StatusChip } from '@/features/jobs/JobActions'
 import { useMissedJobs } from '@/features/jobs/attention'
@@ -43,9 +46,13 @@ function ScheduleScreen() {
   const search = Route.useSearch()
   const today = localToday()
   const selected = search.date ?? today
-  const days = Array.from({ length: 7 }, (_, i) => addDaysISO(today, i))
+  // Pageable 7-day window: offset 0 anchors on today; ±1 pages a full week.
+  // Past weeks are reviewable, and work booked beyond 6 days out is reachable.
+  const [weekOffset, setWeekOffset] = useState(0)
+  const weekStart = addDaysISO(today, weekOffset * 7)
+  const days = Array.from({ length: 7 }, (_, i) => addDaysISO(weekStart, i))
 
-  const { data: weekJobs } = useJobsForRange(today, days[6])
+  const { data: weekJobs } = useJobsForRange(weekStart, days[6])
   const { data: dayJobs, isLoading, isError, refetch } = useJobsForDate(selected)
   const { data: settings } = useBusinessSettings()
   const business = settings?.business_name ?? ''
@@ -60,6 +67,36 @@ function ScheduleScreen() {
       <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center border-b-2 border-edge bg-canvas px-edge">
         <h1 className="heading-stencil text-2xl text-khaki">Schedule</h1>
       </header>
+
+      <div className="flex items-center justify-between bg-surface-low px-edge pt-3">
+        <button
+          type="button"
+          onClick={() => setWeekOffset((o) => o - 1)}
+          aria-label="Previous week"
+          className="heading-stencil tap-active rounded-lg border border-edge px-4 py-2 text-sm text-sand"
+        >
+          ‹
+        </button>
+        {weekOffset === 0 ? (
+          <span className="label-caps text-faded">This week</span>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setWeekOffset(0)}
+            className="label-caps tap-active text-blaze"
+          >
+            {formatShortDate(weekStart)} – {formatShortDate(days[6])} · back to today
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => setWeekOffset((o) => o + 1)}
+          aria-label="Next week"
+          className="heading-stencil tap-active rounded-lg border border-edge px-4 py-2 text-sm text-sand"
+        >
+          ›
+        </button>
+      </div>
 
       <section className="scroll-hide flex snap-x gap-3 overflow-x-auto bg-surface-low px-edge py-4">
         {days.map((d) => {
@@ -105,6 +142,8 @@ function ScheduleScreen() {
 
       <section className="px-edge py-6">
         <h2 className="heading-stencil text-lg text-sand">{formatShortDate(selected)}</h2>
+
+        <BulkMoveDay jobs={dayJobs ?? []} selected={selected} />
 
         <ul className="mt-4 flex flex-col gap-3">
           {(dayJobs ?? []).map((job) => {
@@ -231,5 +270,73 @@ function MissedJobsSection({ today }: { today: string }) {
         ))}
       </ul>
     </section>
+  )
+}
+
+/**
+ * Rain-day escape hatch: move every still-scheduled job on this day to a new
+ * date in one action (in-progress/done jobs stay put). Collapsed behind one
+ * tap so the common single-job day isn't cluttered.
+ */
+function BulkMoveDay({
+  jobs,
+  selected,
+}: {
+  jobs: JobWithContext[]
+  selected: string
+}) {
+  const navigate = useNavigate()
+  const movable = jobs.filter((j) => j.status === 'scheduled')
+  const [open, setOpen] = useState(false)
+  const [date, setDate] = useState(addDaysISO(selected, 1))
+  const [busy, setBusy] = useState(false)
+
+  if (movable.length < 2) return null
+
+  async function moveAll() {
+    if (busy || !date || date === selected) return
+    setBusy(true)
+    try {
+      for (const job of movable) {
+        await rescheduleJob(job, date)
+      }
+      setOpen(false)
+      void navigate({ to: '/schedule', search: { date } })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="mt-3">
+      {!open ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="heading-stencil tap-active w-full rounded-lg border border-edge bg-panel py-2 text-xs text-faded"
+        >
+          🌧 Move all {movable.length} to another day
+        </button>
+      ) : (
+        <div className="flex items-center gap-2 rounded-lg border border-edge bg-panel p-2">
+          <input
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            disabled={busy}
+            aria-label="Move all jobs to this date"
+            className="w-full rounded-lg border-2 border-edge bg-canvas px-4 py-3 text-lg text-sand focus:border-blaze focus:outline-none disabled:opacity-50"
+          />
+          <button
+            type="button"
+            onClick={() => void moveAll()}
+            disabled={busy || !date || date === selected}
+            className="heading-stencil tap-active shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta disabled:opacity-50"
+          >
+            {busy ? '…' : `Move ${movable.length}`}
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
