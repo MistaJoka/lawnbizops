@@ -41,6 +41,19 @@ for (const c of reg.cold_cases ?? []) {
 if ((reg.cold_cases ?? []).length === 0)
   errors.push('registry has no cold cases — wrong file?')
 
+// The learnings ledger must exist and cross-reference every cold case: a bug
+// without its structural lesson is half-processed (playbook → Learning loop).
+const LEARNINGS = '.qa/learnings.md'
+if (!existsSync(LEARNINGS)) {
+  errors.push(`${LEARNINGS} missing — the learning loop is broken`)
+} else {
+  const ledger = readFileSync(LEARNINGS, 'utf8')
+  for (const c of reg.cold_cases ?? []) {
+    if (c.id && !ledger.includes(c.id))
+      errors.push(`${c.id}: no learning entry references it in ${LEARNINGS}`)
+  }
+}
+
 if (errors.length) {
   console.error('❌ cold-case registry check failed:')
   for (const e of errors) console.error(`   ${e}`)

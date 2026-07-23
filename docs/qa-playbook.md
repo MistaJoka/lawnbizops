@@ -89,6 +89,26 @@ Change-scoped selection: full suites run in CI on every push (they're fast
 enough); there is no sampling to rot. If runtime ever forces selection, select
 by impact (changed files → touched paths), never by age.
 
+## Learning loop — progressive, blameless, externally calibrated
+
+The system learns from itself, or it repeats itself. `.qa/learnings.md` is the
+ledger of structural lessons — the _patterns_ behind the bugs, kept separate
+from the bugs themselves (cold cases). Blameless throughout: lessons name
+systems and process conditions, never people or sessions.
+
+1. **Read before you run.** Every QA run starts by reading the ledger; new
+   findings are checked against known patterns first (a repeat of a known
+   pattern is worse than a novel bug — it means the lesson didn't hold).
+2. **Three artifacts per prod bug, one commit:** the failing-first regression
+   test, the cold case (`.qa/registry.json`), and the learning entry (the
+   pattern). A bug without its lesson is half-processed.
+3. **External calibration.** Each QA run re-compares the ledger against
+   current practice (fresh sources, not memory) and records the comparison
+   date + any deltas at the bottom of the ledger. Practices drift; ours
+   should drift with the evidence, not with fashion.
+4. **CI keeps the ledger honest** — `qa-registry-check.mjs` verifies it exists
+   and that every cold case has a learning cross-reference.
+
 ## Flakiness policy
 
 A flaky test is a defect in the test, and it is never ignored, rerun-until-

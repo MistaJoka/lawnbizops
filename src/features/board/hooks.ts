@@ -198,7 +198,7 @@ export interface QuickAddTarget {
   last_date: string | null
 }
 
-interface PropertyRow {
+export interface PropertyRow {
   id: string
   label: string
   address_line1: string
@@ -211,12 +211,57 @@ interface PropertyRow {
   client: { id: string; name: string; phone: string } | null
 }
 
-interface RecentJobRow {
+export interface RecentJobRow {
   property_id: string
   price_cents: number
   service_id: string | null
   title: string
   scheduled_date: string
+}
+
+/**
+ * Pure assembly: pair each property with its most recent job's defaults,
+ * most-recently-serviced first, never-serviced keeping label order. `jobs`
+ * must arrive date-desc (the query orders it) — first hit per property wins.
+ * Kept side-effect-free so it's unit-tested without React or Supabase.
+ */
+export function buildQuickAddTargets(
+  props: PropertyRow[],
+  jobs: RecentJobRow[],
+): QuickAddTarget[] {
+  // First job per property = most recent (list is date-desc).
+  const latest = new Map<string, RecentJobRow>()
+  for (const job of jobs) {
+    if (!latest.has(job.property_id)) latest.set(job.property_id, job)
+  }
+
+  const targets: QuickAddTarget[] = props.map((p) => {
+    const last = latest.get(p.id)
+    return {
+      property: {
+        id: p.id,
+        label: p.label,
+        address_line1: p.address_line1,
+        city: p.city,
+        lat: p.lat,
+        lng: p.lng,
+        gate_code: p.gate_code,
+        notes: p.notes,
+        client: p.client,
+      },
+      client_name: p.client?.name ?? 'Client',
+      defaults: resolveQuickAddDefaults(last),
+      last_date: last?.scheduled_date ?? null,
+    }
+  })
+
+  // Recently serviced first; never-serviced keep alphabetical (label order).
+  return targets.sort((a, b) => {
+    if (a.last_date && b.last_date) return a.last_date < b.last_date ? 1 : -1
+    if (a.last_date) return -1
+    if (b.last_date) return 1
+    return 0
+  })
 }
 
 /**
@@ -245,41 +290,10 @@ export function useQuickAddTargets() {
       if (pErr) throw pErr
       if (jErr) throw jErr
 
-      // First job per property = most recent (list is date-desc).
-      const latest = new Map<string, RecentJobRow>()
-      for (const job of (jobs ?? []) as RecentJobRow[]) {
-        if (!latest.has(job.property_id)) latest.set(job.property_id, job)
-      }
-
-      const targets: QuickAddTarget[] = ((props ?? []) as unknown as PropertyRow[]).map(
-        (p) => {
-          const last = latest.get(p.id)
-          return {
-            property: {
-              id: p.id,
-              label: p.label,
-              address_line1: p.address_line1,
-              city: p.city,
-              lat: p.lat,
-              lng: p.lng,
-              gate_code: p.gate_code,
-              notes: p.notes,
-              client: p.client,
-            },
-            client_name: p.client?.name ?? 'Client',
-            defaults: resolveQuickAddDefaults(last),
-            last_date: last?.scheduled_date ?? null,
-          }
-        },
+      return buildQuickAddTargets(
+        (props ?? []) as unknown as PropertyRow[],
+        (jobs ?? []) as RecentJobRow[],
       )
-
-      // Recently serviced first; never-serviced keep alphabetical (label order).
-      return targets.sort((a, b) => {
-        if (a.last_date && b.last_date) return a.last_date < b.last_date ? 1 : -1
-        if (a.last_date) return -1
-        if (b.last_date) return 1
-        return 0
-      })
     },
   })
 }

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "$comment": "Cold-case registry — every past prod/user-facing bug and the guard that keeps it dead. Policy: docs/qa-playbook.md. Guards are verified to exist by scripts/qa-registry-check.mjs (CI). A guard that fails = the case is REOPENED — louder than a new bug.",
+  "$comment": "Cold-case registry — every past prod/user-facing bug and the guard that keeps it dead. Policy: docs/qa-playbook.md. Guards are verified to exist by scripts/qa-registry-check.mjs (CI). A guard that fails = the case is REOPENED — louder than a new bug. READ .qa/learnings.md FIRST on every QA run — it holds the structural lessons behind these cases; every new cold case needs a learning entry there (CI-enforced).",
   "bars": {
     "coverage_branch": 0.65,
     "coverage_branch_s1": 0.55,

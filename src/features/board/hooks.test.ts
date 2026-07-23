@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { bucketBoard, laneSummaries, resolveQuickAddDefaults, wipLevel } from './hooks'
+import {
+  bucketBoard,
+  buildQuickAddTargets,
+  LANES,
+  laneSummaries,
+  resolveQuickAddDefaults,
+  WIP_CAPS,
+  wipLevel,
+  type PropertyRow,
+  type RecentJobRow,
+} from './hooks'
 import type { JobWithContext } from '@/features/jobs/hooks'
 import type { EstimateListRow } from '@/features/estimates/hooks'
 import type { InvoiceBalance } from '@/features/invoices/hooks'
@@ -111,6 +121,90 @@ describe('wipLevel', () => {
     expect(wipLevel('quote', 11)).toBe('over')
     expect(wipLevel('scheduled', 999)).toBe('ok') // uncapped backlog
     expect(wipLevel('ar', 999)).toBe('ok')
+  })
+})
+
+describe('LANES config', () => {
+  it('keeps the canonical pipeline order — screens key off these ids', () => {
+    expect(LANES.map((l) => l.id)).toEqual([
+      'quote',
+      'scheduled',
+      'in_progress',
+      'done',
+      'ar',
+      'paid',
+    ])
+  })
+
+  it('every lane has a visible title, tint, and non-empty chip label', () => {
+    for (const lane of LANES) {
+      expect(lane.title).not.toBe('')
+      expect(lane.tint).toMatch(/^border-/)
+      expect(lane.short ?? lane.title).not.toBe('')
+    }
+    // The abbreviated chips that exist must actually abbreviate.
+    expect(LANES.find((l) => l.id === 'scheduled')!.short).toBe('Sched')
+    expect(LANES.find((l) => l.id === 'ar')!.short).toBe('A/R')
+  })
+
+  it('WIP caps only reference real lanes', () => {
+    const ids = new Set(LANES.map((l) => l.id))
+    for (const capped of Object.keys(WIP_CAPS))
+      expect(ids.has(capped as never)).toBe(true)
+  })
+})
+
+describe('buildQuickAddTargets', () => {
+  const prop = (id: string, label: string, clientName?: string): PropertyRow => ({
+    id,
+    label,
+    address_line1: `${label} St`,
+    city: 'Miami',
+    lat: null,
+    lng: null,
+    gate_code: '',
+    notes: '',
+    client_id: 'c1',
+    client: clientName ? { id: 'c1', name: clientName, phone: '555' } : null,
+  })
+  const recent = (propertyId: string, date: string, title = 'Mow'): RecentJobRow => ({
+    property_id: propertyId,
+    price_cents: 5000,
+    service_id: 's1',
+    title,
+    scheduled_date: date,
+  })
+
+  it('takes the FIRST job per property as most recent (input is date-desc)', () => {
+    const targets = buildQuickAddTargets(
+      [prop('p1', 'Alpha', 'Pat')],
+      [recent('p1', '2026-07-20', 'Latest mow'), recent('p1', '2026-06-01', 'Old mow')],
+    )
+    expect(targets[0].defaults.title).toBe('Latest mow')
+    expect(targets[0].last_date).toBe('2026-07-20')
+  })
+
+  it('orders recently-serviced first, never-serviced after in label order', () => {
+    const targets = buildQuickAddTargets(
+      [prop('a', 'Aardvark'), prop('b', 'Bramble'), prop('c', 'Cedar')],
+      [recent('c', '2026-07-01'), recent('a', '2026-07-15')],
+    )
+    // a serviced most recently, then c, then never-serviced b keeps label order.
+    expect(targets.map((t) => t.property.id)).toEqual(['a', 'c', 'b'])
+  })
+
+  it('gives never-serviced properties blank defaults and no last date', () => {
+    const [t] = buildQuickAddTargets([prop('p1', 'Alpha')], [])
+    expect(t.defaults).toEqual({ service_id: null, price_cents: 0, title: '' })
+    expect(t.last_date).toBeNull()
+  })
+
+  it('falls back to a generic client name when the property has no contact', () => {
+    const targets = buildQuickAddTargets(
+      [prop('p1', 'Alpha'), prop('p2', 'Beta', 'Pat')],
+      [],
+    )
+    expect(targets.map((t) => t.client_name)).toEqual(['Client', 'Pat'])
   })
 })
 
