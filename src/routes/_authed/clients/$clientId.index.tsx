@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   CLIENT_STAGES,
   archiveClient,
+  mergeClients,
   setClientStage,
   useClient,
+  useClients,
   type Client,
   type ClientStage,
 } from '@/features/clients/hooks'
@@ -14,6 +17,7 @@ import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
 import { useClientProfitability } from '@/features/profitability/hooks'
 import { presetRange } from '@/features/reports/range'
 import { ActivityTimeline } from '@/components/ActivityTimeline'
+import { Sheet } from '@/components/Sheet'
 import { SkeletonDetail } from '@/components/Skeleton'
 import { confirm } from '@/lib/confirm'
 import { ClientFollowUps } from '@/features/tasks/TaskUI'
@@ -28,6 +32,7 @@ function ClientDetailScreen() {
   const navigate = useNavigate()
   const { data: client, isLoading } = useClient(clientId)
   const { data: properties } = useProperties(clientId)
+  const [merging, setMerging] = useState(false)
   const { data: invoices } = useInvoiceBalances()
   const openBalance = (invoices ?? [])
     .filter((inv) => inv.client_id === clientId && isOpen(inv))
@@ -202,13 +207,115 @@ function ClientDetailScreen() {
         + Schedule work
       </Link>
 
-      <button
-        onClick={() => void handleArchive()}
-        className="heading-stencil mx-auto mt-12 block rounded-lg border border-edge px-6 py-3 text-alert"
-      >
-        Archive client
-      </button>
+      <div className="mt-12 flex items-center justify-center gap-3">
+        <button
+          onClick={() => setMerging(true)}
+          className="heading-stencil rounded-lg border border-edge px-6 py-3 text-faded"
+        >
+          Merge duplicate…
+        </button>
+        <button
+          onClick={() => void handleArchive()}
+          className="heading-stencil rounded-lg border border-edge px-6 py-3 text-alert"
+        >
+          Archive client
+        </button>
+      </div>
+
+      {merging && <MergeSheet duplicate={client} onClose={() => setMerging(false)} />}
     </div>
+  )
+}
+
+/**
+ * Fold THIS client (the duplicate) into another one: pick the keeper, confirm,
+ * and every property, quote, invoice, and note moves there — this record is
+ * archived. The strong confirm carries the full consequence; the RPC is atomic.
+ */
+function MergeSheet({
+  duplicate,
+  onClose,
+}: {
+  duplicate: Client
+  onClose: () => void
+}) {
+  const navigate = useNavigate()
+  const { data: clients } = useClients()
+  const [query, setQuery] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const q = query.trim().toLowerCase()
+  const candidates = (clients ?? [])
+    .filter((c) => c.id !== duplicate.id)
+    .filter((c) => !q || c.name.toLowerCase().includes(q))
+
+  async function pick(keep: Client) {
+    if (busy) return
+    if (
+      !(await confirm({
+        title: `Merge into ${keep.name}?`,
+        body:
+          `Everything on ${duplicate.name} — properties, quotes, invoices, ` +
+          `activity — moves to ${keep.name}, and ${duplicate.name} is archived. `,
+        confirmLabel: 'Merge',
+        destructive: true,
+      }))
+    )
+      return
+    setBusy(true)
+    try {
+      await mergeClients(keep, duplicate)
+      void navigate({ to: '/clients/$clientId', params: { clientId: keep.id } })
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Sheet open onClose={onClose}>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="heading-stencil text-lg text-khaki">
+          Merge {duplicate.name} into…
+        </h2>
+        <button
+          type="button"
+          onClick={onClose}
+          className="label-caps text-faded"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search clients…"
+        aria-label="Search clients"
+        className="w-full rounded-lg border-2 border-edge bg-canvas px-4 py-3 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
+      />
+      <ul className="mt-3 flex max-h-72 flex-col gap-2 overflow-y-auto">
+        {candidates.map((c) => (
+          <li key={c.id}>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => void pick(c)}
+              className="tap-active w-full rounded-lg border border-edge px-4 py-3 text-left disabled:opacity-50"
+            >
+              <span className="block truncate text-lg text-sand">{c.name}</span>
+              {(c.phone || c.email) && (
+                <span className="block truncate text-sm text-faded">
+                  {[c.phone, c.email].filter(Boolean).join(' · ')}
+                </span>
+              )}
+            </button>
+          </li>
+        ))}
+      </ul>
+      {candidates.length === 0 && (
+        <p className="mt-4 text-center text-sm text-faded">No matching clients.</p>
+      )}
+    </Sheet>
   )
 }
 

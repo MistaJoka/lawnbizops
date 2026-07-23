@@ -177,6 +177,40 @@ export async function maybeAdvanceStage(
   await setClientStage(client, target)
 }
 
+/**
+ * Fold a duplicate client into another via the atomic merge RPC (0046):
+ * properties, quotes, invoices, activity, tasks, and expenses move to the
+ * kept client; the duplicate is archived. Offline-safe — the RPC rides the
+ * outbox like any other write.
+ */
+export async function mergeClients(keep: Client, duplicate: Client): Promise<void> {
+  // Optimistic: the duplicate leaves the list immediately.
+  queryClient.setQueryData<Client[]>(['clients'], (old) =>
+    old?.filter((c) => c.id !== duplicate.id),
+  )
+  await enqueue({
+    table: 'clients',
+    kind: 'rpc',
+    payload: {
+      fn: 'merge_clients',
+      args: { p_keep: keep.id, p_merge: duplicate.id },
+    },
+  })
+  // Everything client-scoped may have moved — refetch on next read.
+  for (const key of [
+    ['clients'],
+    ['properties'],
+    ['estimates'],
+    ['invoices'],
+    ['activities'],
+    ['tasks'],
+    ['expenses'],
+  ]) {
+    void queryClient.invalidateQueries({ queryKey: key })
+  }
+  confirmToast(`Merged into ${keep.name}`)
+}
+
 export async function archiveClient(client: Client): Promise<void> {
   await saveClient({
     id: client.id,
