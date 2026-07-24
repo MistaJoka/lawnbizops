@@ -21,6 +21,10 @@ function git(cmd: string): string {
 }
 
 function buildInfo() {
+  // package.json version is the coarse, human label shown in the top bar
+  // (bump at real milestones); the sha beside it stays the precise build id.
+  // It sat at the npm default 0.0.0 for six weeks of live use — a shipped
+  // product introducing itself as "doesn't exist yet".
   const version = JSON.parse(readFileSync('./package.json', 'utf8')).version as string
   return {
     version,
