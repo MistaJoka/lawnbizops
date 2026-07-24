@@ -4,9 +4,10 @@ import { dismissToast, useToasts, type ToastItem, type ToastKind } from '@/lib/t
 import { haptics } from '@/lib/haptics'
 
 /**
- * Renders the live toast stack. Mounted once in main.tsx. Toasts float just
- * above the FAB/TabBar zone (FAB is at bottom-28) so a confirmation never hides
- * the controls the user just tapped, and clear of the safe-area inset.
+ * Renders the live toast stack. Mounted once in main.tsx. Toasts dock just
+ * above the TabBar (tabbar height + safe-area + a small gap) — low enough to
+ * stay out of list content, high enough to never cover the tabs. The old
+ * bottom-48 offset cleared the FABs, which no longer exist.
  *
  * Each card owns its own dismiss timer and exit animation; tapping it dismisses
  * early. Haptics fire on appear so the confirmation is felt, not just seen.
@@ -71,7 +72,7 @@ export function ToastHost() {
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none fixed inset-x-0 bottom-48 z-50 mx-auto flex max-w-[28rem] flex-col gap-2 px-edge"
+      className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--spacing-tabbar)+env(safe-area-inset-bottom)+0.75rem)] z-50 mx-auto flex max-w-[28rem] flex-col gap-2 px-edge"
     >
       {toasts.map((t) => (
         <ToastCard key={t.id} item={t} />

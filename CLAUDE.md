@@ -54,6 +54,12 @@ statuses, `set_updated_at` trigger.
 - Feature folders: `src/features/<entity>/hooks.ts` (+ form components).
   Reads = TanStack Query keys like `['clients']`, `['clients', id]`; writes =
   optimistic `setQueryData` + `enqueue`.
+- Shared UI primitives (use these, don't reinvent): `BackLink`
+  (history-aware back), `ActionRow`, `HeaderAdd` (in-flow add — FABs are
+  banned), `EmptyState`, `Sheet`, `Field`/buttons. Icons are lucide-react
+  ONLY (CI-enforced: `scripts/check-no-emoji-ui.mjs`). Toasts dock above the
+  TabBar and are for user-initiated actions + sync recovery — routine
+  background syncs speak through the header pill only.
 - Routes: TanStack Router file routes in `src/routes/_authed/` (one file =
   Route + components; eslint allows it).
 - Theme tokens (Tailwind v4, dark tactical): bg-canvas/panel, border-edge,

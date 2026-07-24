@@ -83,10 +83,13 @@ function QuoteForm({ token, business }: { token: string; business: string }) {
 
   return (
     <div>
+      {/* Same letterhead treatment as the estimate page (e.$token) — the two
+          public pages are the business's face and should read as one set. */}
       <header className="text-center">
-        <p className="heading-stencil text-xl text-sand">
+        <p className="heading-stencil text-2xl text-sand">
           {business || 'Request a quote'}
         </p>
+        <p className="label-caps mt-5 text-faded">Quote request</p>
         <p className="mt-1 text-sm text-faded">
           Tell us what you need and we’ll get back to you with a quote.
         </p>

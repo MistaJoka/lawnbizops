@@ -30,6 +30,16 @@ vi.mock('./supabase', () => ({
   },
 }))
 
+const toastSuccessMock = vi.fn()
+vi.mock('./toast', () => ({
+  toast: {
+    success: (msg: string) => toastSuccessMock(msg),
+    error: vi.fn(),
+    info: vi.fn(),
+    offline: vi.fn(),
+  },
+}))
+
 import { db } from './db'
 import { discardFailed, enqueue, flush, retryFailed, stopRetries } from './outbox'
 
@@ -277,5 +287,39 @@ describe('outbox → sync clock', () => {
     const remaining = await db.outbox.toArray()
     expect(remaining[0].status).toBe('failed')
     expect(lastSyncedAt()).toBe(before)
+  })
+})
+
+describe('outbox → sync toast cadence', () => {
+  it('routine flushes stay silent; recovery from doubt speaks exactly once', async () => {
+    // Settle module state first: earlier tests may have left the queue "in
+    // trouble" (offline/error), and the flag deliberately survives until the
+    // next clean drain. One cycle brings us to a known-good idle.
+    await enqueue({ table: 'clients', kind: 'upsert', payload: { id: 'settle' } })
+    goOnline()
+    await flush()
+    toastSuccessMock.mockClear()
+
+    // Routine: enqueue while online, drain — the header pill carries this;
+    // no toast.
+    await enqueue({ table: 'clients', kind: 'upsert', payload: { id: 'routine' } })
+    await flush()
+    expect(await db.outbox.count()).toBe(0)
+    expect(toastSuccessMock).not.toHaveBeenCalled()
+
+    // Doubt: enqueue while offline (queue visibly stuck), then reconnect and
+    // drain — reaching idle after doubt earns the one reassuring toast.
+    network.onLine = false
+    await enqueue({ table: 'clients', kind: 'upsert', payload: { id: 'stranded' } })
+    // enqueue fires recomputeStatus fire-and-forget; let its db counts resolve
+    // so the queue actually registers 'offline' before we reconnect. Two
+    // macrotasks are enough — fake-indexeddb is in-process, no real IO timing.
+    await new Promise((r) => setTimeout(r, 0))
+    await new Promise((r) => setTimeout(r, 0))
+    goOnline()
+    await flush()
+    expect(await db.outbox.count()).toBe(0)
+    expect(toastSuccessMock).toHaveBeenCalledTimes(1)
+    expect(toastSuccessMock).toHaveBeenCalledWith('All changes synced')
   })
 })

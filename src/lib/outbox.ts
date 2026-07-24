@@ -72,17 +72,23 @@ export type SyncStatus = 'idle' | 'syncing' | 'offline' | 'error'
 
 let syncStatus: SyncStatus = 'idle'
 const syncListeners = new Set<() => void>()
+// Set while the queue is in doubt (offline/error). Reaching idle after doubt
+// earns the one reassuring toast; a routine background flush does not — the
+// header sync pill already carries "synced", and a confirmation that fires on
+// every drain stops confirming anything.
+let hadTrouble = false
 
 function setSyncStatus(next: SyncStatus) {
   if (next === syncStatus) return
   const prev = syncStatus
   syncStatus = next
-  // Edge "we just emptied the queue" → one reassuring toast (not one per op).
+  if (next === 'offline' || next === 'error') hadTrouble = true
   // markSynced() is NOT called here: setSyncStatus fires on every drain(),
   // including empty-queue flushes (app start, tab focus, online event) where
   // no real server round-trip occurred. The clock is stamped in drain() only
   // after ≥1 op is successfully pushed.
-  if (next === 'idle' && prev === 'syncing') {
+  if (next === 'idle' && prev === 'syncing' && hadTrouble) {
+    hadTrouble = false
     toast.success('All changes synced')
   }
   for (const l of syncListeners) l()

@@ -43,6 +43,10 @@ Last external comparison: **2026-07-23** (sources at bottom).
   migration review habit: grep functions/triggers for the re-keyed column.
 - **Modern practice:** expand–contract (parallel change) migrations — never
   drop the old shape until nothing references it.
+- **Recurred 2026-07-24, UI domain:** deleting the FABs left the toast host's
+  `bottom-48` offset (which existed to clear them) unswept — confirmations
+  floated mid-content on every screen. Same pattern, different layer: when a
+  component dies, grep for the constants other components chose because of it.
 
 ## L-003 — Reversibility breaks forward-only assumptions
 
