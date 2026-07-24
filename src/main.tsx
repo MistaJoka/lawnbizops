@@ -10,6 +10,7 @@ import { initOutbox } from './lib/outbox'
 import { initInstallPrompt } from './lib/installPrompt'
 import { markUpdateReady } from './lib/pwaUpdate'
 import { maybeAutologin } from './lib/autologin' // DEV/TEST-ONLY — see autologin.ts
+import buildInfo from 'virtual:build-info'
 import { DevPanel } from './dev/DevPanel' // DEV-ONLY — see below; delete with src/dev/
 import { ToastHost } from './components/Toast'
 import { ConfirmHost } from './components/ConfirmDialog'
@@ -83,7 +84,10 @@ async function bootstrap() {
         persistOptions={{
           persister: dexiePersister,
           maxAge: CACHE_MAX_AGE_MS,
-          buster: import.meta.env.VITE_APP_VERSION ?? 'dev',
+          // Keyed to the build's commit: cache entries persisted by an older
+          // build may predate fields the UI now dereferences (shape drift once
+          // crashed the estimate screen from a 22h-old restored cache).
+          buster: buildInfo.sha || 'dev',
         }}
       >
         <RouterProvider router={router} />

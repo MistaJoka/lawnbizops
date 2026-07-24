@@ -35,10 +35,6 @@ function SettingsScreen() {
           <span className="text-lg text-sand">Dashboard</span>
           <span className="text-faded">→</span>
         </Link>
-        <Link to="/board" className={rowClass}>
-          <span className="text-lg text-sand">Jobs board</span>
-          <span className="text-faded">→</span>
-        </Link>
         <Link to="/tools" className={rowClass}>
           <span className="text-lg text-sand">Field tools</span>
           <span className="text-faded">→</span>

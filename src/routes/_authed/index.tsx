@@ -11,7 +11,6 @@ import { jobQuickActions } from '@/features/board/cardActions'
 import { PipelineBoard } from '@/features/board/PipelineBoard'
 import { QuickAddSheet } from '@/features/board/QuickAddJob'
 import { EmptyState } from '@/components/EmptyState'
-import { Fab } from '@/components/Fab'
 import { SkeletonList } from '@/components/Skeleton'
 import { QueryError } from '@/components/QueryError'
 import { supabase } from '@/lib/supabase'
@@ -275,8 +274,17 @@ function RouteView({ onQuickAdd }: { onQuickAdd: () => void }) {
         </section>
       )}
 
-      {/* Rendered last so its in-flow spacer clears the list, not the header. */}
-      <Fab onClick={onQuickAdd} />
+      {/* In-flow quick-add (replaced the floating FAB, which covered list
+          text mid-scroll and duplicated the TabBar's New button). */}
+      <div className="px-edge pb-6">
+        <button
+          type="button"
+          onClick={onQuickAdd}
+          className="tap-active flex min-h-touch w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-edge text-base text-blaze"
+        >
+          + Add a job for today
+        </button>
+      </div>
     </div>
   )
 }
@@ -396,9 +404,11 @@ function TodayJobCard({
         </p>
 
         <div className="mt-2 flex items-center gap-3">
-          <span className="heading-stencil text-lg text-sand">
-            {formatCents(job.price_cents)}
-          </span>
+          {job.price_cents > 0 && (
+            <span className="heading-stencil text-lg text-sand">
+              {formatCents(job.price_cents)}
+            </span>
+          )}
           {job.start_time && (
             <span className="label-caps text-khaki">
               {formatClockTime(job.start_time)}

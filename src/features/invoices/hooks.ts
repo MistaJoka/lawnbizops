@@ -477,7 +477,7 @@ export async function recordPayment(input: RecordPaymentInput): Promise<void> {
       user_id: '',
       org_id: '',
     }
-    const payments = [...old.payments, payment]
+    const payments = [...(old.payments ?? []), payment]
     const total = invoiceTotalCents(old.items)
     const paid = payments.reduce((sum, p) => sum + p.amount_cents, 0)
     return {
@@ -560,7 +560,7 @@ export async function reversePayment(payment: Payment): Promise<void> {
       user_id: '',
       org_id: '',
     }
-    const payments = [...old.payments, reversal]
+    const payments = [...(old.payments ?? []), reversal]
     const total = invoiceTotalCents(old.items)
     const paid = payments.reduce((sum, p) => sum + p.amount_cents, 0)
     return {

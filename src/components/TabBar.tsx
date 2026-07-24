@@ -54,13 +54,14 @@ export function TabBar() {
       <div className="mx-auto flex h-tabbar w-full max-w-md items-center gap-1 px-1">
         {tabs.slice(0, 2).map(renderTab)}
         {/* Global quick-create: every "new record" form, reachable anywhere.
-            Blaze tint marks it as the create action, not a destination tab. */}
+            Neutral tint like the other resting tabs — a permanent blaze label
+            read as a second "active" tab. */}
         <button
           type="button"
           onClick={() => setCreateOpen(true)}
           aria-haspopup="dialog"
           aria-expanded={createOpen}
-          className="tap-active flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg px-1 py-1.5 text-blaze transition-transform duration-75 active:scale-95"
+          className="tap-active flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg px-1 py-1.5 text-faded transition-transform duration-75 active:scale-95"
         >
           <PlusIcon />
           <span className="font-mono text-[10px] leading-none font-bold tracking-[0.04em] uppercase">

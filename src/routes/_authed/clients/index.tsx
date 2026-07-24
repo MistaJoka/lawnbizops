@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Fab } from '@/components/Fab'
+import { HeaderAdd } from '@/components/HeaderAdd'
 import { SkeletonList } from '@/components/Skeleton'
 import { EmptyState } from '@/components/EmptyState'
 import { QueryError } from '@/components/QueryError'
@@ -45,13 +45,16 @@ function ClientsScreen() {
         </span>
       </div>
 
-      <input
-        type="search"
-        placeholder="Search clients"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="mt-4 w-full rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
-      />
+      <div className="mt-4 flex items-stretch gap-2">
+        <input
+          type="search"
+          placeholder="Search clients"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full min-w-0 rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
+        />
+        <HeaderAdd to="/clients/new" label="Client" />
+      </div>
 
       <ul className="mt-4 flex flex-col gap-2">
         {filtered.map((client) => (
@@ -133,8 +136,6 @@ function ClientsScreen() {
             }
           />
         ))}
-
-      <Fab to="/clients/new" label="Client" />
     </div>
   )
 }

@@ -68,7 +68,8 @@ function EstimateDetailScreen() {
 
   const { estimate, items, client, property } = detail
   const total = invoiceTotalCents(items)
-  const depositInvoices = detail.linkedInvoices.filter((li) => li.is_deposit)
+  // ?? [] — a cache entry restored from an older build can lack this field.
+  const depositInvoices = (detail.linkedInvoices ?? []).filter((li) => li.is_deposit)
   const depositTotal = depositInvoices
     .filter((li) => li.status !== 'void')
     .reduce((sum, li) => sum + li.subtotal_cents, 0)

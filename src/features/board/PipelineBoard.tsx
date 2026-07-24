@@ -280,7 +280,9 @@ function CardShell({
           {formatShortDate(job.scheduled_date)}
           {job.start_time && ` · ${formatClockTime(job.start_time)}`}
         </p>
-        <p className="mt-1 text-sm text-faded">{formatCents(job.price_cents)}</p>
+        {job.price_cents > 0 && (
+          <p className="mt-1 text-sm text-faded">{formatCents(job.price_cents)}</p>
+        )}
       </Link>
       {children}
       <CardQuickActions actions={jobQuickActions(job)} />

@@ -29,10 +29,10 @@ export const Route = createRootRoute({
   // the backend is unreachable — renders this recoverable screen instead of a
   // blank canvas. Keep the top bar so build/version + sync status still read.
   // (Public pages own their own error UI, so this path is operator-facing.)
-  errorComponent: () => (
+  errorComponent: ({ error }) => (
     <>
       <DevStripe />
-      <AppErrorFallback />
+      <AppErrorFallback error={error} />
     </>
   ),
 })

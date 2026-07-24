@@ -495,7 +495,7 @@ export async function createDepositInvoice(
       ? {
           ...old,
           linkedInvoices: [
-            ...old.linkedInvoices,
+            ...(old.linkedInvoices ?? []),
             {
               invoice_id: id,
               number: null,
@@ -541,7 +541,7 @@ export async function convertToInvoice(
     notes: '',
     tax_bps: taxBps,
   }
-  const deposits = detail.linkedInvoices.filter(
+  const deposits = (detail.linkedInvoices ?? []).filter(
     (li) => li.is_deposit && li.status !== 'void' && li.subtotal_cents > 0,
   )
   const itemRows = [
@@ -620,7 +620,7 @@ export async function convertToInvoice(
           ...old,
           linkedInvoiceId: id,
           linkedInvoices: [
-            ...old.linkedInvoices,
+            ...(old.linkedInvoices ?? []),
             {
               invoice_id: id,
               number: null,

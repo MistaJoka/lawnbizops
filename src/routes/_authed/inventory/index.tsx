@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { EmptyState } from '@/components/EmptyState'
+import { HeaderAdd } from '@/components/HeaderAdd'
 import { SkeletonList } from '@/components/Skeleton'
 import {
   adjustInventoryQuantity,
@@ -59,13 +60,16 @@ function InventoryScreen() {
         <p className="mt-1 text-sm text-muted">
           Truck stock, warehouse supplies, seasonal materials.
         </p>
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          aria-label="Search inventory"
-          placeholder="Search inventory…"
-          className="mt-4 w-full rounded-lg border-2 border-edge bg-panel px-4 py-3 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
-        />
+        <div className="mt-4 flex items-stretch gap-2">
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="Search inventory"
+            placeholder="Search inventory…"
+            className="w-full min-w-0 rounded-lg border-2 border-edge bg-panel px-4 py-3 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
+          />
+          <HeaderAdd onClick={() => setShowAdd(true)} label="Item" />
+        </div>
       </header>
 
       <div className="grid grid-cols-2 gap-3 px-edge py-4">
@@ -115,16 +119,6 @@ function InventoryScreen() {
         ) : (
           <p className="px-edge py-12 text-center text-faded">No matching items.</p>
         ))}
-
-      <button
-        type="button"
-        onClick={() => setShowAdd((s) => !s)}
-        className="tap-active fixed right-6 bottom-28 z-40 flex h-14 items-center justify-center gap-2 rounded-full bg-blaze px-6 text-on-cta shadow-2xl ring-4 ring-canvas active:scale-90 sm:right-[calc(50%-14rem+1.5rem)]"
-        aria-label="Add inventory"
-      >
-        <span className="text-3xl leading-none font-bold">+</span>
-        <span className="label-caps text-sm">Item</span>
-      </button>
 
       {showAdd && <ItemSheet onClose={() => setShowAdd(false)} />}
       {editItem && <ItemSheet item={editItem} onClose={() => setEditItem(null)} />}

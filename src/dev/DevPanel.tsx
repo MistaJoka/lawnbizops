@@ -46,10 +46,10 @@ export function DevPanel() {
   const [open, setOpen] = useState(false)
   if (!import.meta.env.DEV) return null
 
-  // bottom-28 sits above the tab bar (h-tabbar = 4.5rem) at the FAB's clearance
-  // so the dev button never covers the leftmost (Today) tab.
+  // bottom-right, in the slot the removed FABs vacated: bottom-left sat on top
+  // of primary CTAs, and top-right collided with header actions (+ Job / Edit).
   return (
-    <div data-dev-panel className="fixed bottom-28 left-4 z-[60]">
+    <div data-dev-panel className="fixed right-4 bottom-28 z-[60] flex flex-col items-end">
       {open && (
         <div
           style={{ borderColor: ACCENT }}

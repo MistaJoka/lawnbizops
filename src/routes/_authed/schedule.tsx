@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Fab } from '@/components/Fab'
+import { HeaderAdd } from '@/components/HeaderAdd'
 import {
   jobsForDateQueryOptions,
   jobsForRangeQueryOptions,
@@ -64,8 +64,9 @@ function ScheduleScreen() {
 
   return (
     <div>
-      <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center border-b-2 border-edge bg-canvas px-edge">
+      <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center justify-between border-b-2 border-edge bg-canvas px-edge">
         <h1 className="heading-stencil text-2xl text-khaki">Schedule</h1>
+        <HeaderAdd to="/jobs/new" search={{ date: selected }} label="Job" />
       </header>
 
       <div className="flex items-center justify-between bg-surface-low px-edge pt-3">
@@ -73,7 +74,7 @@ function ScheduleScreen() {
           type="button"
           onClick={() => setWeekOffset((o) => o - 1)}
           aria-label="Previous week"
-          className="heading-stencil tap-active rounded-lg border border-edge px-4 py-2 text-sm text-sand"
+          className="heading-stencil tap-active flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-edge px-4 text-sm text-sand"
         >
           ‹
         </button>
@@ -92,7 +93,7 @@ function ScheduleScreen() {
           type="button"
           onClick={() => setWeekOffset((o) => o + 1)}
           aria-label="Next week"
-          className="heading-stencil tap-active rounded-lg border border-edge px-4 py-2 text-sm text-sand"
+          className="heading-stencil tap-active flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-edge px-4 text-sm text-sand"
         >
           ›
         </button>
@@ -170,9 +171,11 @@ function ScheduleScreen() {
                   </span>
                   <span className="flex shrink-0 items-center gap-2">
                     <StatusChip status={job.status} />
-                    <span className="heading-stencil text-sand tabular-nums">
-                      {formatCents(job.price_cents)}
-                    </span>
+                    {job.price_cents > 0 && (
+                      <span className="heading-stencil text-sand tabular-nums">
+                        {formatCents(job.price_cents)}
+                      </span>
+                    )}
                   </span>
                 </Link>
                 {canRemind && (
@@ -225,8 +228,6 @@ function ScheduleScreen() {
           />
         )}
       </section>
-
-      <Fab to="/jobs/new" search={{ date: selected }} label="Job" />
     </div>
   )
 }
@@ -262,9 +263,11 @@ function MissedJobsSection({ today }: { today: string }) {
                   {job.title && ` — ${job.title}`}
                 </span>
               </span>
-              <span className="heading-stencil shrink-0 text-sand tabular-nums">
-                {formatCents(job.price_cents)}
-              </span>
+              {job.price_cents > 0 && (
+                <span className="heading-stencil shrink-0 text-sand tabular-nums">
+                  {formatCents(job.price_cents)}
+                </span>
+              )}
             </Link>
           </li>
         ))}

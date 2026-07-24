@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
-import { Fab } from '@/components/Fab'
 import { Sheet } from '@/components/Sheet'
 import { SkeletonList } from '@/components/Skeleton'
 import { EmptyState } from '@/components/EmptyState'
+import { HeaderAdd } from '@/components/HeaderAdd'
 import { QueryError } from '@/components/QueryError'
 import {
   AGING_BUCKETS,
@@ -79,25 +79,33 @@ const TAB_LABEL = {
 
 type MoneyTab = keyof typeof TAB_LABEL
 
-/** Shared list search for the three Money tabs — a season of records needs it. */
+/** Shared list search for the three Money tabs — a season of records needs it.
+ *  Carries the tab's create shortcut beside it (in-flow; replaced the FAB). */
 function TabSearch({
   value,
   onChange,
   placeholder,
+  addTo,
+  addLabel,
 }: {
   value: string
   onChange: (v: string) => void
   placeholder: string
+  addTo: string
+  addLabel: string
 }) {
   return (
-    <input
-      type="search"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      aria-label={placeholder}
-      className="mt-4 w-full rounded-lg border border-edge bg-panel px-4 py-3 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
-    />
+    <div className="mt-4 flex items-stretch gap-2">
+      <input
+        type="search"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        aria-label={placeholder}
+        className="w-full min-w-0 rounded-lg border border-edge bg-panel px-4 py-3 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
+      />
+      <HeaderAdd to={addTo} label={addLabel} />
+    </div>
   )
 }
 
@@ -138,10 +146,6 @@ function MoneyScreen() {
       {tab === 'invoices' && <InvoicesTab />}
       {tab === 'estimates' && <EstimatesTab />}
       {tab === 'expenses' && <ExpensesTab />}
-
-      {tab === 'invoices' && <Fab to="/invoices/new" label="Invoice" />}
-      {tab === 'estimates' && <Fab to="/estimates/new" label="Estimate" />}
-      {tab === 'expenses' && <Fab to="/expenses/new" label="Expense" />}
     </div>
   )
 }
@@ -191,7 +195,13 @@ function ExpensesTab() {
 
   return (
     <>
-      <TabSearch value={search} onChange={setSearch} placeholder="Search expenses" />
+      <TabSearch
+        value={search}
+        onChange={setSearch}
+        placeholder="Search expenses"
+        addTo="/expenses/new"
+        addLabel="Expense"
+      />
       <ul className="mt-4 flex flex-col gap-2 pb-28">
         {visible.map((expense) => (
           <li key={expense.id}>
@@ -391,7 +401,13 @@ function InvoicesTab() {
 
       <UnbilledWorkCard />
 
-      <TabSearch value={search} onChange={setSearch} placeholder="Search invoices" />
+      <TabSearch
+        value={search}
+        onChange={setSearch}
+        placeholder="Search invoices"
+        addTo="/invoices/new"
+        addLabel="Invoice"
+      />
 
       <ul className="mt-4 flex flex-col gap-2 pb-28">
         {visible.map((inv) => (
@@ -563,7 +579,13 @@ function EstimatesTab() {
   return (
     <>
       <AwaitingResponseCard estimates={estimates ?? []} />
-      <TabSearch value={search} onChange={setSearch} placeholder="Search estimates" />
+      <TabSearch
+        value={search}
+        onChange={setSearch}
+        placeholder="Search estimates"
+        addTo="/estimates/new"
+        addLabel="Estimate"
+      />
       <ul className="mt-4 flex flex-col gap-2 pb-28">
         {visible.map((est) => (
           <li key={est.id}>
