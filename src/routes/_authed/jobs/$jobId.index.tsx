@@ -404,6 +404,8 @@ function PhotosSection({ jobId }: { jobId: string }) {
                 <img
                   src={photo.url}
                   alt="Job photo"
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover"
                 />
               ) : (

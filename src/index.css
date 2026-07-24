@@ -123,9 +123,37 @@ body {
 .scroll-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+  /* Horizontal lanes/strips must not chain their overscroll into the page. */
+  overscroll-behavior-x: contain;
 }
 .scroll-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* ── Dark map ────────────────────────────────────────────────────────────
+   The dispatch map used raw OSM tiles — a white flashbang inside a dark-only
+   app. Invert the raster tiles (tiles only: markers, polylines and controls
+   live in separate panes and keep their real colors) and restyle Leaflet's
+   chrome to the app's tokens. */
+/* On the PANE, not .leaflet-tile: leaflet's own stylesheet loads later and
+   resets tiles to `filter: inherit` — the pane is the designed hook. */
+.leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.55);
+}
+.leaflet-container {
+  background: var(--color-canvas);
+}
+.leaflet-control-zoom a {
+  background: var(--color-panel) !important;
+  color: var(--color-sand) !important;
+  border-color: var(--color-edge) !important;
+}
+.leaflet-control-attribution {
+  background: rgb(0 0 0 / 0.55) !important;
+  color: var(--color-faded) !important;
+}
+.leaflet-control-attribution a {
+  color: var(--color-faded) !important;
 }
 
 /* ── Motion ──────────────────────────────────────────────────────────────

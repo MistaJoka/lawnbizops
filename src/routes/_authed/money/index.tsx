@@ -99,6 +99,7 @@ function TabSearch({
     <div className="mt-4 flex items-stretch gap-2">
       <input
         type="search"
+        enterKeyHint="search"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}

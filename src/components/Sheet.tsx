@@ -66,7 +66,7 @@ export function Sheet({
       <div
         ref={panelRef}
         tabIndex={-1}
-        className="anim-slide-up rounded-t-2xl border-t-2 border-edge bg-canvas px-edge pt-4 pb-safe outline-none"
+        className="anim-slide-up overscroll-contain rounded-t-2xl border-t-2 border-edge bg-canvas px-edge pt-4 pb-safe outline-none"
       >
         {title && (
           <div className="mb-3 flex items-center justify-between">

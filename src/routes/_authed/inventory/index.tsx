@@ -64,6 +64,7 @@ function InventoryScreen() {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            enterKeyHint="search"
             aria-label="Search inventory"
             placeholder="Search inventory…"
             className="w-full min-w-0 rounded-lg border-2 border-edge bg-panel px-4 py-3 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"

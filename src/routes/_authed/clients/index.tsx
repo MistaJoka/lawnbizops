@@ -58,6 +58,7 @@ function ClientsScreen() {
       <div className="mt-4 flex items-stretch gap-2">
         <input
           type="search"
+          enterKeyHint="search"
           placeholder="Search clients"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
