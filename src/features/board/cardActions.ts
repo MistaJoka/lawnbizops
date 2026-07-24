@@ -1,3 +1,12 @@
+import {
+  Banknote,
+  Bell,
+  Check,
+  MessageCircle,
+  Navigation,
+  Phone,
+  type LucideIcon,
+} from 'lucide-react'
 import { setEstimateStatus, type EstimateListRow } from '@/features/estimates/hooks'
 import {
   recordReminder,
@@ -17,7 +26,7 @@ import { confirm } from '@/lib/confirm'
 export interface QuickAction {
   key: string
   label: string // accessible name
-  glyph: string
+  icon: LucideIcon
   href?: string
   external?: boolean
   onClick?: () => void
@@ -25,14 +34,14 @@ export interface QuickAction {
 }
 
 const call = (phone?: string): QuickAction | null =>
-  phone ? { key: 'call', label: 'Call', glyph: '📞', href: `tel:${phone}` } : null
+  phone ? { key: 'call', label: 'Call', icon: Phone, href: `tel:${phone}` } : null
 
 const text = (phone?: string, body?: string): QuickAction | null =>
   phone
     ? {
         key: 'text',
         label: 'Text',
-        glyph: '💬',
+        icon: MessageCircle,
         href: `sms:${phone}${body ? `?&body=${encodeURIComponent(body)}` : ''}`,
       }
     : null
@@ -49,7 +58,13 @@ export function jobQuickActions(job: JobWithContext): QuickAction[] {
   return compact([
     call(phone),
     maps
-      ? { key: 'maps', label: 'Open in Maps', glyph: '🧭', href: maps, external: true }
+      ? {
+          key: 'maps',
+          label: 'Open in Maps',
+          icon: Navigation,
+          href: maps,
+          external: true,
+        }
       : null,
   ])
 }
@@ -63,7 +78,7 @@ export function quoteQuickActions(est: EstimateListRow): QuickAction[] {
     {
       key: 'accept',
       label: 'Accept estimate',
-      glyph: '✓',
+      icon: Check,
       tone: 'go',
       onClick: () => void setEstimateStatus(est.id, 'accepted'),
     },
@@ -83,7 +98,7 @@ export function arQuickActions(inv: InvoiceBalance): QuickAction[] {
       ? {
           key: 'nudge',
           label: 'Friendly reminder',
-          glyph: '🔔',
+          icon: Bell,
           tone: 'blaze',
           onClick: () => {
             void recordReminder(inv.invoice_id)
@@ -94,7 +109,7 @@ export function arQuickActions(inv: InvoiceBalance): QuickAction[] {
     {
       key: 'paid',
       label: 'Mark paid in full',
-      glyph: '💵',
+      icon: Banknote,
       tone: 'go',
       // Books money from a single tap on a small target — confirm so a
       // fat-finger can't silently record a full payment.

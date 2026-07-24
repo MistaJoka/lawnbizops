@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Check, MoreHorizontal, Play, RotateCw } from 'lucide-react'
 import {
   StatusChip as SharedStatusChip,
   type StatusVariant,
@@ -58,7 +59,6 @@ export function JobActions({ job }: { job: JobWithContext }) {
   if (job.status !== 'scheduled' && job.status !== 'in_progress') return null
 
   const scheduled = job.status === 'scheduled'
-  const primaryLabel = scheduled ? '▶ Start' : '✓ Done'
   const primary = () => void (scheduled ? setJobStatus(job, 'in_progress') : markDone())
 
   // Finishing a job with no price invoices at $0; no service means revenue
@@ -120,24 +120,27 @@ export function JobActions({ job }: { job: JobWithContext }) {
       <div className="mt-3 flex gap-2">
         <button
           onClick={primary}
-          className="heading-stencil tap-active min-h-12 flex-1 rounded-lg bg-blaze px-2 py-3 text-base text-on-cta"
+          className="heading-stencil tap-active inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-lg bg-blaze px-2 py-3 text-base text-on-cta"
         >
-          {primaryLabel}
+          {scheduled ? <Play size={18} aria-hidden /> : <Check size={18} aria-hidden />}
+          {scheduled ? 'Start' : 'Done'}
         </button>
         <button
           onClick={() => setOpen((o) => !o)}
           aria-label="More actions"
           aria-expanded={open}
-          className="heading-stencil tap-active min-h-12 w-12 shrink-0 rounded-lg border-2 border-edge text-xl text-sand"
+          className="heading-stencil tap-active inline-flex min-h-12 w-12 shrink-0 items-center justify-center rounded-lg border-2 border-edge text-sand"
         >
-          ⋯
+          <MoreHorizontal size={20} aria-hidden />
         </button>
       </div>
 
       {open && (
         <div className="mt-2 flex flex-col gap-2 rounded-lg border-2 border-edge bg-surface-low p-2">
           {scheduled && (
-            <OverflowButton onClick={() => void markDone()}>✓ Mark done</OverflowButton>
+            <OverflowButton onClick={() => void markDone()}>
+              <Check size={16} aria-hidden /> Mark done
+            </OverflowButton>
           )}
           <OverflowButton onClick={() => void skip()}>
             Skip (rain / no-show)
@@ -203,9 +206,15 @@ function ReopenActions({ job }: { job: JobWithContext }) {
         <button
           onClick={() => void reopen()}
           disabled={!date || busy}
-          className="heading-stencil tap-active min-h-12 shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta disabled:opacity-50"
+          className="heading-stencil tap-active inline-flex min-h-12 shrink-0 items-center justify-center gap-2 rounded-lg bg-blaze px-4 py-3 text-on-cta disabled:opacity-50"
         >
-          {busy ? '…' : '↻ Reopen'}
+          {busy ? (
+            '…'
+          ) : (
+            <>
+              <RotateCw size={18} aria-hidden /> Reopen
+            </>
+          )}
         </button>
       </div>
       <p className="mt-1 text-xs text-faded">
@@ -225,7 +234,7 @@ function OverflowButton({
   return (
     <button
       onClick={onClick}
-      className="heading-stencil tap-active min-h-12 w-full rounded-lg border-2 border-edge px-3 py-3 text-left text-sm text-sand"
+      className="heading-stencil tap-active flex min-h-12 w-full items-center gap-2 rounded-lg border-2 border-edge px-3 py-3 text-left text-sm text-sand"
     >
       {children}
     </button>

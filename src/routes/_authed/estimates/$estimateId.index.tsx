@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Check, Mail, Phone, Receipt, X } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   convertToInvoice,
@@ -220,17 +221,17 @@ function EstimateDetailScreen() {
               <a
                 href={`mailto:${client.email}`}
                 aria-label="Email client"
-                className="heading-stencil rounded-lg border border-edge px-4 py-3 text-sand"
+                className="heading-stencil inline-flex items-center justify-center rounded-lg border border-edge px-4 py-3 text-sand"
               >
-                ✉️
+                <Mail size={20} aria-hidden />
               </a>
             )}
             {client.phone && (
               <a
                 href={`tel:${client.phone}`}
-                className="heading-stencil rounded-lg bg-blaze px-4 py-3 text-on-cta"
+                className="heading-stencil inline-flex items-center justify-center gap-2 rounded-lg bg-blaze px-4 py-3 text-on-cta"
               >
-                📞 Call
+                <Phone size={18} aria-hidden /> Call
               </a>
             )}
           </span>
@@ -261,7 +262,7 @@ function EstimateDetailScreen() {
       ) : (
         <div className="mt-4 rounded-lg border border-edge bg-panel">
           <EmptyState
-            glyph="🧾"
+            icon={<Receipt size={40} strokeWidth={1.5} />}
             title="No line items"
             body="This estimate has no line items yet."
           />
@@ -344,9 +345,9 @@ function EstimateDetailScreen() {
               <button
                 type="button"
                 onClick={() => void setEstimateStatus(estimate.id, 'accepted')}
-                className="heading-stencil flex-1 rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-go"
+                className="heading-stencil inline-flex flex-1 items-center justify-center gap-2 rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-go"
               >
-                Accepted ✓
+                Accepted <Check size={18} aria-hidden />
               </button>
               <button
                 type="button"
@@ -581,10 +582,10 @@ function DeclineSheet({
         <button
           type="button"
           onClick={onClose}
-          className="label-caps text-faded"
+          className="label-caps inline-flex items-center justify-center text-faded"
           aria-label="Close"
         >
-          ✕
+          <X size={20} aria-hidden />
         </button>
       </div>
       <p className="text-sm text-faded">
@@ -735,7 +736,7 @@ function PhotosSection({ estimateId }: { estimateId: string }) {
                 aria-label="Delete photo"
                 className="heading-stencil absolute top-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-canvas/80 text-alert"
               >
-                ✕
+                <X size={20} aria-hidden />
               </button>
             </div>
           ))}

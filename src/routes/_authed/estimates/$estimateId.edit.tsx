@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { X } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   updateEstimate,
@@ -184,10 +185,10 @@ function EditEstimateForm({ detail }: { detail: EstimateDetail }) {
                     onClick={() =>
                       setLines((old) => old.filter((l) => l.key !== line.key))
                     }
-                    className="heading-stencil shrink-0 rounded-lg border border-edge px-4 text-alert"
+                    className="heading-stencil inline-flex shrink-0 items-center justify-center rounded-lg border border-edge px-4 text-alert"
                     aria-label="Remove line"
                   >
-                    ✕
+                    <X size={20} aria-hidden />
                   </button>
                 </div>
               </div>

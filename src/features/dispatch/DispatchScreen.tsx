@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Check, Play } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { setJobStatus, useJobsForDate, type JobWithContext } from '@/features/jobs/hooks'
 import { StatusChip } from '@/features/jobs/JobActions'
@@ -224,9 +225,10 @@ function StopActions({ job }: { job: JobWithContext }) {
         <button
           type="button"
           onClick={() => void setJobStatus(job, scheduled ? 'in_progress' : 'done')}
-          className="heading-stencil tap-active min-h-11 flex-1 rounded-lg bg-blaze px-2 py-2 text-sm text-on-cta"
+          className="heading-stencil tap-active inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-blaze px-2 py-2 text-sm text-on-cta"
         >
-          {scheduled ? '▶ Start' : '✓ Done'}
+          {scheduled ? <Play size={16} aria-hidden /> : <Check size={16} aria-hidden />}
+          {scheduled ? 'Start' : 'Done'}
         </button>
         {navUrl && (
           <a

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Bell, CloudRain } from 'lucide-react'
 import { HeaderAdd } from '@/components/HeaderAdd'
 import {
   jobsForDateQueryOptions,
@@ -201,9 +202,9 @@ function ScheduleScreen() {
                         })
                     }}
                     aria-label="Text appointment reminder"
-                    className="tap-active flex w-12 shrink-0 items-center justify-center rounded-lg border-2 border-edge text-xl"
+                    className="tap-active flex w-12 shrink-0 items-center justify-center rounded-lg border-2 border-edge"
                   >
-                    🔔
+                    <Bell size={20} aria-hidden />
                   </a>
                 )}
               </li>
@@ -310,9 +311,9 @@ function BulkMoveDay({ jobs, selected }: { jobs: JobWithContext[]; selected: str
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="heading-stencil tap-active w-full rounded-lg border border-edge bg-panel py-2 text-xs text-faded"
+          className="heading-stencil tap-active inline-flex w-full items-center justify-center gap-2 rounded-lg border border-edge bg-panel py-2 text-xs text-faded"
         >
-          🌧 Move all {movable.length} to another day
+          <CloudRain size={16} aria-hidden /> Move all {movable.length} to another day
         </button>
       ) : (
         <div className="flex items-center gap-2 rounded-lg border border-edge bg-panel p-2">

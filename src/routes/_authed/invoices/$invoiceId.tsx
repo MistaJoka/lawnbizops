@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Mail, Phone, Receipt } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   PAYMENT_METHODS,
@@ -213,17 +214,17 @@ function InvoiceDetailScreen() {
               <a
                 href={`mailto:${client.email}`}
                 aria-label="Email client"
-                className="heading-stencil rounded-lg border border-edge px-4 py-3 text-sand"
+                className="heading-stencil inline-flex items-center justify-center rounded-lg border border-edge px-4 py-3 text-sand"
               >
-                ✉️
+                <Mail size={20} aria-hidden />
               </a>
             )}
             {client.phone && (
               <a
                 href={`tel:${client.phone}`}
-                className="heading-stencil rounded-lg bg-blaze px-4 py-3 text-on-cta"
+                className="heading-stencil inline-flex items-center justify-center gap-2 rounded-lg bg-blaze px-4 py-3 text-on-cta"
               >
-                📞 Call
+                <Phone size={18} aria-hidden /> Call
               </a>
             )}
           </span>
@@ -251,7 +252,7 @@ function InvoiceDetailScreen() {
         ))}
         {items.length === 0 && (
           <EmptyState
-            glyph="🧾"
+            icon={<Receipt size={40} strokeWidth={1.5} />}
             title="No line items"
             body="This invoice has no line items yet."
           />

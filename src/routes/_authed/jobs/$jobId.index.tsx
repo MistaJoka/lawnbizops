@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Image, Timer, X } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { JobChecklist } from '@/features/jobs/JobChecklist'
 import { setJobStatus, useJob } from '@/features/jobs/hooks'
@@ -319,8 +320,8 @@ function JobEconomics({
         </div>
       </div>
       {minutes !== null && (
-        <p className="mt-2 text-xs text-faded">
-          ⏱ {formatMinutes(minutes)} on site
+        <p className="mt-2 flex items-center gap-1.5 text-xs text-faded">
+          <Timer size={14} aria-hidden /> {formatMinutes(minutes)} on site
           {labor > 0 &&
             ` — ${formatCents(labor)} labor included in costs (${formatCents(
               settings?.labor_rate_cents_per_hour ?? 0,
@@ -409,12 +410,12 @@ function PhotosSection({ jobId }: { jobId: string }) {
                   className="h-full w-full object-cover"
                 />
               ) : (
-                <span className="flex h-full w-full items-center justify-center text-2xl">
-                  🖼
+                <span className="flex h-full w-full items-center justify-center text-faded">
+                  <Image size={24} aria-hidden />
                 </span>
               )}
-              <span className="absolute bottom-0 right-0 rounded-tl bg-scrim px-1 py-0.5 text-[10px] text-white">
-                ✕
+              <span className="absolute bottom-0 right-0 flex items-center justify-center rounded-tl bg-scrim px-1 py-0.5 text-white">
+                <X size={12} aria-hidden />
               </span>
             </button>
           ))}

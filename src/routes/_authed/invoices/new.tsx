@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Check, X } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useClients } from '@/features/clients/hooks'
 import {
@@ -180,10 +181,10 @@ function NewInvoiceScreen() {
                     onClick={() =>
                       setLines((old) => old.filter((l) => l.key !== line.key))
                     }
-                    className="heading-stencil shrink-0 rounded-lg border border-edge px-4 text-alert"
+                    className="heading-stencil inline-flex shrink-0 items-center justify-center rounded-lg border border-edge px-4 text-alert"
                     aria-label="Remove line"
                   >
-                    ✕
+                    <X size={20} aria-hidden />
                   </button>
                 </div>
               </div>
@@ -260,7 +261,7 @@ function JobCheckRow({
           checked ? 'border-blaze bg-blaze text-on-cta' : 'border-edge text-transparent'
         }`}
       >
-        ✓
+        <Check size={16} aria-hidden />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sand">

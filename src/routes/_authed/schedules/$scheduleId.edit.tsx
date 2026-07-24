@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Pause, Play } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { ScheduleForm } from '@/features/schedules/ScheduleForm'
 import { confirm } from '@/lib/confirm'
@@ -124,9 +125,9 @@ function PauseControls({
       <div className="mt-4">
         <button
           onClick={() => void setSchedulePaused(schedule, false)}
-          className="heading-stencil w-full rounded-lg border border-go px-4 py-4 text-lg text-go"
+          className="heading-stencil inline-flex w-full items-center justify-center gap-2 rounded-lg border border-go px-4 py-4 text-lg text-go"
         >
-          ▶ Resume schedule
+          <Play size={18} aria-hidden /> Resume schedule
         </button>
         <p className="mt-1 text-center text-xs text-faded">
           {schedule.resume_on
@@ -149,9 +150,9 @@ function PauseControls({
         />
         <button
           onClick={() => void setSchedulePaused(schedule, true, resumeOn || null)}
-          className="heading-stencil tap-active shrink-0 rounded-lg border-2 border-edge px-4 py-3 text-sand"
+          className="heading-stencil tap-active inline-flex shrink-0 items-center gap-2 rounded-lg border-2 border-edge px-4 py-3 text-sand"
         >
-          ⏸ Pause
+          <Pause size={18} aria-hidden /> Pause
         </button>
       </div>
       <p className="mt-1 text-xs text-faded">

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Camera, Paperclip } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useClients } from '@/features/clients/hooks'
 import { useVendors1099 } from '@/features/tax/hooks'
@@ -130,9 +131,19 @@ function NewExpenseScreen() {
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
-          className="heading-stencil tap-active min-h-touch w-full rounded-lg border-2 border-edge bg-panel px-4 py-3 text-sand"
+          className="heading-stencil tap-active min-h-touch inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-edge bg-panel px-4 py-3 text-sand"
         >
-          {receipt ? `📎 ${receipt.name}` : '📷 Add receipt (optional)'}
+          {receipt ? (
+            <>
+              <Paperclip size={18} aria-hidden />
+              <span className="truncate">{receipt.name}</span>
+            </>
+          ) : (
+            <>
+              <Camera size={18} aria-hidden />
+              Add receipt (optional)
+            </>
+          )}
         </button>
 
         <button

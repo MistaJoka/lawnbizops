@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Check } from 'lucide-react'
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/lib/db'
@@ -78,7 +79,9 @@ function SyncScreen() {
       </div>
 
       {failed !== undefined && list.length === 0 ? (
-        <p className="mt-12 text-center text-lg text-go">All changes synced ✓</p>
+        <p className="mt-12 flex items-center justify-center gap-2 text-center text-lg text-go">
+          All changes synced <Check size={18} aria-hidden />
+        </p>
       ) : (
         <ul className="mt-4 flex flex-col gap-2 pb-8">
           {list.map((op) => (

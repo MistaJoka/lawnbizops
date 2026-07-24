@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ArrowRight, Mail, Phone, RotateCw } from 'lucide-react'
 import {
   logActivity,
   useActivities,
@@ -8,12 +9,15 @@ import { EmptyState } from '@/components/EmptyState'
 import { TextArea } from '@/components/Field'
 import { relativeTime } from '@/lib/dates'
 
-const KIND_DOT: Record<string, { glyph: string; tint: string }> = {
-  note: { glyph: '•', tint: 'text-faded' },
-  call: { glyph: '📞', tint: 'text-go' },
-  stage_change: { glyph: '⇨', tint: 'text-blaze' },
-  status_change: { glyph: '↻', tint: 'text-khaki' },
-  doc_sent: { glyph: '✉', tint: 'text-sand' },
+const KIND_DOT: Record<string, { icon: React.ReactNode; tint: string }> = {
+  note: {
+    icon: <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-current" />,
+    tint: 'text-faded',
+  },
+  call: { icon: <Phone size={14} aria-hidden />, tint: 'text-go' },
+  stage_change: { icon: <ArrowRight size={14} aria-hidden />, tint: 'text-blaze' },
+  status_change: { icon: <RotateCw size={14} aria-hidden />, tint: 'text-khaki' },
+  doc_sent: { icon: <Mail size={14} aria-hidden />, tint: 'text-sand' },
 }
 
 export function ActivityTimeline({ clientId }: { clientId: string }) {
@@ -76,9 +80,9 @@ export function ActivityTimeline({ clientId }: { clientId: string }) {
             return (
               <li key={a.id} className="relative flex gap-3 pb-4">
                 <span
-                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-edge bg-surface-low text-sm ${dot.tint}`}
+                  className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 border-edge bg-surface-low ${dot.tint}`}
                 >
-                  {dot.glyph}
+                  {dot.icon}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="whitespace-pre-wrap break-words text-sand">{a.body}</p>

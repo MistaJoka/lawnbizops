@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Mail, MessageCircle, Phone, Square, X } from 'lucide-react'
 import {
   CLIENT_STAGES,
   archiveClient,
@@ -97,15 +98,15 @@ function ClientDetailScreen() {
         <div className="mt-4 grid grid-cols-2 gap-3">
           <a
             href={`tel:${client.phone}`}
-            className="heading-stencil tap-active rounded-lg bg-blaze px-4 py-4 text-center text-lg text-on-cta"
+            className="heading-stencil tap-active inline-flex items-center justify-center gap-2 rounded-lg bg-blaze px-4 py-4 text-center text-lg text-on-cta"
           >
-            📞 Call
+            <Phone size={18} aria-hidden /> Call
           </a>
           <a
             href={`sms:${client.phone}`}
-            className="heading-stencil tap-active rounded-lg border border-edge bg-panel px-4 py-4 text-center text-lg text-sand"
+            className="heading-stencil tap-active inline-flex items-center justify-center gap-2 rounded-lg border border-edge bg-panel px-4 py-4 text-center text-lg text-sand"
           >
-            💬 Text
+            <MessageCircle size={18} aria-hidden /> Text
           </a>
         </div>
       )}
@@ -113,9 +114,9 @@ function ClientDetailScreen() {
       {client.email && (
         <a
           href={`mailto:${client.email}`}
-          className="mt-4 inline-block text-faded underline decoration-edge"
+          className="mt-4 inline-flex items-center gap-2 text-faded underline decoration-edge"
         >
-          ✉️ {client.email}
+          <Mail size={18} aria-hidden /> {client.email}
         </a>
       )}
 
@@ -284,7 +285,7 @@ function MergeSheet({ duplicate, onClose }: { duplicate: Client; onClose: () => 
           className="label-caps text-faded"
           aria-label="Close"
         >
-          ✕
+          <X size={20} aria-hidden />
         </button>
       </div>
       <input
@@ -342,7 +343,7 @@ function ReadinessChips({
   if (!needsContact && !needsProperty && !needsEstimate) return null
 
   const chip =
-    'label-caps tap-active flex min-h-11 items-center rounded-full border border-edge px-4 text-khaki'
+    'label-caps tap-active flex min-h-11 items-center gap-2 rounded-full border border-edge px-4 text-khaki'
   return (
     <div className="mt-3 flex flex-wrap items-center gap-2">
       <span className="label-caps text-faded">Needs</span>
@@ -352,12 +353,12 @@ function ReadinessChips({
           params={{ clientId: client.id }}
           className={chip}
         >
-          ☐ Contact
+          <Square size={16} aria-hidden /> Contact
         </Link>
       )}
       {needsProperty && (
         <Link to="/properties/new" search={{ clientId: client.id }} className={chip}>
-          ☐ Property
+          <Square size={16} aria-hidden /> Property
         </Link>
       )}
       {needsEstimate && (
@@ -369,7 +370,7 @@ function ReadinessChips({
           }}
           className={chip}
         >
-          ☐ Estimate
+          <Square size={16} aria-hidden /> Estimate
         </Link>
       )}
     </div>

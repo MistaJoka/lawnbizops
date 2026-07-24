@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Check, Repeat, Sprout, X, type LucideIcon } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useNotableActivities, type NotableActivity } from '@/features/activities/hooks'
 import { loadPreferences, savePreferences } from '@/lib/preferences'
@@ -54,11 +55,13 @@ export function AttentionCard() {
   )
 }
 
-function glyphFor(activity: NotableActivity): string {
-  if (activity.body.startsWith('New lead')) return '🌱'
-  if (activity.body.startsWith('Repeat inquiry')) return '🔁'
-  if (activity.body.startsWith('Customer approved')) return '✅'
-  return '❌'
+function iconFor(activity: NotableActivity): { Icon: LucideIcon; tint: string } {
+  if (activity.body.startsWith('New lead')) return { Icon: Sprout, tint: 'text-go' }
+  if (activity.body.startsWith('Repeat inquiry'))
+    return { Icon: Repeat, tint: 'text-khaki' }
+  if (activity.body.startsWith('Customer approved'))
+    return { Icon: Check, tint: 'text-go' }
+  return { Icon: X, tint: 'text-alert' }
 }
 
 function timeAgo(timestamp: string): string {
@@ -71,14 +74,15 @@ function timeAgo(timestamp: string): string {
 }
 
 function AttentionRow({ activity }: { activity: NotableActivity }) {
+  const { Icon, tint } = iconFor(activity)
   return (
     <Link
       to="/clients/$clientId"
       params={{ clientId: activity.client_id }}
       className="tap-active flex items-center gap-3 rounded-lg border border-edge px-3 py-3"
     >
-      <span aria-hidden className="shrink-0 text-lg">
-        {glyphFor(activity)}
+      <span aria-hidden className={`shrink-0 ${tint}`}>
+        <Icon size={18} />
       </span>
       <span className="min-w-0">
         <span className="block truncate font-display font-semibold text-sand">

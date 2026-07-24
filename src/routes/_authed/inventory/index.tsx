@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { Package } from 'lucide-react'
 import { EmptyState } from '@/components/EmptyState'
 import { HeaderAdd } from '@/components/HeaderAdd'
 import { SkeletonList } from '@/components/Skeleton'
@@ -103,7 +104,7 @@ function InventoryScreen() {
         filtered.length === 0 &&
         ((items ?? []).length === 0 ? (
           <EmptyState
-            glyph="📦"
+            icon={<Package size={40} strokeWidth={1.5} />}
             title="No inventory yet"
             body="Track fuel, line, bags, and parts — low stock surfaces on Today."
             action={

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Check, Info, TriangleAlert, Upload, type LucideIcon } from 'lucide-react'
 import { dismissToast, useToasts, type ToastItem, type ToastKind } from '@/lib/toast'
 import { haptics } from '@/lib/haptics'
 
@@ -11,11 +12,11 @@ import { haptics } from '@/lib/haptics'
  * early. Haptics fire on appear so the confirmation is felt, not just seen.
  */
 
-const KIND: Record<ToastKind, { accent: string; glyph: string }> = {
-  success: { accent: 'border-go text-go', glyph: '✓' },
-  error: { accent: 'border-alert text-alert', glyph: '!' },
-  info: { accent: 'border-outline text-sand', glyph: 'i' },
-  offline: { accent: 'border-khaki text-khaki', glyph: '⇡' },
+const KIND: Record<ToastKind, { accent: string; icon: LucideIcon }> = {
+  success: { accent: 'border-go text-go', icon: Check },
+  error: { accent: 'border-alert text-alert', icon: TriangleAlert },
+  info: { accent: 'border-outline text-sand', icon: Info },
+  offline: { accent: 'border-khaki text-khaki', icon: Upload },
 }
 
 const DURATION: Record<ToastKind, number> = {
@@ -27,7 +28,7 @@ const DURATION: Record<ToastKind, number> = {
 
 function ToastCard({ item }: { item: ToastItem }) {
   const [leaving, setLeaving] = useState(false)
-  const { accent, glyph } = KIND[item.kind]
+  const { accent, icon: Icon } = KIND[item.kind]
 
   useEffect(() => {
     // Felt confirmation: success/error get their own pattern, the rest a tap.
@@ -52,8 +53,8 @@ function ToastCard({ item }: { item: ToastItem }) {
       onClick={() => setLeaving(true)}
       className={`card-surface ${leaving ? 'anim-toast-out' : 'anim-toast-in'} pointer-events-auto flex w-full items-center gap-3 border-l-4 ${accent} px-4 py-3 text-left`}
     >
-      <span className={`heading-stencil shrink-0 text-lg ${accent.split(' ')[1]}`}>
-        {glyph}
+      <span className={`shrink-0 ${accent.split(' ')[1]}`}>
+        <Icon size={18} aria-hidden />
       </span>
       <span className="flex-1 text-sm text-sand">{item.message}</span>
     </button>

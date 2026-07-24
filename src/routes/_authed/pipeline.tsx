@@ -1,4 +1,5 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { MessageCircle, Phone, Sprout } from 'lucide-react'
 import {
   CLIENT_STAGES,
   nextStage,
@@ -68,7 +69,7 @@ function PipelineScreen() {
 
       {clients?.length === 0 && (
         <EmptyState
-          glyph="🌱"
+          icon={<Sprout size={40} strokeWidth={1.5} />}
           title="No clients yet"
           body="Add your first lead and start moving them through the pipeline."
           action={
@@ -149,14 +150,14 @@ function PipelineCard({ client, balance }: { client: Client; balance: number }) 
             aria-label={`Call ${client.name}`}
             className="tap-active grid h-10 flex-1 place-items-center rounded-lg border-2 border-edge text-base text-sand"
           >
-            📞
+            <Phone size={20} aria-hidden />
           </a>
           <a
             href={`sms:${client.phone}`}
             aria-label={`Text ${client.name}`}
             className="tap-active grid h-10 flex-1 place-items-center rounded-lg border-2 border-edge text-base text-sand"
           >
-            💬
+            <MessageCircle size={20} aria-hidden />
           </a>
         </div>
       )}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Check } from 'lucide-react'
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { supabase } from '@/lib/supabase'
 import { saveBusinessSettings } from '@/features/settings/hooks'
@@ -161,7 +162,7 @@ function SetupToggle({
           checked ? 'border-blaze bg-blaze text-on-cta' : 'border-edge text-transparent'
         }`}
       >
-        ✓
+        <Check size={16} aria-hidden />
       </span>
       <span className="min-w-0">
         <span className="block text-lg text-sand">{title}</span>

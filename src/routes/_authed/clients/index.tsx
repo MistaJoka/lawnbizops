@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { MessageCircle, Phone, Search, UserRound } from 'lucide-react'
 import { HeaderAdd } from '@/components/HeaderAdd'
 import { SkeletonList } from '@/components/Skeleton'
 import { EmptyState } from '@/components/EmptyState'
@@ -87,14 +88,14 @@ function ClientsScreen() {
                   aria-label={`Call ${client.name}`}
                   className="tap-active grid h-touch w-touch place-items-center rounded-lg border border-edge text-base"
                 >
-                  📞
+                  <Phone size={20} aria-hidden />
                 </a>
                 <a
                   href={`sms:${client.phone}`}
                   aria-label={`Text ${client.name}`}
                   className="tap-active grid h-touch w-touch place-items-center rounded-lg border border-edge text-base"
                 >
-                  💬
+                  <MessageCircle size={20} aria-hidden />
                 </a>
               </span>
             )}
@@ -117,13 +118,13 @@ function ClientsScreen() {
         filtered.length === 0 &&
         (search ? (
           <EmptyState
-            glyph="🔍"
+            icon={<Search size={40} strokeWidth={1.5} />}
             title="No matches"
             body={`Nothing matches "${search}".`}
           />
         ) : (
           <EmptyState
-            glyph="👤"
+            icon={<UserRound size={40} strokeWidth={1.5} />}
             title="No clients yet"
             body="Add your first client to start booking work and sending invoices."
             action={

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Check } from 'lucide-react'
 import { EmptyState } from '@/components/EmptyState'
 import { updateJobChecklist, type ChecklistItem, type Job } from '@/features/jobs/hooks'
 
@@ -57,7 +58,7 @@ export function JobChecklist({ job }: { job: Job & { checklist?: unknown } }) {
                   item.done ? 'border-go bg-go text-canvas' : 'border-outline'
                 }`}
               >
-                {item.done ? '✓' : ''}
+                {item.done ? <Check size={16} aria-hidden /> : null}
               </span>
               <span
                 className={`text-lg ${item.done ? 'text-faded line-through' : 'text-sand'}`}

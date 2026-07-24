@@ -49,7 +49,10 @@ export function DevPanel() {
   // bottom-right, in the slot the removed FABs vacated: bottom-left sat on top
   // of primary CTAs, and top-right collided with header actions (+ Job / Edit).
   return (
-    <div data-dev-panel className="fixed right-4 bottom-28 z-[60] flex flex-col items-end">
+    <div
+      data-dev-panel
+      className="fixed right-4 bottom-28 z-[60] flex flex-col items-end"
+    >
       {open && (
         <div
           style={{ borderColor: ACCENT }}

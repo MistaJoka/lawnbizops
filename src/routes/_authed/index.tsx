@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Check } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   jobsForDateQueryOptions,
@@ -312,7 +313,7 @@ function TimelineDot({ active, done }: { active?: boolean; done?: boolean }) {
   if (done) {
     return (
       <div className="absolute top-2 left-0 z-10 flex h-6 w-6 items-center justify-center rounded-full border-2 border-outline bg-surface-highest">
-        <span className="text-[14px] text-muted">✓</span>
+        <Check size={14} aria-hidden className="text-muted" />
       </div>
     )
   }

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Check } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { createVendor1099 } from '@/features/tax/hooks'
 import { Field, PrimaryButton, TextInput } from '@/components/Field'
@@ -74,11 +75,17 @@ function NewPayeeScreen() {
         <button
           type="button"
           onClick={() => setTrack((v) => !v)}
-          className={`heading-stencil tap-active min-h-touch w-full rounded-lg border-2 px-4 py-3 text-sm ${
+          className={`heading-stencil tap-active min-h-touch inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm ${
             track ? 'border-blaze bg-blaze text-on-cta' : 'border-edge bg-panel text-sand'
           }`}
         >
-          {track ? '✓ Tracking for 1099' : 'Not tracking for 1099'}
+          {track ? (
+            <>
+              <Check size={16} aria-hidden /> Tracking for 1099
+            </>
+          ) : (
+            'Not tracking for 1099'
+          )}
         </button>
 
         <PrimaryButton disabled={!canSave} onClick={() => void handleSave()}>

@@ -26,7 +26,7 @@ export function CardQuickActions({ actions }: { actions: QuickAction[] }) {
             aria-label={a.label}
             className={cls}
           >
-            {a.glyph}
+            <a.icon size={20} aria-hidden />
           </a>
         ) : (
           <button
@@ -36,7 +36,7 @@ export function CardQuickActions({ actions }: { actions: QuickAction[] }) {
             aria-label={a.label}
             className={cls}
           >
-            {a.glyph}
+            <a.icon size={20} aria-hidden />
           </button>
         )
       })}

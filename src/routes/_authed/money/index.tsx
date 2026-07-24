@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { Bell, ClipboardList, Receipt, X } from 'lucide-react'
 import { Sheet } from '@/components/Sheet'
 import { SkeletonList } from '@/components/Skeleton'
 import { EmptyState } from '@/components/EmptyState'
@@ -221,7 +222,7 @@ function ExpensesTab() {
           </div>
         ) : (
           <EmptyState
-            glyph="🧾"
+            icon={<Receipt size={40} strokeWidth={1.5} />}
             title="No expenses yet"
             body="Log fuel, supplies, and equipment as you spend — they total up here and feed your P&L."
           />
@@ -304,9 +305,15 @@ function UnbilledWorkCard() {
           type="button"
           disabled={batching}
           onClick={() => void handleBatch()}
-          className="heading-stencil tap-active mt-3 w-full rounded-lg border-2 border-blaze py-2 text-xs text-blaze disabled:opacity-50"
+          className="heading-stencil tap-active mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-blaze py-2 text-xs text-blaze disabled:opacity-50"
         >
-          {batching ? 'Creating drafts…' : `🧾 Invoice all (${groups.length} clients)`}
+          {batching ? (
+            'Creating drafts…'
+          ) : (
+            <>
+              <Receipt size={16} aria-hidden /> Invoice all ({groups.length} clients)
+            </>
+          )}
         </button>
       )}
       <ul className="mt-3 flex flex-col gap-2">
@@ -384,9 +391,9 @@ function InvoicesTab() {
           <button
             type="button"
             onClick={() => setNudgeOpen(true)}
-            className="heading-stencil tap-active mt-3 w-full rounded-lg border-2 border-blaze py-2 text-xs text-blaze"
+            className="heading-stencil tap-active mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-blaze py-2 text-xs text-blaze"
           >
-            🔔 Nudge overdue ({overdue.length})
+            <Bell size={16} aria-hidden /> Nudge overdue ({overdue.length})
           </button>
         )}
       </div>
@@ -428,7 +435,7 @@ function InvoicesTab() {
           </div>
         ) : (
           <EmptyState
-            glyph="🧾"
+            icon={<Receipt size={40} strokeWidth={1.5} />}
             title="No invoices yet"
             body="Finish a job, then bill it — invoices show up here with their aging."
           />
@@ -456,7 +463,7 @@ function NudgeSheet({
           className="label-caps text-faded"
           aria-label="Close"
         >
-          ✕
+          <X size={20} aria-hidden />
         </button>
       </div>
       <ul className="flex flex-col gap-3">
@@ -485,9 +492,9 @@ function NudgeSheet({
                     body: `Texted a payment reminder for ${inv.number ?? 'invoice'}.`,
                   })
                 }}
-                className="heading-stencil tap-active shrink-0 rounded-lg border-2 border-blaze px-4 py-2 text-sm text-blaze"
+                className="heading-stencil tap-active inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border-2 border-blaze px-4 py-2 text-sm text-blaze"
               >
-                🔔 Nudge
+                <Bell size={16} aria-hidden /> Nudge
               </a>
             </li>
           )
@@ -605,7 +612,7 @@ function EstimatesTab() {
           </div>
         ) : (
           <EmptyState
-            glyph="📋"
+            icon={<ClipboardList size={40} strokeWidth={1.5} />}
             title="No estimates yet"
             body="Quote a job to win the work — your estimates collect here."
           />

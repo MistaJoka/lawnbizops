@@ -1,3 +1,4 @@
+import { CloudOff } from 'lucide-react'
 import { EmptyState } from '@/components/EmptyState'
 
 /**
@@ -20,7 +21,7 @@ export function QueryError({
 }) {
   return (
     <EmptyState
-      glyph="⚠"
+      icon={<CloudOff size={40} strokeWidth={1.5} />}
       title={title}
       body={body}
       action={

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { ChartColumn, PartyPopper } from 'lucide-react'
 import { DateRangePicker } from '@/features/reports/DateRangePicker'
 import { thisMonthRange, type DateRange } from '@/features/reports/range'
 import {
@@ -147,7 +148,7 @@ function ReportsScreen() {
           <DateRangePicker value={range} onChange={setRange} />
         </div>
         <EmptyState
-          glyph="📊"
+          icon={<ChartColumn size={40} strokeWidth={1.5} />}
           title="Nothing in this period"
           body="No payments, expenses, or billed jobs landed in this range. Widen the range or pick another period."
         />
@@ -236,7 +237,9 @@ function ReportsScreen() {
       <div className="card-surface mt-4 p-4">
         <p className="label-caps text-faded">Accounts receivable · open</p>
         {agingRows.length === 0 ? (
-          <p className="mt-2 text-sm text-faded">Nothing outstanding. 🎉</p>
+          <p className="mt-2 inline-flex items-center gap-2 text-sm text-faded">
+            Nothing outstanding. <PartyPopper size={16} aria-hidden />
+          </p>
         ) : (
           <div className="mt-3 flex flex-wrap gap-2">
             {agingRows.map((r) => (

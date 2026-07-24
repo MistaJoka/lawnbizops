@@ -23,6 +23,8 @@ jobs:
         run: node scripts/check-migrations.mjs
       - name: cold-case registry
         run: node scripts/qa-registry-check.mjs
+      - name: Icon-system guard (no emoji in UI code)
+        run: node scripts/check-no-emoji-ui.mjs
       # test:coverage enforces the src/lib coverage thresholds (see vite.config).
       - run: npm run test:coverage
       - run: npm run build

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { X } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   deleteExpense,
@@ -241,7 +242,7 @@ function ReceiptsSection({ expenseId }: { expenseId: string }) {
                 aria-label="Delete receipt"
                 className="heading-stencil absolute top-1 right-1 flex h-7 w-7 items-center justify-center rounded-full bg-canvas/80 text-alert"
               >
-                ✕
+                <X size={20} aria-hidden />
               </button>
             </div>
           ))}

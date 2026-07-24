@@ -19,7 +19,7 @@
     "test:e2e": "playwright test",
     "test:e2e:demo": "playwright test --config playwright.demo.config.ts",
     "dev:demo": "VITE_DEMO=1 vite",
-    "verify": "npm run lint && npm run format:check && npm run typecheck && npm run test && node scripts/check-migrations.mjs && node scripts/qa-registry-check.mjs && npm run build && npm run bundle:check"
+    "verify": "npm run lint && npm run format:check && npm run typecheck && npm run test && node scripts/check-migrations.mjs && node scripts/qa-registry-check.mjs && node scripts/check-no-emoji-ui.mjs && npm run build && npm run bundle:check"
   },
   "dependencies": {
     "@fontsource/archivo-narrow": "^5.2.8",
@@ -33,6 +33,7 @@
     "dexie": "^4.4.3",
     "dexie-react-hooks": "^4.4.0",
     "leaflet": "^1.9.4",
+    "lucide-react": "^1.26.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-leaflet": "^5.0.0"

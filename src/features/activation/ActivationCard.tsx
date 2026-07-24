@@ -1,3 +1,4 @@
+import { Check } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { useClients } from '@/features/clients/hooks'
@@ -116,7 +117,7 @@ export function ActivationCard() {
 function CheckDot({ done }: { done?: boolean }) {
   return done ? (
     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-go text-go">
-      ✓
+      <Check size={14} strokeWidth={3} aria-hidden />
     </span>
   ) : (
     <span className="h-6 w-6 shrink-0 rounded-full border-2 border-edge" />
