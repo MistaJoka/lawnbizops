@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { presetRange } from '@/features/reports/range'
 import { usePnl, useExpensesByCategory } from '@/features/reports/hooks'
 import { useExpenses } from '@/features/expenses/hooks'
@@ -48,9 +49,7 @@ function TaxScreen() {
 
   return (
     <div className="px-edge pt-6 pb-12">
-      <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Settings
-      </Link>
+      <BackLink fallback="/settings" label="Settings" />
       <div className="mt-2 flex items-center justify-between gap-3">
         <h1 className="heading-stencil text-2xl text-sand">Taxes · {yearPrefix}</h1>
         <Link to="/settings/tax" className="label-caps text-blaze">

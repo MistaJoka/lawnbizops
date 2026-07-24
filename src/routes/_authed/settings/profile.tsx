@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import {
   Field,
   PrimaryButton,
@@ -28,9 +29,7 @@ function ProfileScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Settings
-      </Link>
+      <BackLink fallback="/settings" label="Settings" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Business profile</h1>
 
       {isLoading ? (

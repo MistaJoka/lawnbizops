@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { slopePercentFromPitchRad } from '@/lib/calculators'
 
 export const Route = createFileRoute('/_authed/tools/grade')({
@@ -38,9 +39,7 @@ function GradeEstimatorScreen() {
 
   return (
     <div className="px-edge pt-6 pb-24">
-      <Link to="/tools" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Field tools
-      </Link>
+      <BackLink fallback="/tools" label="Field tools" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Grade estimator</h1>
       <p className="mt-2 text-muted">
         Hold the phone flat on the ground along the slope direction.

@@ -33,7 +33,7 @@ export const LANES: LaneDef[] = [
   { id: 'scheduled', title: 'Scheduled', short: 'Sched', tint: 'border-edge' },
   { id: 'in_progress', title: 'In progress', short: 'Active', tint: 'border-edge' },
   { id: 'done', title: 'Done', tint: 'border-edge' },
-  { id: 'ar', title: 'Invoiced · A/R', short: 'A/R', tint: 'border-edge' },
+  { id: 'ar', title: 'Invoiced · unpaid', short: 'Unpaid', tint: 'border-edge' },
   { id: 'paid', title: 'Paid', tint: 'border-edge' },
 ]
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { Package } from 'lucide-react'
 import { EmptyState } from '@/components/EmptyState'
 import { HeaderAdd } from '@/components/HeaderAdd'
@@ -54,9 +55,7 @@ function InventoryScreen() {
   return (
     <div>
       <header className="sticky top-0 z-40 border-b-2 border-edge bg-canvas px-edge py-4">
-        <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
-          ← Settings
-        </Link>
+        <BackLink fallback="/settings" label="Settings" />
         <h1 className="heading-stencil mt-2 text-2xl text-sand">Inventory</h1>
         <p className="mt-1 text-sm text-muted">
           Truck stock, warehouse supplies, seasonal materials.

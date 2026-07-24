@@ -144,7 +144,7 @@ describe('LANES config', () => {
     }
     // The abbreviated chips that exist must actually abbreviate.
     expect(LANES.find((l) => l.id === 'scheduled')!.short).toBe('Sched')
-    expect(LANES.find((l) => l.id === 'ar')!.short).toBe('A/R')
+    expect(LANES.find((l) => l.id === 'ar')!.short).toBe('Unpaid')
   })
 
   it('WIP caps only reference real lanes', () => {

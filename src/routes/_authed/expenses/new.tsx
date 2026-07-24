@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Camera, Paperclip } from 'lucide-react'
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { useClients } from '@/features/clients/hooks'
 import { useVendors1099 } from '@/features/tax/hooks'
 import {
@@ -82,9 +83,7 @@ function NewExpenseScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Money
-      </Link>
+      <BackLink fallback="/money" label="Money" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">New expense</h1>
       {jobId && <p className="mt-1 text-sm text-faded">Tagging this cost to the job</p>}
 

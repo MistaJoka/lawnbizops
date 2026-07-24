@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { useClients } from '@/features/clients/hooks'
 import {
   useProperties,
@@ -133,9 +134,7 @@ function NewJobScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <Link to="/" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Back
-      </Link>
+      <BackLink fallback="/" label="Back" />
       <div className="mt-2 border-b-4 border-blaze bg-surface-low py-4">
         <h1 className="heading-stencil text-2xl text-sand">New job</h1>
         <p className="label-caps mt-1 text-muted">One-off site work</p>

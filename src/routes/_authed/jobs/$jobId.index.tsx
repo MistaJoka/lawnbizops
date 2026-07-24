@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Image, Timer, X } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { JobChecklist } from '@/features/jobs/JobChecklist'
 import { setJobStatus, useJob } from '@/features/jobs/hooks'
 import { logActivity } from '@/features/activities/hooks'
@@ -35,9 +36,7 @@ function JobDetailScreen() {
   if (!job) {
     return (
       <div className="px-edge pt-6">
-        <Link to="/" className="inline-block py-2 pr-4 text-sm text-faded">
-          ← Today
-        </Link>
+        <BackLink fallback="/" label="Today" />
         {isLoading ? (
           <div className="mt-4">
             <SkeletonDetail />
@@ -75,9 +74,7 @@ function JobDetailScreen() {
 
   return (
     <div className="px-edge pt-6 pb-24">
-      <Link to="/" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Today
-      </Link>
+      <BackLink fallback="/" label="Today" />
 
       <div className="mt-4">
         <JobStepper stage={jobPipelineStage(job.status)} />

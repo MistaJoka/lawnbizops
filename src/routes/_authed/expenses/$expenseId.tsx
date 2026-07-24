@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { X } from 'lucide-react'
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import {
   deleteExpense,
   EXPENSE_METHODS,
@@ -95,9 +96,7 @@ function ExpenseEditor({ expense }: { expense: ExpenseRow }) {
 
   return (
     <div className="px-edge pt-6">
-      <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Money
-      </Link>
+      <BackLink fallback="/money" label="Money" />
 
       <div className="mt-2 flex items-baseline justify-between gap-3">
         <h1 className="heading-stencil text-2xl text-sand">Expense</h1>

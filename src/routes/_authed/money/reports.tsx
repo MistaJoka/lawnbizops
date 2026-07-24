@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { ChartColumn, PartyPopper } from 'lucide-react'
 import { DateRangePicker } from '@/features/reports/DateRangePicker'
 import { thisMonthRange, type DateRange } from '@/features/reports/range'
@@ -140,9 +141,7 @@ function ReportsScreen() {
   if (rangeIsEmpty) {
     return (
       <div className="px-edge pt-6 pb-28">
-        <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
-          ← Money
-        </Link>
+        <BackLink fallback="/money" label="Money" />
         <h1 className="heading-stencil mt-2 text-2xl text-sand">Reports</h1>
         <div className="mt-4">
           <DateRangePicker value={range} onChange={setRange} />
@@ -158,9 +157,7 @@ function ReportsScreen() {
 
   return (
     <div className="px-edge pt-6 pb-28">
-      <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Money
-      </Link>
+      <BackLink fallback="/money" label="Money" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Reports</h1>
 
       <div className="mt-4">

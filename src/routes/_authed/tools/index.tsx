@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 
 export const Route = createFileRoute('/_authed/tools/')({
   component: ToolsScreen,
@@ -23,9 +24,7 @@ function ToolsScreen() {
   return (
     <div>
       <header className="sticky top-0 z-40 border-b-2 border-edge bg-canvas px-edge py-4">
-        <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
-          ← Settings
-        </Link>
+        <BackLink fallback="/settings" label="Settings" />
         <div className="mt-3 border-l-4 border-blaze pl-4">
           <span className="label-caps text-blaze">Utility suite</span>
           <h1 className="heading-stencil text-2xl text-sand">Field tools</h1>

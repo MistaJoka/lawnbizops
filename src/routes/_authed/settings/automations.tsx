@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { Toggle } from '@/components/Toggle'
 import { SkeletonList } from '@/components/Skeleton'
 import { useBusinessSettings, type BusinessSettings } from '@/features/invoices/hooks'
@@ -51,9 +52,7 @@ function AutomationsForm({ settings }: { settings: BusinessSettings }) {
 
   return (
     <div className="px-edge pt-6 pb-24">
-      <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Settings
-      </Link>
+      <BackLink fallback="/settings" label="Settings" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Automations</h1>
       <p className="mt-1 text-sm text-muted">
         Let the app handle the busywork. These add tasks to your Follow-ups.

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Check } from 'lucide-react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/lib/db'
 import { discardFailed, flush, retryFailed } from '@/lib/outbox'
@@ -57,9 +58,7 @@ function SyncScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Settings
-      </Link>
+      <BackLink fallback="/settings" label="Settings" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Sync issues</h1>
 
       <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">

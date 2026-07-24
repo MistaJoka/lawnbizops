@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Check, Mail, Phone, Receipt, X } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import {
   convertToInvoice,
   createDepositInvoice,
@@ -53,9 +54,7 @@ function EstimateDetailScreen() {
   if (!detail) {
     return (
       <div className="px-edge pt-6">
-        <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
-          ← Money
-        </Link>
+        <BackLink fallback="/money" label="Money" />
         {isLoading ? (
           <div className="mt-4">
             <SkeletonDetail />
@@ -170,9 +169,7 @@ function EstimateDetailScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Money
-      </Link>
+      <BackLink fallback="/money" label="Money" />
 
       <div className="mt-2 flex items-start justify-between gap-3">
         <h1 className="heading-stencil min-w-0 text-2xl text-sand">

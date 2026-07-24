@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { supabase } from '@/lib/supabase'
 import { toCsv } from '@/lib/csv'
 import { localToday } from '@/lib/format'
@@ -95,9 +96,7 @@ function ExportScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Settings
-      </Link>
+      <BackLink fallback="/settings" label="Settings" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Export data</h1>
       <p className="mt-2 text-faded">
         Download your records as CSV files — open them in Sheets or Excel.

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Pause, Play } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { ScheduleForm } from '@/features/schedules/ScheduleForm'
 import { confirm } from '@/lib/confirm'
 import { toast } from '@/lib/toast'
@@ -24,9 +25,7 @@ function EditScheduleScreen() {
   if (!schedule) {
     return (
       <div className="px-edge pt-6">
-        <Link to="/clients" className="inline-block py-2 pr-4 text-sm text-faded">
-          ← Back
-        </Link>
+        <BackLink fallback="/clients" label="Back" />
         <p className="mt-16 text-center text-faded">
           {isLoading ? 'Loading…' : 'Schedule not found.'}
         </p>

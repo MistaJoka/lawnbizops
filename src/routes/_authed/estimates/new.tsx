@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { useClients } from '@/features/clients/hooks'
 import { useProperties } from '@/features/properties/hooks'
 import { useServices } from '@/features/services/hooks'
@@ -108,9 +109,7 @@ function NewEstimateScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Money
-      </Link>
+      <BackLink fallback="/money" label="Money" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">New estimate</h1>
 
       <div className="mt-4 flex flex-col gap-4 pb-8">

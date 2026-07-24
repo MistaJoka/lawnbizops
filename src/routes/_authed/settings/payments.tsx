@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { useBusinessSettings } from '@/features/invoices/hooks'
 import { saveBusinessSettings } from '@/features/settings/hooks'
 
@@ -43,9 +44,7 @@ function PaymentsScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Settings
-      </Link>
+      <BackLink fallback="/settings" label="Settings" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Payments</h1>
       <p className="mt-2 text-faded">
         Online card collection isn&apos;t built yet — today you record payments on each

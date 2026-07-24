@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import {
   CalendarPlus,
   FileText,
@@ -52,9 +53,7 @@ function ClientDetailScreen() {
   if (!client) {
     return (
       <div className="px-edge pt-6">
-        <Link to="/clients" className="inline-block py-2 pr-4 text-sm text-faded">
-          ← Clients
-        </Link>
+        <BackLink fallback="/clients" label="Clients" />
         {isLoading ? (
           <div className="mt-4">
             <SkeletonDetail />
@@ -87,9 +86,7 @@ function ClientDetailScreen() {
     <div className="px-edge pt-6">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <Link to="/clients" className="inline-block py-2 pr-4 text-sm text-faded">
-            ← Clients
-          </Link>
+          <BackLink fallback="/clients" label="Clients" />
           <h1 className="heading-stencil mt-2 text-2xl text-sand">{client.name}</h1>
           <StageControl client={client} />
         </div>

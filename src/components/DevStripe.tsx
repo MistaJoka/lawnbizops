@@ -143,7 +143,9 @@ function SyncStat() {
         {age && (
           <>
             <span aria-hidden>·</span>
-            <span className="text-faded">{age}</span>
+            <span className="text-faded">
+              {age === 'now' ? 'just now' : `${age} ago`}
+            </span>
           </>
         )}
       </button>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { Toggle } from '@/components/Toggle'
 import { loadPreferences, savePreferences } from '@/lib/preferences'
 import { applyOfflinePreference } from '@/lib/queryClient'
@@ -21,9 +22,7 @@ function PreferencesScreen() {
 
   return (
     <div className="px-edge pt-6 pb-24">
-      <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Settings
-      </Link>
+      <BackLink fallback="/settings" label="Settings" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">App preferences</h1>
 
       <section className="mt-6">

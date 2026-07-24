@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { BackLink } from '@/components/BackLink'
 import { useClients } from '@/features/clients/hooks'
 import { createMileageLog } from '@/features/tax/hooks'
 import { Field, PrimaryButton, Select, TextInput } from '@/components/Field'
@@ -36,9 +37,7 @@ function NewMileageScreen() {
 
   return (
     <div className="px-edge pt-6 pb-12">
-      <Link to="/tax" className="inline-block py-2 pr-4 text-sm text-faded">
-        ← Taxes
-      </Link>
+      <BackLink fallback="/tax" label="Taxes" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Log a trip</h1>
 
       <div className="mt-4 flex flex-col gap-4">

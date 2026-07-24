@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { CalendarDays, CirclePlus, DollarSign, Settings, Sun, Users } from 'lucide-react'
+import {
+  CalendarDays,
+  CirclePlus,
+  DollarSign,
+  LayoutGrid,
+  Sun,
+  Users,
+} from 'lucide-react'
 import { useOutboxPending } from '@/lib/outbox'
 import { QuickCreateSheet } from './QuickCreateSheet'
 
@@ -9,7 +16,7 @@ const tabs = [
   { to: '/schedule', label: 'Schedule', icon: CalendarDays },
   { to: '/clients', label: 'Clients', icon: Users },
   { to: '/money', label: 'Money', icon: DollarSign },
-  { to: '/settings', label: 'Settings', icon: Settings },
+  { to: '/settings', label: 'More', icon: LayoutGrid },
 ] as const
 
 export function TabBar() {

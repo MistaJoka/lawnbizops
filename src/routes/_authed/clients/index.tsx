@@ -8,6 +8,15 @@ import { QueryError } from '@/components/QueryError'
 import { clientsQueryOptions, useClients } from '@/features/clients/hooks'
 import { queryClient } from '@/lib/queryClient'
 
+// lead = about-to-be-money (accent), active = healthy (green), quoted =
+// waiting on them (sand), dormant = quiet (faded).
+const STAGE_DOT: Record<string, string> = {
+  lead: 'bg-blaze',
+  quoted: 'bg-sand',
+  active: 'bg-go',
+  dormant: 'bg-faded',
+}
+
 export const Route = createFileRoute('/_authed/clients/')({
   // Warm the list on tab-intent (preload) so it paints instantly on tap.
   // prefetchQuery never throws — offline/no-cache stays graceful (the
@@ -72,8 +81,12 @@ function ClientsScreen() {
               params={{ clientId: client.id }}
               className="min-w-0 after:absolute after:inset-0"
             >
-              <span className="block truncate text-base font-medium text-sand">
-                {client.name}
+              <span className="flex items-center gap-2 truncate text-base font-medium text-sand">
+                <span
+                  aria-hidden
+                  className={`h-2 w-2 shrink-0 rounded-full ${STAGE_DOT[client.stage] ?? 'bg-faded'}`}
+                />
+                <span className="truncate">{client.name}</span>
               </span>
               {client.phone && (
                 <span className="block truncate text-sm text-faded tabular-nums">
