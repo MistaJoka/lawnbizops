@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Mail, Phone, Receipt } from 'lucide-react'
+import { Bell, Mail, Phone, Receipt, Share2 } from 'lucide-react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   PAYMENT_METHODS,
@@ -22,7 +22,8 @@ import {
 } from '@/features/invoices/hooks'
 import { InvoiceStatusChip } from '@/features/invoices/InvoiceStatusChip'
 import { invoiceFilename, shareInvoicePdf } from '@/features/invoices/share'
-import { Field, PrimaryButton, Select, TextInput, DangerButton } from '@/components/Field'
+import { Field, PrimaryButton, Select, TextInput } from '@/components/Field'
+import { ActionRow } from '@/components/ActionRow'
 import { EmptyState } from '@/components/EmptyState'
 import { QueryError } from '@/components/QueryError'
 import { SkeletonDetail } from '@/components/Skeleton'
@@ -187,7 +188,7 @@ function InvoiceDetailScreen() {
       </Link>
 
       <div className="mt-2 flex items-start justify-between gap-3">
-        <h1 className="heading-stencil min-w-0 text-2xl text-khaki">
+        <h1 className="heading-stencil min-w-0 text-2xl text-sand">
           {invoice.number ?? 'pending #'}
         </h1>
         <InvoiceStatusChip status={invoice.status} />
@@ -222,7 +223,7 @@ function InvoiceDetailScreen() {
             {client.phone && (
               <a
                 href={`tel:${client.phone}`}
-                className="heading-stencil inline-flex items-center justify-center gap-2 rounded-lg bg-blaze px-4 py-3 text-on-cta"
+                className="heading-stencil inline-flex items-center justify-center gap-2 rounded-lg border border-edge bg-panel px-4 py-3 text-sand"
               >
                 <Phone size={18} aria-hidden /> Call
               </a>
@@ -354,66 +355,50 @@ function InvoiceDetailScreen() {
           ))}
 
         {invoice.status !== 'void' && (
-          <div>
-            <button
-              type="button"
+          <div className="card-surface divide-y divide-edge/60">
+            <ActionRow
+              icon={Mail}
+              label={emailing ? 'Queueing…' : 'Email invoice'}
+              sub={
+                invoice.sent_at
+                  ? `Emailed ${formatNudgeDate(invoice.sent_at)}`
+                  : client?.email
+                    ? `Sends to ${client.email}`
+                    : 'Add an email to the client to send directly'
+              }
               disabled={!client?.email || emailing}
               onClick={() => void handleEmail()}
-              className="heading-stencil w-full rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-sand disabled:opacity-50"
-            >
-              {emailing ? 'Queueing…' : 'Email invoice'}
-            </button>
-            <p className="mt-1 text-center text-xs text-faded">
-              {invoice.sent_at
-                ? `Emailed ${formatNudgeDate(invoice.sent_at)}`
-                : client?.email
-                  ? `Sends to ${client.email}.`
-                  : 'Add an email to the client to send directly.'}
-            </p>
-          </div>
-        )}
-
-        {invoice.status !== 'void' && (
-          <div>
-            <button
-              type="button"
+            />
+            <ActionRow
+              icon={Share2}
+              label={sharing ? 'Building PDF…' : 'Share PDF'}
+              sub={invoice.number ? undefined : 'Syncs first — number pending'}
               disabled={!invoice.number || sharing}
               onClick={() => void handleSharePdf()}
-              className="heading-stencil w-full rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-sand disabled:opacity-50"
-            >
-              {sharing ? 'Building PDF…' : 'Share PDF'}
-            </button>
-            {!invoice.number && (
-              <p className="mt-1 text-center text-xs text-faded">
-                Syncs first — number pending
-              </p>
-            )}
-          </div>
-        )}
-
-        {canRemind && (
-          <div>
-            <button
-              type="button"
-              onClick={() => void handleReminder()}
-              className="heading-stencil w-full rounded-lg border border-edge bg-panel px-4 py-4 text-lg text-khaki"
-            >
-              Friendly reminder
-            </button>
-            {invoice.last_reminded_at && (
-              <p className="mt-1 text-center text-xs text-faded">
-                Last nudged {formatNudgeDate(invoice.last_reminded_at)}
-              </p>
+            />
+            {canRemind && (
+              <ActionRow
+                icon={Bell}
+                label="Send reminder"
+                sub={
+                  invoice.last_reminded_at
+                    ? `Last nudged ${formatNudgeDate(invoice.last_reminded_at)}`
+                    : undefined
+                }
+                onClick={() => void handleReminder()}
+              />
             )}
           </div>
         )}
 
         {invoice.status !== 'void' && (
-          <div className="mt-6">
-            <DangerButton type="button" onClick={() => void handleVoid()}>
-              Void invoice
-            </DangerButton>
-          </div>
+          <button
+            type="button"
+            onClick={() => void handleVoid()}
+            className="tap-active mx-auto mt-4 flex min-h-11 items-center px-4 text-sm font-medium text-alert"
+          >
+            Void invoice
+          </button>
         )}
       </div>
     </div>

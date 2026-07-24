@@ -52,7 +52,7 @@ function TaxScreen() {
         ← Settings
       </Link>
       <div className="mt-2 flex items-center justify-between gap-3">
-        <h1 className="heading-stencil text-2xl text-khaki">Taxes · {yearPrefix}</h1>
+        <h1 className="heading-stencil text-2xl text-sand">Taxes · {yearPrefix}</h1>
         <Link to="/settings/tax" className="label-caps text-blaze">
           Tax setup
         </Link>

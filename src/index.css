@@ -9,7 +9,7 @@
 @theme {
   --color-canvas: #111316;
   --color-panel: #1e2023;
-  --color-edge: #5a4136;
+  --color-edge: #45413b;
   --color-outline: #a98a7d;
   --color-olive: #41474f;
   --color-khaki: #ffb693;
@@ -89,9 +89,11 @@ body {
   text-transform: uppercase;
 }
 
-/* Rugged card shell — tonal layering, no soft shadows */
+/* Rugged card shell — tonal layering, no soft shadows. 1px line: the shell
+   is defined by tone (panel vs canvas); heavy borders are reserved for
+   emphasis states, not resting surfaces. */
 .card-surface {
-  border-width: 2px;
+  border-width: 1px;
   border-style: solid;
   border-color: var(--color-edge);
   border-radius: 0.5rem;

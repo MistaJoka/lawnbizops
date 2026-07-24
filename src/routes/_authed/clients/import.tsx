@@ -97,7 +97,7 @@ function ImportScreen() {
       <Link to="/clients" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Clients
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">Import clients</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">Import clients</h1>
 
       {step === 'input' && (
         <div className="mt-6 flex flex-col gap-4">

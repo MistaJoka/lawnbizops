@@ -28,7 +28,7 @@ function SettingsScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <h1 className="heading-stencil text-2xl text-khaki">Settings</h1>
+      <h1 className="heading-stencil text-2xl text-sand">Settings</h1>
 
       <div className="mt-6 flex flex-col gap-2">
         <Link to="/dashboard" className={rowClass}>

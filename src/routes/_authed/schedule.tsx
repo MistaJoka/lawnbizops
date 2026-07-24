@@ -66,7 +66,7 @@ function ScheduleScreen() {
   return (
     <div>
       <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center justify-between border-b-2 border-edge bg-canvas px-edge">
-        <h1 className="heading-stencil text-2xl text-khaki">Schedule</h1>
+        <h1 className="heading-stencil text-2xl text-sand">Schedule</h1>
         <HeaderAdd to="/jobs/new" search={{ date: selected }} label="Job" />
       </header>
 

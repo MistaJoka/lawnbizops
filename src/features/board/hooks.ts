@@ -29,12 +29,12 @@ export interface LaneDef {
 }
 
 export const LANES: LaneDef[] = [
-  { id: 'quote', title: 'Quote', tint: 'border-outline' },
+  { id: 'quote', title: 'Quote', tint: 'border-edge' },
   { id: 'scheduled', title: 'Scheduled', short: 'Sched', tint: 'border-edge' },
-  { id: 'in_progress', title: 'In progress', short: 'Active', tint: 'border-khaki' },
-  { id: 'done', title: 'Done', tint: 'border-go' },
-  { id: 'ar', title: 'Invoiced · A/R', short: 'A/R', tint: 'border-blaze' },
-  { id: 'paid', title: 'Paid', tint: 'border-go' },
+  { id: 'in_progress', title: 'In progress', short: 'Active', tint: 'border-edge' },
+  { id: 'done', title: 'Done', tint: 'border-edge' },
+  { id: 'ar', title: 'Invoiced · A/R', short: 'A/R', tint: 'border-edge' },
+  { id: 'paid', title: 'Paid', tint: 'border-edge' },
 ]
 
 export interface BoardLanes {

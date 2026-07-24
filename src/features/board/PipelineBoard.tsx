@@ -180,17 +180,21 @@ function LaneNav({
             onClick={() => onJump(lane.id)}
             aria-label={`${lane.title}: ${s.count} item${s.count === 1 ? '' : 's'}, ${formatCents(s.valueCents)}. Jump to lane.`}
             aria-current={isActive ? 'true' : undefined}
-            className={`tap-active rounded-lg border-2 px-2 py-1.5 text-left transition-colors ${lane.tint} ${
-              isActive ? 'bg-surface-high' : 'bg-surface-low'
+            className={`tap-active rounded-lg border px-2 py-1.5 text-left transition-colors ${
+              isActive ? 'border-blaze bg-surface-high' : `${lane.tint} bg-surface-low`
             }`}
           >
-            <span className="label-caps block truncate text-[10px] text-faded">
+            <span className="label-caps block truncate text-[11px] text-faded">
               {lane.short ?? lane.title}
             </span>
             <span className="mt-0.5 block truncate text-sm text-sand">
               <span className="font-semibold">{s.count}</span>
               {s.valueCents > 0 && (
-                <span className="text-xs text-faded">
+                <span
+                  className={`text-xs ${
+                    lane.id === 'done' || lane.id === 'paid' ? 'text-go' : 'text-faded'
+                  }`}
+                >
                   {' '}
                   · {formatCentsShort(s.valueCents)}
                 </span>
@@ -219,7 +223,7 @@ function KanbanColumn({
   return (
     <section
       id={laneDomId(lane.id)}
-      className={`flex w-[80vw] max-w-sm shrink-0 snap-center flex-col rounded-lg border-2 bg-surface-low p-3 ${lane.tint}`}
+      className={`flex w-[80vw] max-w-sm shrink-0 snap-center flex-col rounded-lg border bg-surface-low p-3 ${lane.tint}`}
     >
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="heading-stencil min-w-0 truncate text-sm text-sand">

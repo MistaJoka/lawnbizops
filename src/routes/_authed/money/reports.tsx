@@ -143,7 +143,7 @@ function ReportsScreen() {
         <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
           ← Money
         </Link>
-        <h1 className="heading-stencil mt-2 text-2xl text-khaki">Reports</h1>
+        <h1 className="heading-stencil mt-2 text-2xl text-sand">Reports</h1>
         <div className="mt-4">
           <DateRangePicker value={range} onChange={setRange} />
         </div>
@@ -161,7 +161,7 @@ function ReportsScreen() {
       <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Money
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">Reports</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">Reports</h1>
 
       <div className="mt-4">
         <DateRangePicker value={range} onChange={setRange} />

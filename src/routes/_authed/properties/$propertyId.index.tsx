@@ -58,7 +58,7 @@ function PropertyDetailScreen() {
           >
             ← Client
           </Link>
-          <h1 className="heading-stencil mt-2 text-2xl text-khaki">
+          <h1 className="heading-stencil mt-2 text-2xl text-sand">
             {property.label || 'Property'}
           </h1>
         </div>

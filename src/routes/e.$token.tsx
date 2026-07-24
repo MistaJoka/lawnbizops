@@ -49,7 +49,7 @@ function ApprovalPage() {
 function InvalidLink() {
   return (
     <div className="mt-20 text-center">
-      <h1 className="heading-stencil text-2xl text-khaki">Link not found</h1>
+      <h1 className="heading-stencil text-2xl text-sand">Link not found</h1>
       <p className="mt-3 text-faded">
         This estimate link is no longer valid. Please contact the business that sent it
         for an up-to-date copy.
@@ -92,7 +92,7 @@ function Approval({ bundle, token }: { bundle: ApprovalBundle; token: string }) 
   return (
     <div>
       <header className="text-center">
-        <p className="heading-stencil text-xl text-khaki">
+        <p className="heading-stencil text-xl text-sand">
           {bundle.business_name || 'Your estimate'}
         </p>
         <p className="mt-1 text-sm text-faded">

@@ -25,7 +25,7 @@ function NewClientScreen() {
       <Link to="/clients" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Clients
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">New client</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">New client</h1>
       <div className="mt-4">
         <ClientForm
           defaultLead={lead === 1}

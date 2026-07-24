@@ -175,7 +175,7 @@ function EstimateDetailScreen() {
       </Link>
 
       <div className="mt-2 flex items-start justify-between gap-3">
-        <h1 className="heading-stencil min-w-0 text-2xl text-khaki">
+        <h1 className="heading-stencil min-w-0 text-2xl text-sand">
           {estimate.number ?? 'pending #'}
         </h1>
         <div className="flex shrink-0 items-center gap-2">

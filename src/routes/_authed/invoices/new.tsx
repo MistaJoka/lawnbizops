@@ -108,7 +108,7 @@ function NewInvoiceScreen() {
       <Link to="/money" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Money
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">New invoice</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">New invoice</h1>
 
       <div className="mt-4 flex flex-col gap-4 pb-8">
         <Field label="Client">

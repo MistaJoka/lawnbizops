@@ -37,7 +37,7 @@ export function AppErrorFallback({
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-edge text-center">
-      <p className="heading-stencil text-xl text-khaki">
+      <p className="heading-stencil text-xl text-sand">
         {offline ? 'Can’t reach the server' : 'Something broke on this screen'}
       </p>
       <p className="max-w-xs text-sm text-muted">

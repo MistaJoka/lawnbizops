@@ -39,7 +39,7 @@ function ServicesScreen() {
       <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Settings
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">Service catalog</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">Service catalog</h1>
 
       {!isLoading && list.length === 0 && !adding && (
         <div className="mt-6">

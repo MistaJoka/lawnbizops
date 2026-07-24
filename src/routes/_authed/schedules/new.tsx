@@ -44,7 +44,7 @@ function NewScheduleScreen() {
       >
         ← Back
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">New schedule</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">New schedule</h1>
       <div className="mt-4">
         <ScheduleForm
           propertyId={propertyId}

@@ -29,7 +29,7 @@ function QuoteRequestPage() {
         </div>
       ) : business === null ? (
         <div className="mt-20 text-center">
-          <h1 className="heading-stencil text-2xl text-khaki">Form not found</h1>
+          <h1 className="heading-stencil text-2xl text-sand">Form not found</h1>
           <p className="mt-3 text-faded">
             This request form is no longer available. Please reach out to the business
             directly.
@@ -84,7 +84,7 @@ function QuoteForm({ token, business }: { token: string; business: string }) {
   return (
     <div>
       <header className="text-center">
-        <p className="heading-stencil text-xl text-khaki">
+        <p className="heading-stencil text-xl text-sand">
           {business || 'Request a quote'}
         </p>
         <p className="mt-1 text-sm text-faded">

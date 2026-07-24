@@ -57,7 +57,7 @@ function InventoryScreen() {
         <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
           ← Settings
         </Link>
-        <h1 className="heading-stencil mt-2 text-2xl text-khaki">Inventory</h1>
+        <h1 className="heading-stencil mt-2 text-2xl text-sand">Inventory</h1>
         <p className="mt-1 text-sm text-muted">
           Truck stock, warehouse supplies, seasonal materials.
         </p>

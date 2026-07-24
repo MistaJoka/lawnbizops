@@ -41,7 +41,7 @@ export function TabBar() {
       </span>
       {/* Tab-scale label: smaller + tighter tracking than label-caps so the
           widest words fit a sixth of a narrow viewport without clipping. */}
-      <span className="font-mono text-[10px] leading-none font-bold tracking-[0.04em] uppercase">
+      <span className="font-mono text-[11px] leading-none font-bold tracking-[0.04em] uppercase">
         {label}
       </span>
     </Link>
@@ -65,7 +65,7 @@ export function TabBar() {
           className="tap-active flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-lg px-1 py-1.5 text-faded transition-transform duration-75 active:scale-95"
         >
           <CirclePlus aria-hidden />
-          <span className="font-mono text-[10px] leading-none font-bold tracking-[0.04em] uppercase">
+          <span className="font-mono text-[11px] leading-none font-bold tracking-[0.04em] uppercase">
             New
           </span>
         </button>

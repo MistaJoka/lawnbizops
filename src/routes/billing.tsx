@@ -54,7 +54,7 @@ function BillingScreen() {
 
   return (
     <div className="mx-auto w-full max-w-md px-edge py-10">
-      <h1 className="heading-stencil text-3xl text-khaki">Billing</h1>
+      <h1 className="heading-stencil text-3xl text-sand">Billing</h1>
 
       <div className="mt-4 rounded-lg border-2 border-edge bg-panel p-4">
         <p className="label-caps text-faded">Current plan</p>

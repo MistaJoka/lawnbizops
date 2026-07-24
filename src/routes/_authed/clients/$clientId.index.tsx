@@ -1,6 +1,15 @@
 import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Mail, MessageCircle, Phone, Square, X } from 'lucide-react'
+import {
+  CalendarPlus,
+  FileText,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Square,
+  X,
+} from 'lucide-react'
 import {
   CLIENT_STAGES,
   archiveClient,
@@ -20,6 +29,7 @@ import { presetRange } from '@/features/reports/range'
 import { ActivityTimeline } from '@/components/ActivityTimeline'
 import { Sheet } from '@/components/Sheet'
 import { SkeletonDetail } from '@/components/Skeleton'
+import { ActionRow } from '@/components/ActionRow'
 import { confirm } from '@/lib/confirm'
 import { ClientFollowUps } from '@/features/tasks/TaskUI'
 import { formatCents } from '@/lib/format'
@@ -71,6 +81,8 @@ function ClientDetailScreen() {
     void navigate({ to: '/clients' })
   }
 
+  const isEarlyStage = client.stage === 'lead' || client.stage === 'quoted'
+
   return (
     <div className="px-edge pt-6">
       <div className="flex items-start justify-between gap-3">
@@ -78,7 +90,7 @@ function ClientDetailScreen() {
           <Link to="/clients" className="inline-block py-2 pr-4 text-sm text-faded">
             ← Clients
           </Link>
-          <h1 className="heading-stencil mt-2 text-2xl text-khaki">{client.name}</h1>
+          <h1 className="heading-stencil mt-2 text-2xl text-sand">{client.name}</h1>
           <StageControl client={client} />
         </div>
         <Link
@@ -179,52 +191,48 @@ function ClientDetailScreen() {
         <p className="mt-2 text-sm text-faded">No properties yet.</p>
       )}
 
+      {/* Stage-aware primary: quoting is the "do business" move for a lead or
+          quoted client (G-B1); once they're active, the primary is booking the
+          next visit (G-C4). The other path stays one row below. */}
       <Link
-        to="/properties/new"
-        search={{ clientId }}
-        className="heading-stencil mt-4 block w-full rounded-lg border border-edge bg-panel px-4 py-4 text-center text-lg text-sand"
-      >
-        + Add property
-      </Link>
-
-      {/* The lead/client's primary "do business" action: quote them. Carries
-          clientId (and the property when there's exactly one) so New Estimate
-          lands pre-scoped — closes the Lead→Quoted exit gap (G-B1). */}
-      <Link
-        to="/estimates/new"
+        to={isEarlyStage ? '/estimates/new' : '/jobs/new'}
         search={{
           clientId,
           ...((properties ?? []).length === 1 ? { propertyId: properties![0].id } : {}),
         }}
-        className="heading-stencil mt-3 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-on-cta"
+        className="heading-stencil mt-4 block w-full rounded-lg bg-blaze px-4 py-4 text-center text-lg text-on-cta"
       >
-        + Create estimate
+        {isEarlyStage ? '+ Create estimate' : '+ Schedule work'}
       </Link>
 
-      {/* Schedule work directly for this client — closes the client→scheduling
-          reachability gap (G-C4). Carries clientId (+ property when single) so
-          New Job lands pre-scoped. */}
-      <Link
-        to="/jobs/new"
-        search={{
-          clientId,
-          ...((properties ?? []).length === 1 ? { propertyId: properties![0].id } : {}),
-        }}
-        className="heading-stencil mt-3 block w-full rounded-lg border border-edge bg-panel px-4 py-4 text-center text-lg text-sand"
-      >
-        + Schedule work
-      </Link>
+      <div className="card-surface mt-3 divide-y divide-edge/60">
+        <ActionRow
+          to={isEarlyStage ? '/jobs/new' : '/estimates/new'}
+          search={{
+            clientId,
+            ...((properties ?? []).length === 1 ? { propertyId: properties![0].id } : {}),
+          }}
+          icon={isEarlyStage ? CalendarPlus : FileText}
+          label={isEarlyStage ? 'Schedule work' : 'Create estimate'}
+        />
+        <ActionRow
+          to="/properties/new"
+          search={{ clientId }}
+          icon={MapPin}
+          label="Add property"
+        />
+      </div>
 
-      <div className="mt-12 flex items-center justify-center gap-3">
+      <div className="mt-10 flex items-center justify-center gap-6">
         <button
           onClick={() => setMerging(true)}
-          className="heading-stencil rounded-lg border border-edge px-6 py-3 text-faded"
+          className="tap-active flex min-h-11 items-center px-2 text-sm font-medium text-faded"
         >
           Merge duplicate…
         </button>
         <button
           onClick={() => void handleArchive()}
-          className="heading-stencil rounded-lg border border-edge px-6 py-3 text-alert"
+          className="tap-active flex min-h-11 items-center px-2 text-sm font-medium text-alert"
         >
           Archive client
         </button>

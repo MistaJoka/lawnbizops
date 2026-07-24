@@ -68,7 +68,7 @@ function EditScheduleScreen() {
       </Link>
 
       <div className="mt-2 flex items-start justify-between gap-3">
-        <h1 className="heading-stencil text-2xl text-khaki">Edit schedule</h1>
+        <h1 className="heading-stencil text-2xl text-sand">Edit schedule</h1>
         {paused && (
           <span className="heading-stencil shrink-0 rounded border border-edge px-2 py-1 text-[10px] text-alert">
             Paused

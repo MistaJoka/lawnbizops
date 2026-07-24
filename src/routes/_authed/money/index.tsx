@@ -116,7 +116,7 @@ function MoneyScreen() {
   return (
     <div className="px-edge pt-6">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="heading-stencil text-2xl text-khaki">Money</h1>
+        <h1 className="heading-stencil text-2xl text-sand">Money</h1>
         <div className="flex items-center gap-4">
           <Link to="/money/reports" className="label-caps text-blaze">
             Reports

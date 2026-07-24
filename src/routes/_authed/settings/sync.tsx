@@ -60,7 +60,7 @@ function SyncScreen() {
       <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Settings
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">Sync issues</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">Sync issues</h1>
 
       <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">
         <span className="block text-sand">

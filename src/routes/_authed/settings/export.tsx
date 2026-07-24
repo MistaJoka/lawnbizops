@@ -98,7 +98,7 @@ function ExportScreen() {
       <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Settings
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">Export data</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">Export data</h1>
       <p className="mt-2 text-faded">
         Download your records as CSV files — open them in Sheets or Excel.
       </p>

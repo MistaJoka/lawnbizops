@@ -100,7 +100,7 @@ function ExpenseEditor({ expense }: { expense: ExpenseRow }) {
       </Link>
 
       <div className="mt-2 flex items-baseline justify-between gap-3">
-        <h1 className="heading-stencil text-2xl text-khaki">Expense</h1>
+        <h1 className="heading-stencil text-2xl text-sand">Expense</h1>
         <span className="heading-stencil text-3xl text-sand">
           {formatCents(amountCents ?? expense.amount_cents)}
         </span>

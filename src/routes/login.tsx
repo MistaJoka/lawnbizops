@@ -51,7 +51,7 @@ function LoginScreen() {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-edge">
-      <h1 className="heading-stencil text-center text-4xl text-khaki">LawnBizOps</h1>
+      <h1 className="heading-stencil text-center text-4xl text-sand">LawnBizOps</h1>
       <p className="mt-1 text-center text-sm text-muted">
         {mode === 'signin' ? 'Sign in to your business.' : 'Start your business account.'}
       </p>

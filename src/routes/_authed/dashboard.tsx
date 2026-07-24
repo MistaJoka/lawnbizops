@@ -13,7 +13,7 @@ function DashboardScreen() {
   return (
     <div>
       <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center border-b-2 border-edge bg-canvas px-edge">
-        <h1 className="heading-stencil text-2xl text-khaki">Dashboard</h1>
+        <h1 className="heading-stencil text-2xl text-sand">Dashboard</h1>
       </header>
 
       {isLoading && !m ? (

@@ -31,7 +31,7 @@ function ProfileScreen() {
       <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Settings
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">Business profile</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">Business profile</h1>
 
       {isLoading ? (
         <div className="mt-6">

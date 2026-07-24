@@ -80,7 +80,7 @@ function OnboardingScreen() {
 
   return (
     <div className="mx-auto w-full max-w-md px-edge py-10">
-      <h1 className="heading-stencil text-3xl text-khaki">Welcome aboard</h1>
+      <h1 className="heading-stencil text-3xl text-sand">Welcome aboard</h1>
       <p className="mt-1 text-sm text-muted">
         A minute of setup and you&apos;re running your business from your phone.
       </p>

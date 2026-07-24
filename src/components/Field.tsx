@@ -45,12 +45,14 @@ export function PrimaryButton(props: React.ButtonHTMLAttributes<HTMLButtonElemen
   )
 }
 
-/** Neutral action — the repeated bordered-panel pattern, named once. */
+/** Neutral action — the repeated bordered-panel pattern, named once.
+ *  Sentence case in the body face: only the page title and the one primary
+ *  CTA get the stencil-caps voice, so hierarchy survives a wall of actions. */
 export function SecondaryButton(props: React.ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
     <button
       {...props}
-      className="heading-stencil tap-active min-h-touch w-full rounded-lg border-2 border-edge bg-panel px-4 py-3 text-base text-sand disabled:opacity-50"
+      className="tap-active min-h-touch w-full rounded-lg border border-edge bg-panel px-4 py-3 text-base font-medium text-sand disabled:opacity-50"
     />
   )
 }
@@ -60,7 +62,7 @@ export function DangerButton(props: React.ButtonHTMLAttributes<HTMLButtonElement
   return (
     <button
       {...props}
-      className="heading-stencil tap-active min-h-touch w-full rounded-lg border-2 border-alert px-4 py-3 text-base text-alert disabled:opacity-50"
+      className="tap-active min-h-touch w-full rounded-lg border border-alert/60 px-4 py-3 text-base font-medium text-alert disabled:opacity-50"
     />
   )
 }

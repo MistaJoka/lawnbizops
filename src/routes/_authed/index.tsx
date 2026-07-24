@@ -83,7 +83,7 @@ function TodayScreen() {
     <div>
       <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center justify-between border-b-2 border-edge bg-canvas px-edge">
         <div className="flex items-center gap-3">
-          <h1 className="heading-stencil text-2xl text-khaki">Today</h1>
+          <h1 className="heading-stencil text-2xl text-sand">Today</h1>
           {!online && (
             <span
               title="Offline"

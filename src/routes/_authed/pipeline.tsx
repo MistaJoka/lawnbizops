@@ -61,7 +61,7 @@ function PipelineScreen() {
   return (
     <div>
       <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center justify-between border-b-2 border-edge bg-canvas px-edge">
-        <h1 className="heading-stencil text-2xl text-khaki">Pipeline</h1>
+        <h1 className="heading-stencil text-2xl text-sand">Pipeline</h1>
         <Link to="/clients" className="label-caps text-blaze">
           Clients
         </Link>

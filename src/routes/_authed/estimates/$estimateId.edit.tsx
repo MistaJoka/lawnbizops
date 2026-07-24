@@ -144,7 +144,7 @@ function EditEstimateForm({ detail }: { detail: EstimateDetail }) {
       >
         ← Estimate
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">
         Edit {detail.estimate.number ?? 'estimate'}
       </h1>
       {detail.estimate.status === 'sent' && (

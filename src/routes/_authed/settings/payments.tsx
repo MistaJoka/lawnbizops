@@ -46,7 +46,7 @@ function PaymentsScreen() {
       <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Settings
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">Payments</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">Payments</h1>
       <p className="mt-2 text-faded">
         Online card collection isn&apos;t built yet — today you record payments on each
         invoice (cash, check, Zelle, external card). Picking a provider here only saves

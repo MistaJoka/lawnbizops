@@ -43,7 +43,7 @@ function NewPropertyScreen() {
       >
         ← Back
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">New property</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">New property</h1>
       <div className="mt-4">
         <PropertyForm
           onSubmit={async (values) => {

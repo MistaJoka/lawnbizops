@@ -20,7 +20,7 @@ function EditClientScreen() {
       >
         ← Back
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">Edit client</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">Edit client</h1>
       <div className="mt-4">
         {client ? (
           <ClientForm

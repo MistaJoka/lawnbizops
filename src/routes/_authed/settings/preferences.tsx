@@ -24,7 +24,7 @@ function PreferencesScreen() {
       <Link to="/settings" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Settings
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">App preferences</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">App preferences</h1>
 
       <section className="mt-6">
         <p className="label-caps mb-3 text-faded">Field tools</p>

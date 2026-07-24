@@ -39,7 +39,7 @@ function NewMileageScreen() {
       <Link to="/tax" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Taxes
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">Log a trip</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">Log a trip</h1>
 
       <div className="mt-4 flex flex-col gap-4">
         <Field label="Miles">

@@ -26,7 +26,7 @@ function MulchCalculatorScreen() {
       <Link to="/tools" className="inline-block py-2 pr-4 text-sm text-faded">
         ← Field tools
       </Link>
-      <h1 className="heading-stencil mt-2 text-2xl text-khaki">Mulch & stone</h1>
+      <h1 className="heading-stencil mt-2 text-2xl text-sand">Mulch & stone</h1>
       <p className="mt-2 text-muted">Volume from bed area and mulch depth.</p>
 
       <div className="mt-6 flex flex-col gap-4">
