@@ -6,6 +6,7 @@ import {
   useJobsForDate,
   type JobWithContext,
 } from '@/features/jobs/hooks'
+import { dayThesis } from '@/features/jobs/daySummary'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { CardQuickActions } from '@/features/board/CardQuickActions'
 import { jobQuickActions } from '@/features/board/cardActions'
@@ -65,6 +66,10 @@ function TodayScreen() {
   const online = useOnline()
   const [view, setView] = useState<'board' | 'route'>(loadPreferences().todayView)
   const [quickAdd, setQuickAdd] = useState(false)
+  // The day's thesis, from the same query the views render (already warmed by
+  // the route loader — this adds no fetch).
+  const { data: todayJobs } = useJobsForDate(localToday())
+  const thesis = dayThesis(todayJobs ?? [])
 
   useEffect(() => {
     if (materializedThisSession || !navigator.onLine) return
@@ -81,30 +86,37 @@ function TodayScreen() {
 
   return (
     <div>
-      <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center justify-between border-b-2 border-edge bg-canvas px-edge">
-        <div className="flex items-center gap-3">
-          <h1 className="heading-stencil text-2xl text-sand">Today</h1>
-          {!online && (
-            <span
-              title="Offline"
-              aria-label="Offline"
-              className="inline-block h-2.5 w-2.5 rounded-full bg-alert"
-            />
-          )}
+      {/* min-h (not fixed h): the thesis gets its own full-width row so the
+          day's numbers never truncate against the view toggle. */}
+      <header className="sticky top-0 z-40 border-b-2 border-edge bg-canvas px-edge py-2">
+        <div className="flex min-h-touch items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1 className="heading-stencil text-2xl text-sand">Today</h1>
+            {!online && (
+              <span
+                title="Offline"
+                aria-label="Offline"
+                className="inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-alert"
+              />
+            )}
+          </div>
+          <div className="flex shrink-0 rounded-lg border-2 border-edge bg-panel p-0.5">
+            {(['board', 'route'] as const).map((v) => (
+              <button
+                key={v}
+                onClick={() => choose(v)}
+                className={`heading-stencil tap-active rounded-lg px-3 py-1.5 text-sm ${
+                  view === v ? 'bg-blaze text-on-cta' : 'text-faded'
+                }`}
+              >
+                {v === 'board' ? 'Board' : 'Route'}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex shrink-0 rounded-lg border-2 border-edge bg-panel p-0.5">
-          {(['board', 'route'] as const).map((v) => (
-            <button
-              key={v}
-              onClick={() => choose(v)}
-              className={`heading-stencil tap-active rounded-lg px-3 py-1.5 text-sm ${
-                view === v ? 'bg-blaze text-on-cta' : 'text-faded'
-              }`}
-            >
-              {v === 'board' ? 'Board' : 'Route'}
-            </button>
-          ))}
-        </div>
+        {thesis && (
+          <p className="truncate pb-1 text-sm text-faded tabular-nums">{thesis}</p>
+        )}
       </header>
 
       <AttentionCard />

@@ -117,13 +117,15 @@ export function PipelineBoard() {
             loading={isLoading}
           >
             {lane.id === 'quote' &&
-              lanes.quote.map((est) => <QuoteCard key={est.id} estimate={est} />)}
+              lanes.quote.map((est) => (
+                <QuoteCard key={`${est.id}:${est.status}`} estimate={est} />
+              ))}
 
             {lane.id === 'scheduled' && (
               <>
                 <QuickAddRow />
                 {lanes.scheduled.map((job) => (
-                  <JobCard key={job.id} job={job} />
+                  <JobCard key={`${job.id}:${job.status}`} job={job} />
                 ))}
                 {lanes.scheduled.length === 0 && !isLoading && (
                   <p className="py-6 text-center text-xs text-faded">
@@ -134,18 +136,28 @@ export function PipelineBoard() {
             )}
 
             {lane.id === 'in_progress' &&
-              lanes.in_progress.map((job) => <JobCard key={job.id} job={job} />)}
+              lanes.in_progress.map((job) => (
+                <JobCard key={`${job.id}:${job.status}`} job={job} />
+              ))}
 
             {lane.id === 'done' &&
               lanes.done.map((job) => (
-                <DoneCard key={job.id} job={job} allDone={lanes.done} />
+                <DoneCard
+                  key={`${job.id}:${job.status}`}
+                  job={job}
+                  allDone={lanes.done}
+                />
               ))}
 
             {lane.id === 'ar' &&
-              lanes.ar.map((inv) => <ArCard key={inv.invoice_id} invoice={inv} />)}
+              lanes.ar.map((inv) => (
+                <ArCard key={`${inv.invoice_id}:${inv.status}`} invoice={inv} />
+              ))}
 
             {lane.id === 'paid' &&
-              lanes.paid.map((inv) => <PaidCard key={inv.invoice_id} invoice={inv} />)}
+              lanes.paid.map((inv) => (
+                <PaidCard key={`${inv.invoice_id}:${inv.status}`} invoice={inv} />
+              ))}
           </KanbanColumn>
         ))}
       </div>
@@ -245,7 +257,10 @@ function KanbanColumn({
           </span>
         </div>
       </div>
-      <div className="flex min-h-32 flex-col gap-2">{children}</div>
+      {/* lane-cards: each card animates in when it (re)mounts. Cards are keyed
+          by id+status, so a status flip remounts the card in its new lane with
+          one arrival beat — the moment of progress made visible. */}
+      <div className="lane-cards flex min-h-32 flex-col gap-2">{children}</div>
       {/* Loading → a couple of card placeholders so the board reads as "filling
           in", not "empty". Settled empty lanes keep the plain "Empty" marker. */}
       {loading && count === 0 && lane.id !== 'scheduled' && (
