@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
+import { MessageCircle, Phone } from 'lucide-react'
 import {
   saveTask,
   toggleTaskDone,
@@ -10,8 +12,29 @@ import { useClients, type Client } from '@/features/clients/hooks'
 import { localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 
-function TaskRow({ task, clientName }: { task: Task; clientName?: string }) {
+/**
+ * A follow-up is an action, not just a checkbox: when the task belongs to a
+ * client, the row IS the launcher — tap through to the client, one-tap call or
+ * text right here. The checkbox stays what it always was: the receipt that the
+ * action happened. `client` is passed on Today; on the client's own page the
+ * context is the page, so the row stays plain there.
+ */
+function TaskRow({ task, client }: { task: Task; client?: Client }) {
   const overdue = task.due_date !== null && task.due_date < localToday()
+  const body = (
+    <>
+      <p className="truncate text-sand">{task.title}</p>
+      <p className="mt-0.5 flex items-center gap-2 text-xs">
+        {client && <span className="text-faded">{client.name}</span>}
+        {task.due_date && (
+          <span className={overdue ? 'text-alert' : 'text-faded'}>
+            {overdue ? 'Overdue · ' : ''}
+            {formatShortDate(task.due_date)}
+          </span>
+        )}
+      </p>
+    </>
+  )
   return (
     <li className="flex items-center gap-3 rounded-lg border-2 border-edge bg-panel px-3 py-3">
       <button
@@ -20,18 +43,35 @@ function TaskRow({ task, clientName }: { task: Task; clientName?: string }) {
         onClick={() => void toggleTaskDone(task)}
         className="tap-active flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 border-edge"
       />
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sand">{task.title}</p>
-        <p className="mt-0.5 flex items-center gap-2 text-xs">
-          {clientName && <span className="text-faded">{clientName}</span>}
-          {task.due_date && (
-            <span className={overdue ? 'text-alert' : 'text-faded'}>
-              {overdue ? 'Overdue · ' : ''}
-              {formatShortDate(task.due_date)}
-            </span>
-          )}
-        </p>
-      </div>
+      {client ? (
+        <Link
+          to="/clients/$clientId"
+          params={{ clientId: client.id }}
+          className="tap-active min-w-0 flex-1"
+        >
+          {body}
+        </Link>
+      ) : (
+        <div className="min-w-0 flex-1">{body}</div>
+      )}
+      {client?.phone && (
+        <span className="flex shrink-0 gap-2">
+          <a
+            href={`tel:${client.phone}`}
+            aria-label={`Call ${client.name}`}
+            className="tap-active flex h-11 w-11 items-center justify-center rounded-lg border-2 border-edge text-sand"
+          >
+            <Phone size={18} aria-hidden />
+          </a>
+          <a
+            href={`sms:${client.phone.replace(/\D/g, '')}`}
+            aria-label={`Text ${client.name}`}
+            className="tap-active flex h-11 w-11 items-center justify-center rounded-lg border-2 border-edge text-sand"
+          >
+            <MessageCircle size={18} aria-hidden />
+          </a>
+        </span>
+      )}
     </li>
   )
 }
@@ -127,7 +167,7 @@ export function TasksSection() {
             <TaskRow
               key={t.id}
               task={t}
-              clientName={t.client_id ? byId.get(t.client_id)?.name : undefined}
+              client={t.client_id ? byId.get(t.client_id) : undefined}
             />
           ))}
         </ul>
