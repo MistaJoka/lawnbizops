@@ -4,7 +4,7 @@ import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { BackLink } from '@/components/BackLink'
 import { useClients } from '@/features/clients/hooks'
 import { useProperties } from '@/features/properties/hooks'
-import { useServices } from '@/features/services/hooks'
+import { ServiceQuickAdd } from '@/features/services/ServiceQuickAdd'
 import { createEstimate } from '@/features/estimates/hooks'
 import { invoiceTotalCents } from '@/features/invoices/hooks'
 import { Field, PrimaryButton, Select, TextArea, TextInput } from '@/components/Field'
@@ -45,7 +45,6 @@ function NewEstimateScreen() {
 
   const { data: clients } = useClients()
   const { data: properties } = useProperties(clientId)
-  const { data: services } = useServices()
 
   const client = (clients ?? []).find((c) => c.id === clientId)
   const property = (properties ?? []).find((p) => p.id === propertyId)
@@ -185,6 +184,10 @@ function NewEstimateScreen() {
           </div>
         )}
 
+        {/* One-tap chips replaced the "Pick a service…" dropdown — every
+            preset visible, one tap instead of two, same as the invoice form. */}
+        <ServiceQuickAdd onPick={addLine} />
+
         <button
           type="button"
           onClick={() => addLine()}
@@ -192,28 +195,6 @@ function NewEstimateScreen() {
         >
           + Add line
         </button>
-
-        <Field label="Add from service catalog">
-          <Select
-            value=""
-            onChange={(e) => {
-              const service = (services ?? []).find((s) => s.id === e.target.value)
-              if (service) {
-                addLine({
-                  description: service.name,
-                  dollars: (service.default_price_cents / 100).toFixed(2),
-                })
-              }
-            }}
-          >
-            <option value="">Pick a service…</option>
-            {(services ?? []).map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name} · {formatCents(s.default_price_cents)}
-              </option>
-            ))}
-          </Select>
-        </Field>
 
         <Field label="Valid until">
           <TextInput

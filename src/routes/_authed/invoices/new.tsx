@@ -11,6 +11,7 @@ import {
   useUninvoicedDoneJobs,
   type UninvoicedJob,
 } from '@/features/invoices/hooks'
+import { ServiceQuickAdd } from '@/features/services/ServiceQuickAdd'
 import { Field, PrimaryButton, Select, TextInput } from '@/components/Field'
 import { formatCents, parseDollarsToCents } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
@@ -190,6 +191,20 @@ function NewInvoiceScreen() {
             ))}
           </div>
         )}
+
+        <ServiceQuickAdd
+          onPick={(prefill) =>
+            setLines((old) => [
+              ...old,
+              {
+                key: crypto.randomUUID(),
+                description: prefill.description,
+                quantity: '1',
+                dollars: prefill.dollars,
+              },
+            ])
+          }
+        />
 
         <button
           type="button"

@@ -13,7 +13,11 @@ const KB = 1024
 // Gzipped KB budgets — set with headroom over the current build to catch
 // regressions (a doubled dependency, an un-split chunk), not micro-growth.
 // Baselines when set (2026-07-21): eager 308, dispatch 46, pdf 464.
-const TOTAL_BUDGET_KB = 330
+// Re-baselined 2026-07-25: eager 330 after the ship-ready arc (lucide icon
+// system app-wide, day thesis, service quick-add chips, letterhead public
+// pages — feature weight, no stray deps; largest chunks audited: react shell
+// 90, supabase 50, query 33). Budget 345 ≈ 4.5% headroom over current.
+const TOTAL_BUDGET_KB = 345
 const MAP_BUDGET_KB = 60
 const PDF_BUDGET_KB = 560
 
