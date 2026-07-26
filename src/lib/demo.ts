@@ -87,6 +87,24 @@ function buildData(): DemoData {
         22000,
         'flat',
       ],
+      // Per-unit + sub-dollar pricing, mirroring the real starter catalog. The
+      // demo used to be all-flat, whole-dollar services, which is exactly how a
+      // money bug hid in plain sight: the quick-add chip rendered $2.50/sq ft
+      // as a bare "$3" and nothing in demo or e2e could show it (84738cc).
+      [
+        '55555555-0000-4000-a000-000000000005',
+        'Sod Installation',
+        'Remove + lay sod, per sq ft',
+        250,
+        'sqft',
+      ],
+      [
+        '55555555-0000-4000-a000-000000000008',
+        'Cleanup Crew',
+        'Haul-off and detail work, billed hourly',
+        6000,
+        'hour',
+      ],
       [
         '55555555-0000-4000-a000-000000000007',
         'Paver Driveway',
@@ -734,6 +752,9 @@ function buildData(): DemoData {
     [
       ['ffffffff-0000-4000-a000-000000000004', 225000, 'check', -10, 'Deposit (50%)'],
       ['ffffffff-0000-4000-a000-000000000005', 13000, 'zelle', -17, 'Paid in full'],
+      // Cash is the most common method in this trade and was absent from the
+      // seed entirely, so "Income by method" never once rendered a Cash row.
+      ['ffffffff-0000-4000-a000-000000000001', 6500, 'cash', -3, 'Paid on site'],
     ] as const
   ).map(([invoice_id, amount_cents, method, paidOff, note], i) => ({
     ...base,
