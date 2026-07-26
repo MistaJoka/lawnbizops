@@ -32,6 +32,7 @@ import { EmptyState } from '@/components/EmptyState'
 import { DangerButton, Field, TextInput } from '@/components/Field'
 import { SkeletonDetail } from '@/components/Skeleton'
 import { confirm } from '@/lib/confirm'
+import { publicUrl } from '@/lib/publicUrl'
 import { formatCents, localToday, parseDollarsToCents } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
 import { telHref } from '@/lib/outreach'
@@ -107,7 +108,7 @@ function EstimateDetailScreen() {
 
   async function handleShareApprovalLink() {
     if (!detail) return
-    const url = `${window.location.origin}/e/${detail.estimate.approval_token}`
+    const url = publicUrl(`e/${detail.estimate.approval_token}`)
     const outcome = await shareLink(
       url,
       `Your estimate from ${settings?.business_name ?? 'us'} — review and approve:`,

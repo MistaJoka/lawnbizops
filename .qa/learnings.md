@@ -266,6 +266,38 @@ Last external comparison: **2026-07-23** (sources at bottom).
 - **Corollary (L-016's twin):** widen the fake when you fix the mechanism, in
   the same commit — otherwise the next person believes the section is covered.
 
+## L-018 — An exemption is a decision to stop looking
+
+- **What happened (2026-07-26):** during the harsh UI audit I classified the
+  top provenance stripe as "dev chrome" in the first minutes, and the public
+  customer pages (`/quote/:token`, `/e/:token`) as out of scope because they
+  carry no operator chrome. Both exemptions held for the rest of the pass. The
+  user then pointed at the stripe: it read **v0.0.0** — the untouched npm
+  default — on every screen of a product live for six weeks. Re-auditing the
+  other exemption found worse: both customer links were built as
+  `${window.location.origin}/e/${token}`, dropping the GitHub Pages sub-path,
+  so every approval link and quote-request link ever shared served GitHub's
+  "Site not found" (CC-007). The revenue-critical entry points — lead capture
+  and estimate approval — were dead in production and nothing said so.
+- **Structural lesson:** an exemption is not a small scoping note; it is a
+  standing instruction to every later pass to skip that surface. It compounds,
+  because each subsequent review reads the area as "already covered". Worse,
+  the exempted areas here were the ones with no operator watching them: the
+  landscaper never opens the customer's link, so no one was ever going to
+  notice from inside the app.
+- **Also:** the first fix to the stripe was to make `v0.0.0` true. The better
+  question — the one the exemption suppressed — was whether a git sha and
+  commit timestamp belong on a landscaper's screen at all. Fixing the literal
+  complaint can re-seal the blind spot.
+- **Guard adopted:** a pass is not closeable until every exemption made during
+  it is listed and re-opened explicitly. Structural, not remembered:
+  `scripts/check-public-links.mjs` fails CI if a customer URL is ever built
+  from `location.origin` again — the class, not the instance.
+- **Corollary:** dev-only correctness is not correctness. Both bugs were
+  invisible in dev by construction (BASE_URL is `/`; nobody reads the version
+  locally). Anything whose value differs between dev and prod needs its
+  assertion written against the prod shape.
+
 ---
 
 ## External comparison — 2026-07-23

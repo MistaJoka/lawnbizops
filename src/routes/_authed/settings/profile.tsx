@@ -11,6 +11,7 @@ import {
 import { confirm } from '@/lib/confirm'
 import { parseDollarsToCents } from '@/lib/format'
 import { SkeletonDetail } from '@/components/Skeleton'
+import { publicUrl } from '@/lib/publicUrl'
 import { shareLink } from '@/features/estimates/share'
 import { useBusinessSettings, type BusinessSettings } from '@/features/invoices/hooks'
 import {
@@ -199,7 +200,7 @@ function ProfileForm({ initial }: { initial: BusinessSettings | null }) {
 function IntakeLinkSection({ settings }: { settings: BusinessSettings | null }) {
   const [msg, setMsg] = useState<string | null>(null)
   if (!settings?.intake_token) return null
-  const url = `${window.location.origin}/quote/${settings.intake_token}`
+  const url = publicUrl(`quote/${settings.intake_token}`)
 
   async function share() {
     const outcome = await shareLink(

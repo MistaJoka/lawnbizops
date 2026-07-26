@@ -27,6 +27,8 @@ jobs:
         run: node scripts/check-money-guards.mjs
       - name: Icon-system guard (no emoji in UI code)
         run: node scripts/check-no-emoji-ui.mjs
+      - name: Customer-link guard (deploy sub-path survives)
+        run: node scripts/check-public-links.mjs
       # test:coverage enforces the src/lib coverage thresholds (see vite.config).
       - run: npm run test:coverage
       - run: npm run build
