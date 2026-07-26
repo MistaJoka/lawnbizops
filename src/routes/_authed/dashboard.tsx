@@ -25,11 +25,14 @@ function DashboardScreen() {
           {/* Money */}
           <h2 className="label-caps text-faded">Money</h2>
           <div className="mt-3 grid grid-cols-2 gap-3">
+            {/* Every figure here opens what's behind it — a number you can't
+                tap is a dead end on a screen whose whole job is orientation. */}
             <Metric
               label="Collected this month"
               value={formatCents(m?.collected_cents ?? 0)}
               tone="go"
               wide
+              to="/money/reports"
             />
             <Metric
               label="Outstanding"
@@ -53,7 +56,12 @@ function DashboardScreen() {
               value={String(m?.jobs_week ?? 0)}
               to="/schedule"
             />
-            <Metric label="Jobs done" value={String(m?.jobs_done_week ?? 0)} tone="go" />
+            <Metric
+              label="Jobs done"
+              value={String(m?.jobs_done_week ?? 0)}
+              tone="go"
+              to="/schedule"
+            />
             <Metric
               label="Open follow-ups"
               value={String(m?.open_tasks ?? 0)}
@@ -61,6 +69,7 @@ function DashboardScreen() {
                 (m?.overdue_tasks ?? 0) > 0 ? `${m?.overdue_tasks} overdue` : undefined
               }
               subTone="alert"
+              to="/"
             />
           </div>
 

@@ -400,7 +400,11 @@ function ClientEconomics({ clientId }: { clientId: string }) {
     <div className="card-surface mt-8 p-4">
       <div className="flex items-center justify-between">
         <p className="label-caps text-faded">Profit · year to date</p>
-        <Link to="/expenses/new" search={{ clientId }} className="label-caps text-blaze">
+        <Link
+          to="/expenses/new"
+          search={{ clientId }}
+          className="inline-flex min-h-11 items-center label-caps text-blaze"
+        >
           + Log expense
         </Link>
       </div>

@@ -119,10 +119,16 @@ function MoneyScreen() {
       <div className="flex items-center justify-between gap-3">
         <h1 className="heading-stencil text-2xl text-sand">Money</h1>
         <div className="flex items-center gap-4">
-          <Link to="/money/reports" className="label-caps text-blaze">
+          <Link
+            to="/money/reports"
+            className="inline-flex min-h-11 items-center label-caps text-blaze"
+          >
             Reports
           </Link>
-          <Link to="/dashboard" className="label-caps text-blaze">
+          <Link
+            to="/dashboard"
+            className="inline-flex min-h-11 items-center label-caps text-blaze"
+          >
             Dashboard
           </Link>
         </div>

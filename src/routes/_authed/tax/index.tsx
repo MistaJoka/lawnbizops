@@ -52,7 +52,10 @@ function TaxScreen() {
       <BackLink fallback="/settings" label="Settings" />
       <div className="mt-2 flex items-center justify-between gap-3">
         <h1 className="heading-stencil text-2xl text-sand">Taxes · {yearPrefix}</h1>
-        <Link to="/settings/tax" className="label-caps text-blaze">
+        <Link
+          to="/settings/tax"
+          className="inline-flex min-h-11 items-center label-caps text-blaze"
+        >
           Tax setup
         </Link>
       </div>
@@ -87,7 +90,10 @@ function TaxScreen() {
       <div className="card-surface mt-4 p-4">
         <div className="flex items-center justify-between">
           <p className="label-caps text-faded">Mileage</p>
-          <Link to="/tax/mileage/new" className="label-caps text-blaze">
+          <Link
+            to="/tax/mileage/new"
+            className="inline-flex min-h-11 items-center label-caps text-blaze"
+          >
             + Log trip
           </Link>
         </div>
@@ -143,7 +149,10 @@ function TaxScreen() {
       <div className="card-surface mt-4 p-4">
         <div className="flex items-center justify-between">
           <p className="label-caps text-faded">1099 payees</p>
-          <Link to="/tax/payees/new" className="label-caps text-blaze">
+          <Link
+            to="/tax/payees/new"
+            className="inline-flex min-h-11 items-center label-caps text-blaze"
+          >
             + Add payee
           </Link>
         </div>
