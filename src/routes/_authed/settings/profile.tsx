@@ -169,8 +169,7 @@ function ProfileForm({ initial }: { initial: BusinessSettings | null }) {
         </Field>
       </div>
       <span className="-mt-3 text-xs text-faded">
-        Labor rate prices time on site into job costs. Leave blank to keep labor costing
-        off.
+        Adds labor to job costs. Blank leaves it off.
       </span>
       <Field label="Google review link">
         <TextInput
@@ -182,8 +181,7 @@ function ProfileForm({ initial }: { initial: BusinessSettings | null }) {
           onChange={(e) => setReviewUrl(e.target.value)}
         />
         <span className="text-xs text-faded">
-          Paste your Google review URL — powers the one-tap review request on a finished
-          job.
+          Powers the one-tap review request on finished jobs.
         </span>
       </Field>
       {message && (

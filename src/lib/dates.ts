@@ -63,3 +63,18 @@ export function formatClockTime(t: string): string {
   const hour12 = h % 12 === 0 ? 12 : h % 12
   return `${hour12}:${match[2]} ${suffix}`
 }
+
+/**
+ * Week span for the schedule header: "Aug 1–7", or "Jul 27 – Aug 2" when the
+ * week straddles two months. The day chips below already carry weekday and
+ * number, so this adds only what they can't — the month — and nothing else.
+ */
+export function weekRangeLabel(startDate: string, endDate: string): string {
+  const start = parseLocalDate(startDate)
+  const end = parseLocalDate(endDate)
+  const month = (d: Date) => d.toLocaleDateString('en-US', { month: 'short' })
+  if (start.getMonth() === end.getMonth()) {
+    return `${month(start)} ${start.getDate()}–${end.getDate()}`
+  }
+  return `${month(start)} ${start.getDate()} – ${month(end)} ${end.getDate()}`
+}

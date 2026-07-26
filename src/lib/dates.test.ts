@@ -5,6 +5,7 @@ import {
   formatShortDate,
   materializeHorizon,
   relativeTime,
+  weekRangeLabel,
 } from './dates'
 import { localToday } from './format'
 
@@ -84,5 +85,31 @@ describe('relativeTime unit boundaries (frozen clock)', () => {
 describe('materializeHorizon', () => {
   it('is 182 days (~6 months) past local today', () => {
     expect(materializeHorizon()).toBe(addDaysISO(localToday(), 182))
+  })
+})
+
+// The schedule's week header. The day chips underneath already carry weekday
+// and number, so the header's only job is the span + the month they can't show
+// — as few characters as say it.
+describe('weekRangeLabel', () => {
+  it('collapses a same-month week to one month name', () => {
+    expect(weekRangeLabel('2026-08-01', '2026-08-07')).toBe('Aug 1–7')
+  })
+
+  it('names both months when the week straddles them', () => {
+    expect(weekRangeLabel('2026-07-27', '2026-08-02')).toBe('Jul 27 – Aug 2')
+  })
+
+  it('handles a year boundary without inventing a year', () => {
+    expect(weekRangeLabel('2026-12-28', '2027-01-03')).toBe('Dec 28 – Jan 3')
+  })
+
+  it('never contains a weekday — the chips below own that', () => {
+    for (const label of [
+      weekRangeLabel('2026-08-01', '2026-08-07'),
+      weekRangeLabel('2026-07-27', '2026-08-02'),
+    ]) {
+      expect(label).not.toMatch(/Mon|Tue|Wed|Thu|Fri|Sat|Sun/)
+    }
   })
 })

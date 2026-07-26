@@ -20,7 +20,13 @@ import { SkeletonList } from '@/components/Skeleton'
 import { QueryError } from '@/components/QueryError'
 import { queryClient } from '@/lib/queryClient'
 import { formatCents, localToday } from '@/lib/format'
-import { addDaysISO, formatClockTime, formatShortDate, parseLocalDate } from '@/lib/dates'
+import {
+  addDaysISO,
+  formatClockTime,
+  formatShortDate,
+  parseLocalDate,
+  weekRangeLabel,
+} from '@/lib/dates'
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -79,17 +85,22 @@ function ScheduleScreen() {
         >
           ‹
         </button>
-        {weekOffset === 0 ? (
-          <span className="label-caps text-faded">This week</span>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setWeekOffset(0)}
-            className="label-caps tap-active text-blaze"
-          >
-            {formatShortDate(weekStart)} – {formatShortDate(days[6])} · back to today
-          </button>
-        )}
+        {/* The slot labels; it never doubles as a control. "Today" is its own
+            button, and only exists when there's somewhere to go back to. */}
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="label-caps truncate text-faded">
+            {weekOffset === 0 ? 'This week' : weekRangeLabel(weekStart, days[6])}
+          </span>
+          {weekOffset !== 0 && (
+            <button
+              type="button"
+              onClick={() => setWeekOffset(0)}
+              className="label-caps tap-active shrink-0 rounded-lg border border-edge px-3 py-1 text-blaze"
+            >
+              Today
+            </button>
+          )}
+        </div>
         <button
           type="button"
           onClick={() => setWeekOffset((o) => o + 1)}
