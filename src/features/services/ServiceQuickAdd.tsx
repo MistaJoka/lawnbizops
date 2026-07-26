@@ -1,6 +1,5 @@
 import { useServices } from './hooks'
-import { serviceLinePrefill } from './lineDraft'
-import { formatCentsShort } from '@/lib/format'
+import { serviceChipPrice, serviceLinePrefill } from './lineDraft'
 
 /**
  * One-tap line presets from the org's service catalog (Settings → Services).
@@ -30,7 +29,7 @@ export function ServiceQuickAdd({
             <span className="max-w-40 truncate">{s.name}</span>
             {s.default_price_cents > 0 && (
               <span className="text-faded tabular-nums">
-                {formatCentsShort(s.default_price_cents)}
+                {serviceChipPrice(s.default_price_cents, s.unit)}
               </span>
             )}
           </button>
