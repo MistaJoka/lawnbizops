@@ -775,8 +775,11 @@ function buildData(): DemoData {
   const EXPENSES: Row[] = (
     [
       ['Fuel — truck + mowers', 'fuel', 8200, -2, 'RaceTrac'],
-      ['Mulch (pallet)', 'materials', 18500, -5, 'Site One'],
-      ['Trimmer line + blades', 'parts', 4300, -9, 'Home Depot'],
+      // Categories must come from EXPENSE_CATEGORIES — the expense form is a
+      // tap-grid of exactly those, so seeding anything else shows a state a
+      // real operator could never create.
+      ['Mulch (pallet)', 'supplies', 18500, -5, 'Site One'],
+      ['Trimmer line + blades', 'repairs', 4300, -9, 'Home Depot'],
     ] as const
   ).map(([note, category, amount_cents, off, vendor], i) => ({
     ...base,
@@ -1139,10 +1142,75 @@ async function rpc(name: string, params?: Record<string, unknown>) {
       return { data: ORG, error: null }
     case 'dashboard_metrics':
       return { data: d.dashboard, error: null }
+
+    // ── Reporting RPCs ───────────────────────────────────────────────────────
+    // These used to fall through to `[]`, which made Reports and the Tax center
+    // render their empty states forever: the demo contradicted its own Money
+    // header ("$1,420 collected" vs "Nothing in this period"), and the e2e
+    // render smoke passed on those screens without ever drawing a row. Computed
+    // from the same seed the rest of the demo uses, on the same cash basis as
+    // the SQL (0029): income = payments by paid_at, expense = expenses by
+    // spent_on, both inclusive of the range bounds.
+    case 'pnl_summary': {
+      const income = sumInRange(d.tables.payments, 'paid_at', params)
+      const expense = sumInRange(d.tables.expenses, 'spent_on', params)
+      return {
+        data: [
+          { income_cents: income, expense_cents: expense, net_cents: income - expense },
+        ],
+        error: null,
+      }
+    }
+    case 'income_by_method':
+      return {
+        data: groupInRange(d.tables.payments, 'paid_at', 'method', params),
+        error: null,
+      }
+    case 'expenses_by_category':
+      return {
+        data: groupInRange(d.tables.expenses, 'spent_on', 'category', params),
+        error: null,
+      }
+
     default:
-      // profitability / pnl / income_by_method / expenses_by_category / materialize_jobs
+      // job/client profitability (needs invoice_items↔jobs joins — the panels
+      // that use them degrade to an empty list, which is their honest state).
       return { data: name === 'materialize_jobs' ? null : [], error: null }
   }
+}
+
+type RpcParams = Record<string, unknown> | undefined
+
+function inRange(row: Row, dateCol: string, params: RpcParams): boolean {
+  const on = row[dateCol] as string | null
+  if (!on) return false
+  const start = params?.p_start as string | undefined
+  const end = params?.p_end as string | undefined
+  return (!start || on >= start) && (!end || on <= end)
+}
+
+function sumInRange(rows: Row[] | undefined, dateCol: string, params: RpcParams): number {
+  return (rows ?? [])
+    .filter((r) => inRange(r, dateCol, params))
+    .reduce((sum, r) => sum + ((r.amount_cents as number) ?? 0), 0)
+}
+
+/** Totals by a grouping column, biggest first — the shape the report lists read. */
+function groupInRange(
+  rows: Row[] | undefined,
+  dateCol: string,
+  groupCol: 'method' | 'category',
+  params: RpcParams,
+): Row[] {
+  const totals = new Map<string, number>()
+  for (const r of rows ?? []) {
+    if (!inRange(r, dateCol, params)) continue
+    const key = (r[groupCol] as string) ?? 'other'
+    totals.set(key, (totals.get(key) ?? 0) + ((r.amount_cents as number) ?? 0))
+  }
+  return [...totals.entries()]
+    .map(([key, total_cents]) => ({ [groupCol]: key, total_cents }))
+    .sort((a, b) => (b.total_cents as number) - (a.total_cents as number))
 }
 
 /** A fake SupabaseClient backed entirely by the in-memory seed. */

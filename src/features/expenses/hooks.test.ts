@@ -42,9 +42,21 @@ describe('monthExpenseCents', () => {
 })
 
 describe('categoryLabel', () => {
-  it('maps known values and falls back to the raw value', () => {
+  it('maps known values', () => {
     expect(categoryLabel('fuel')).toBe('Fuel')
-    expect(categoryLabel('mystery')).toBe('mystery')
+    expect(categoryLabel('contract_labor')).toBe('Contract labor')
+  })
+
+  // expenses.category is open text validated at the edge (0027), so rows can
+  // outlive the catalog — a category retired from EXPENSE_CATEGORIES still has
+  // to read as a label in reports, not as a raw db token.
+  it('humanizes an unknown value instead of printing the raw token', () => {
+    expect(categoryLabel('materials')).toBe('Materials')
+    expect(categoryLabel('equipment_rental_old')).toBe('Equipment rental old')
+  })
+
+  it('never renders an empty label', () => {
+    expect(categoryLabel('')).toBe('Other')
   })
 })
 

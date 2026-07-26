@@ -64,7 +64,16 @@ export function scheduleCLine(value: string): string {
 
 const LABEL_BY_VALUE = new Map(EXPENSE_CATEGORIES.map((c) => [c.value, c.label]))
 
-/** Human label for a stored category value; falls back to the raw value. */
+/**
+ * Human label for a stored category value. `expenses.category` is open text
+ * validated at the edge (0027), so rows outlive the catalog: a category retired
+ * from EXPENSE_CATEGORIES must still read as a label in reports, never as a raw
+ * db token — "equipment_rental" sitting beside "Fuel" reads as a bug.
+ */
 export function categoryLabel(value: string): string {
-  return LABEL_BY_VALUE.get(value) ?? value
+  const known = LABEL_BY_VALUE.get(value)
+  if (known) return known
+  const words = value.replace(/[_-]+/g, ' ').trim()
+  if (!words) return 'Other'
+  return words.charAt(0).toUpperCase() + words.slice(1)
 }
