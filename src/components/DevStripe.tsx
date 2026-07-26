@@ -1,9 +1,14 @@
-// Thin always-on top bar pinned above every screen. Two jobs in one line:
-//  • left  — build provenance (version · sha · time) so you can confirm which
-//    cached PWA build is actually live on the device after a deploy.
-//  • right — live status, kept current from the outbox + the network: a
-//    connection dot, the save/sync state, a freshness age, and a tap-to-expand
-//    detail popover (pending / failed / oldest queued + the contextual action).
+// Thin always-on top bar pinned above every screen. It carries ONE thing the
+// operator can act on — live save/sync state (connection dot, state, freshness)
+// — and hides build provenance (version · sha · commit time) inside its
+// tap-to-expand popover, alongside the sync facts.
+//
+// Provenance used to sit permanently on the left. A git sha and a commit
+// timestamp are not actionable by a landscaper, and parking them on every
+// screen is what let the version read "v0.0.0" for six weeks unnoticed
+// (L-018): furniture stops being read. It stays one tap away, because
+// confirming which cached PWA build is live on the device is a real need
+// after a deploy.
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { Link } from '@tanstack/react-router'
 import buildInfo from 'virtual:build-info'
@@ -62,17 +67,7 @@ function useNow(intervalMs: number): number {
 export function DevStripe() {
   return (
     <div className="sticky top-0 z-50 border-b border-edge bg-panel">
-      <div className="font-mono mx-auto flex max-w-md items-center justify-between gap-2 px-3 py-1 text-[10px] leading-none">
-        <p className="flex min-w-0 gap-1.5 overflow-hidden whitespace-nowrap text-faded">
-          <span className="text-sand">
-            v{version}
-            {dirty && <span className="text-alert">✱</span>}
-          </span>
-          <span aria-hidden>·</span>
-          <span>{sha}</span>
-          <span aria-hidden>·</span>
-          <span className="truncate">{shortStamp(committedAt)}</span>
-        </p>
+      <div className="font-mono mx-auto flex max-w-md items-center justify-end gap-2 px-3 py-1 text-[10px] leading-none">
         <SyncStat />
       </div>
     </div>
@@ -180,6 +175,23 @@ function DetailPanel({
             <dd className="text-sand">{r.value}</dd>
           </div>
         ))}
+        {/* Build provenance — the "which build is actually live on this
+            device" answer, one tap in rather than always on screen. */}
+        <div className="mt-1 flex items-center justify-between gap-3 border-t border-edge pt-1">
+          <dt className="text-faded">Version</dt>
+          <dd className="text-sand">
+            v{version}
+            {dirty && <span className="text-alert">✱</span>}
+          </dd>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <dt className="text-faded">Build</dt>
+          <dd className="text-sand">{sha}</dd>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <dt className="text-faded">Deployed</dt>
+          <dd className="truncate text-sand">{shortStamp(committedAt)}</dd>
+        </div>
       </dl>
       {view.kind === 'update' && (
         <button

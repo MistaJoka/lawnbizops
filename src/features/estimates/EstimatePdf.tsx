@@ -1,5 +1,6 @@
 import { Document, Image, Page, StyleSheet, Text, View } from '@react-pdf/renderer'
 import { formatCents } from '@/lib/format'
+import { publicUrl } from '@/lib/publicUrl'
 import {
   invoiceTotalCents,
   lineTotalCents,
@@ -82,6 +83,17 @@ const styles = StyleSheet.create({
   },
   grandTotalText: { fontSize: 13, fontFamily: 'Helvetica-Bold' },
   notes: { marginTop: 32, color: '#555555' },
+  acceptBox: {
+    marginTop: 28,
+    borderWidth: 1,
+    borderColor: '#2d5016',
+    borderRadius: 4,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+  },
+  acceptTitle: { fontSize: 11, fontFamily: 'Helvetica-Bold', color: '#2d5016' },
+  acceptBody: { marginTop: 4, color: '#555555' },
+  acceptUrl: { marginTop: 5, fontFamily: 'Helvetica-Bold', color: '#1a1a1a' },
   footer: {
     position: 'absolute',
     bottom: 40,
@@ -115,6 +127,13 @@ export function EstimatePdf({
   const { estimate, items, client, property } = detail
   const total = invoiceTotalCents(items)
   const businessName = settings?.business_name || 'LawnBizOps'
+  // The document a customer receives has to carry the way to say yes. Without
+  // it the PDF was a dead end: the approve/decline page existed, but only the
+  // operator could reach it (share-link flow), so a customer who opened the
+  // attachment had no path forward but a phone call.
+  const approveUrl = estimate.approval_token
+    ? publicUrl(`e/${estimate.approval_token}`)
+    : null
 
   return (
     <Document>
@@ -180,6 +199,16 @@ export function EstimatePdf({
         </View>
 
         {estimate.notes ? <Text style={styles.notes}>{estimate.notes}</Text> : null}
+
+        {approveUrl ? (
+          <View style={styles.acceptBox}>
+            <Text style={styles.acceptTitle}>Ready to go ahead?</Text>
+            <Text style={styles.acceptBody}>
+              Approve or decline this estimate online — no account needed:
+            </Text>
+            <Text style={styles.acceptUrl}>{approveUrl}</Text>
+          </View>
+        ) : null}
 
         <Text style={styles.footer}>Thank you for the opportunity.</Text>
       </Page>
