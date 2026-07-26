@@ -1172,9 +1172,100 @@ async function rpc(name: string, params?: Record<string, unknown>) {
         error: null,
       }
 
+    // Profitability. Leaving these empty was worse than an empty state: the
+    // client panel rendered an affirmative "Collected $0.00" for a client who
+    // had visibly paid a $2,250 deposit, contradicting both the invoice and
+    // the P&L two taps away. Mirrors 0028/0047 — CLIENT revenue is COLLECTED
+    // (payments by paid_at), JOB revenue is BILLED (invoice_items on non-void
+    // invoices by issued_at), plus the labor leg at the org's hourly rate.
+    case 'client_profitability': {
+      const invoiceClient = new Map(
+        (d.tables.invoices ?? []).map((i) => [i.id as string, i.client_id as string]),
+      )
+      const rev = new Map<string, number>()
+      for (const p of d.tables.payments ?? []) {
+        if (!inRange(p, 'paid_at', params)) continue
+        const cid = invoiceClient.get(p.invoice_id as string)
+        if (cid) rev.set(cid, (rev.get(cid) ?? 0) + ((p.amount_cents as number) ?? 0))
+      }
+      const cost = new Map<string, number>()
+      for (const e of d.tables.expenses ?? []) {
+        const cid = e.client_id as string | null
+        if (!cid || !inRange(e, 'spent_on', params)) continue
+        cost.set(cid, (cost.get(cid) ?? 0) + ((e.amount_cents as number) ?? 0))
+      }
+      const rows = [...new Set([...rev.keys(), ...cost.keys()])].map((cid) => {
+        const revenue_cents = rev.get(cid) ?? 0
+        const cost_cents = cost.get(cid) ?? 0
+        return {
+          client_id: cid,
+          name: (d.tables.clients ?? []).find((c) => c.id === cid)?.name ?? 'Client',
+          revenue_cents,
+          cost_cents,
+          profit_cents: revenue_cents - cost_cents,
+        }
+      })
+      return { data: rows.sort((a, b) => b.profit_cents - a.profit_cents), error: null }
+    }
+    case 'job_profitability': {
+      const liveInvoice = new Map(
+        (d.tables.invoices ?? [])
+          .filter((i) => i.status !== 'void')
+          .map((i) => [i.id as string, i]),
+      )
+      const rev = new Map<string, number>()
+      for (const item of d.tables.invoice_items ?? []) {
+        const jid = item.job_id as string | null
+        const inv = liveInvoice.get(item.invoice_id as string)
+        if (!jid || !inv || !inRange(inv, 'issued_at', params)) continue
+        const line = Math.round(
+          ((item.quantity as number) ?? 1) * ((item.unit_price_cents as number) ?? 0),
+        )
+        rev.set(jid, (rev.get(jid) ?? 0) + line)
+      }
+      const cost = new Map<string, number>()
+      for (const e of d.tables.expenses ?? []) {
+        const jid = e.job_id as string | null
+        if (!jid || !inRange(e, 'spent_on', params)) continue
+        cost.set(jid, (cost.get(jid) ?? 0) + ((e.amount_cents as number) ?? 0))
+      }
+      const rate =
+        ((d.tables.business_settings ?? [])[0]?.labor_rate_cents_per_hour as number) ?? 0
+      const labor = new Map<string, number>()
+      for (const j of d.tables.jobs ?? []) {
+        const started = j.started_at as string | null
+        const done = j.completed_at as string | null
+        if (!started || !done || !inRange(j, 'scheduled_date', params)) continue
+        const mins = Math.round(
+          (new Date(done).getTime() - new Date(started).getTime()) / 60_000,
+        )
+        if (mins > 0) labor.set(j.id as string, mins)
+      }
+      const ids = new Set([...rev.keys(), ...cost.keys()])
+      if (rate > 0) for (const id of labor.keys()) ids.add(id)
+      const rows = [...ids].map((jid) => {
+        const job = (d.tables.jobs ?? []).find((j) => j.id === jid)
+        const labor_minutes = labor.get(jid) ?? 0
+        const labor_cents = Math.round((labor_minutes * rate) / 60)
+        const revenue_cents = rev.get(jid) ?? 0
+        const cost_cents = (cost.get(jid) ?? 0) + labor_cents
+        return {
+          job_id: jid,
+          title: (job?.title as string) ?? 'Job',
+          client_id:
+            (d.tables.properties ?? []).find((p) => p.id === job?.property_id)
+              ?.client_id ?? null,
+          revenue_cents,
+          cost_cents,
+          labor_cents,
+          labor_minutes,
+          profit_cents: revenue_cents - cost_cents,
+        }
+      })
+      return { data: rows.sort((a, b) => b.profit_cents - a.profit_cents), error: null }
+    }
+
     default:
-      // job/client profitability (needs invoice_items↔jobs joins — the panels
-      // that use them degrade to an empty list, which is their honest state).
       return { data: name === 'materialize_jobs' ? null : [], error: null }
   }
 }
