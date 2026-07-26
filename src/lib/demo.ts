@@ -700,12 +700,16 @@ function buildData(): DemoData {
 
   const INVOICE_ITEMS: Row[] = (
     [
+      // job_id mirrors production: createInvoiceFromJobs stamps every line it
+      // builds from a job. Without at least one linked line, job_profitability
+      // has nothing to compute and the Reports section can never draw a row.
       [
         'ffffffff-0000-4000-a000-000000000001',
         'Lawn maintenance — June (4 visits)',
         4,
         6500,
         0,
+        'dddddddd-0000-4000-a000-000000000010',
       ],
       [
         'ffffffff-0000-4000-a000-000000000002',
@@ -737,16 +741,18 @@ function buildData(): DemoData {
         0,
       ],
     ] as const
-  ).map(([invoice_id, description, quantity, unit_price_cents, sort_order], i) => ({
-    ...base,
-    id: `f1100000-0000-4000-a000-00000000000${i}`,
-    invoice_id,
-    job_id: null,
-    description,
-    quantity,
-    unit_price_cents,
-    sort_order,
-  }))
+  ).map(
+    ([invoice_id, description, quantity, unit_price_cents, sort_order, job_id], i) => ({
+      ...base,
+      id: `f1100000-0000-4000-a000-00000000000${i}`,
+      invoice_id,
+      job_id: job_id ?? null,
+      description,
+      quantity,
+      unit_price_cents,
+      sort_order,
+    }),
+  )
 
   const PAYMENTS: Row[] = (
     [
