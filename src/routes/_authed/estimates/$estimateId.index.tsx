@@ -34,6 +34,7 @@ import { SkeletonDetail } from '@/components/Skeleton'
 import { confirm } from '@/lib/confirm'
 import { formatCents, localToday, parseDollarsToCents } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
+import { telHref } from '@/lib/outreach'
 
 export const Route = createFileRoute('/_authed/estimates/$estimateId/')({
   component: EstimateDetailScreen,
@@ -225,7 +226,7 @@ function EstimateDetailScreen() {
             )}
             {client.phone && (
               <a
-                href={`tel:${client.phone}`}
+                href={telHref(client.phone)}
                 className="heading-stencil inline-flex items-center justify-center gap-2 rounded-lg bg-blaze px-4 py-3 text-on-cta"
               >
                 <Phone size={18} aria-hidden /> Call

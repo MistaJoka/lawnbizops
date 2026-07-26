@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Bell, CloudRain } from 'lucide-react'
+import { Bell, CalendarPlus, CloudRain } from 'lucide-react'
 import { HeaderAdd } from '@/components/HeaderAdd'
 import {
   jobsForDateQueryOptions,
@@ -235,8 +235,17 @@ function ScheduleScreen() {
 
         {!isLoading && !isError && (dayJobs ?? []).length === 0 && (
           <EmptyState
+            icon={<CalendarPlus size={40} strokeWidth={1.5} />}
             title="Nothing scheduled this day"
-            body="Use + Job to put work on the books."
+            action={
+              <Link
+                to="/jobs/new"
+                search={{ date: selected }}
+                className="heading-stencil tap-active rounded-lg bg-blaze px-6 py-4 text-on-cta"
+              >
+                + Add a job
+              </Link>
+            }
           />
         )}
       </section>

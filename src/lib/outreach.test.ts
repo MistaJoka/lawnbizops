@@ -5,6 +5,7 @@ import {
   onMyWayMessage,
   reviewRequestMessage,
   smsHref,
+  telHref,
 } from './outreach'
 
 describe('smsHref', () => {
@@ -15,6 +16,26 @@ describe('smsHref', () => {
 
   it('keeps a leading + for international numbers', () => {
     expect(smsHref('+1 305 555 0100', 'hi')).toBe('sms:+13055550100?body=hi')
+  })
+})
+
+describe('telHref / bare smsHref', () => {
+  // Dialers tolerate punctuation in tel:, but sms: URIs with spaces and parens
+  // are invalid per RFC 3966 and some Android messaging apps open with an empty
+  // recipient — the operator taps Text and gets a blank compose window.
+  it('strips punctuation so the recipient always lands', () => {
+    expect(telHref('(954) 555-0188')).toBe('tel:9545550188')
+    expect(smsHref('(954) 555-0188')).toBe('sms:9545550188')
+  })
+
+  it('emits no query string when there is no body to prefill', () => {
+    expect(smsHref('9545550188')).toBe('sms:9545550188')
+    expect(smsHref('9545550188', '')).toBe('sms:9545550188')
+  })
+
+  it('keeps the international + on both schemes', () => {
+    expect(telHref('+1 (954) 555-0188')).toBe('tel:+19545550188')
+    expect(smsHref('+1 (954) 555-0188')).toBe('sms:+19545550188')
   })
 })
 

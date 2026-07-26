@@ -226,6 +226,14 @@ function ExpensesTab() {
             icon={<Receipt size={40} strokeWidth={1.5} />}
             title="No expenses yet"
             body="Log fuel, supplies, and equipment as you spend — they total up here and feed your P&L."
+            action={
+              <Link
+                to="/expenses/new"
+                className="heading-stencil tap-active rounded-lg bg-blaze px-6 py-4 text-on-cta"
+              >
+                + Log expense
+              </Link>
+            }
           />
         ))}
     </>
@@ -439,6 +447,14 @@ function InvoicesTab() {
             icon={<Receipt size={40} strokeWidth={1.5} />}
             title="No invoices yet"
             body="Finish a job, then bill it — invoices show up here with their aging."
+            action={
+              <Link
+                to="/invoices/new"
+                className="heading-stencil tap-active rounded-lg bg-blaze px-6 py-4 text-on-cta"
+              >
+                + New invoice
+              </Link>
+            }
           />
         ))}
     </>
@@ -484,7 +500,7 @@ function NudgeSheet({
                 </span>
               </span>
               <a
-                href={`sms:${phone}?&body=${encodeURIComponent(nudgeBody)}`}
+                href={smsHref(phone, nudgeBody)}
                 onClick={() => {
                   void recordReminder(inv.invoice_id)
                   void logActivity({
@@ -616,6 +632,14 @@ function EstimatesTab() {
             icon={<ClipboardList size={40} strokeWidth={1.5} />}
             title="No estimates yet"
             body="Quote a job to win the work — your estimates collect here."
+            action={
+              <Link
+                to="/estimates/new"
+                className="heading-stencil tap-active rounded-lg bg-blaze px-6 py-4 text-on-cta"
+              >
+                + New estimate
+              </Link>
+            }
           />
         ))}
     </>

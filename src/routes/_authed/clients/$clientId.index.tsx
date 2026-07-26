@@ -34,6 +34,7 @@ import { ActionRow } from '@/components/ActionRow'
 import { confirm } from '@/lib/confirm'
 import { ClientFollowUps } from '@/features/tasks/TaskUI'
 import { formatCents } from '@/lib/format'
+import { smsHref, telHref } from '@/lib/outreach'
 
 export const Route = createFileRoute('/_authed/clients/$clientId/')({
   component: ClientDetailScreen,
@@ -106,13 +107,13 @@ function ClientDetailScreen() {
       {client.phone && (
         <div className="mt-4 grid grid-cols-2 gap-3">
           <a
-            href={`tel:${client.phone}`}
+            href={telHref(client.phone)}
             className="heading-stencil tap-active inline-flex items-center justify-center gap-2 rounded-lg bg-blaze px-4 py-4 text-center text-lg text-on-cta"
           >
             <Phone size={18} aria-hidden /> Call
           </a>
           <a
-            href={`sms:${client.phone}`}
+            href={smsHref(client.phone)}
             className="heading-stencil tap-active inline-flex items-center justify-center gap-2 rounded-lg border border-edge bg-panel px-4 py-4 text-center text-lg text-sand"
           >
             <MessageCircle size={18} aria-hidden /> Text

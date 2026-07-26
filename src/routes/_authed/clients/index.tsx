@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/EmptyState'
 import { QueryError } from '@/components/QueryError'
 import { clientsQueryOptions, useClients } from '@/features/clients/hooks'
 import { queryClient } from '@/lib/queryClient'
+import { smsHref, telHref } from '@/lib/outreach'
 
 // lead = about-to-be-money (accent), active = healthy (green), quoted =
 // waiting on them (sand), dormant = quiet (faded).
@@ -98,14 +99,14 @@ function ClientsScreen() {
             {client.phone && (
               <span className="relative flex shrink-0 items-center gap-2">
                 <a
-                  href={`tel:${client.phone}`}
+                  href={telHref(client.phone)}
                   aria-label={`Call ${client.name}`}
                   className="tap-active grid h-touch w-touch place-items-center rounded-lg border border-edge text-base"
                 >
                   <Phone size={20} aria-hidden />
                 </a>
                 <a
-                  href={`sms:${client.phone}`}
+                  href={smsHref(client.phone)}
                   aria-label={`Text ${client.name}`}
                   className="tap-active grid h-touch w-touch place-items-center rounded-lg border border-edge text-base"
                 >

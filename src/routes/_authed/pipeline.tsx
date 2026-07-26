@@ -13,6 +13,7 @@ import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
 import { EmptyState } from '@/components/EmptyState'
 import { confirm } from '@/lib/confirm'
 import { formatCents } from '@/lib/format'
+import { smsHref, telHref } from '@/lib/outreach'
 
 export const Route = createFileRoute('/_authed/pipeline')({
   component: PipelineScreen,
@@ -146,14 +147,14 @@ function PipelineCard({ client, balance }: { client: Client; balance: number }) 
       {client.phone && (
         <div className="mt-2 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
           <a
-            href={`tel:${client.phone}`}
+            href={telHref(client.phone)}
             aria-label={`Call ${client.name}`}
             className="tap-active grid h-10 flex-1 place-items-center rounded-lg border-2 border-edge text-base text-sand"
           >
             <Phone size={20} aria-hidden />
           </a>
           <a
-            href={`sms:${client.phone}`}
+            href={smsHref(client.phone)}
             aria-label={`Text ${client.name}`}
             className="tap-active grid h-10 flex-1 place-items-center rounded-lg border-2 border-edge text-base text-sand"
           >

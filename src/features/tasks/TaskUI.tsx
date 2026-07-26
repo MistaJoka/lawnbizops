@@ -11,6 +11,7 @@ import {
 import { useClients, type Client } from '@/features/clients/hooks'
 import { localToday } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
+import { smsHref, telHref } from '@/lib/outreach'
 
 /**
  * A follow-up is an action, not just a checkbox: when the task belongs to a
@@ -57,14 +58,14 @@ function TaskRow({ task, client }: { task: Task; client?: Client }) {
       {client?.phone && (
         <span className="flex shrink-0 gap-2">
           <a
-            href={`tel:${client.phone}`}
+            href={telHref(client.phone)}
             aria-label={`Call ${client.name}`}
             className="tap-active flex h-11 w-11 items-center justify-center rounded-lg border-2 border-edge text-sand"
           >
             <Phone size={18} aria-hidden />
           </a>
           <a
-            href={`sms:${client.phone.replace(/\D/g, '')}`}
+            href={smsHref(client.phone)}
             aria-label={`Text ${client.name}`}
             className="tap-active flex h-11 w-11 items-center justify-center rounded-lg border-2 border-edge text-sand"
           >

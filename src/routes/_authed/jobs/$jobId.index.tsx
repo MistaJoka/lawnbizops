@@ -7,7 +7,7 @@ import { setJobStatus, useJob } from '@/features/jobs/hooks'
 import { logActivity } from '@/features/activities/hooks'
 import { useBusinessSettings } from '@/features/invoices/hooks'
 import { useExpensesForJob } from '@/features/expenses/hooks'
-import { onMyWayMessage, reviewRequestMessage, smsHref } from '@/lib/outreach'
+import { onMyWayMessage, reviewRequestMessage, smsHref, telHref } from '@/lib/outreach'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { JobStepper } from '@/components/JobStepper'
 import { SkeletonDetail } from '@/components/Skeleton'
@@ -147,7 +147,7 @@ function JobDetailScreen() {
             </span>
             {client.phone && (
               <a
-                href={`tel:${client.phone}`}
+                href={telHref(client.phone)}
                 className="heading-stencil shrink-0 rounded-lg bg-blaze px-4 py-3 text-on-cta"
               >
                 Call

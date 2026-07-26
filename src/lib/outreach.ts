@@ -9,9 +9,24 @@ function cleanPhone(phone: string): string {
   return phone.replace(/[^\d+]/g, '')
 }
 
-/** `sms:` deep link with a prefilled body. */
-export function smsHref(phone: string, body: string): string {
-  return `sms:${cleanPhone(phone)}?body=${encodeURIComponent(body)}`
+/**
+ * `tel:` deep link. Dialers tolerate punctuation, but clean it anyway so every
+ * contact affordance in the app builds its href exactly one way.
+ */
+export function telHref(phone: string): string {
+  return `tel:${cleanPhone(phone)}`
+}
+
+/**
+ * `sms:` deep link, body optional. Cleaning is NOT cosmetic here: an sms: URI
+ * carrying spaces and parens ("sms:(954) 555-0188") is invalid per RFC 3966,
+ * and some Android messaging apps answer it by opening a compose window with
+ * no recipient — the operator taps Text and gets a blank message. Every sms:
+ * link in the app must be built through this.
+ */
+export function smsHref(phone: string, body?: string): string {
+  const to = `sms:${cleanPhone(phone)}`
+  return body ? `${to}?body=${encodeURIComponent(body)}` : to
 }
 
 /** `mailto:` deep link with a prefilled subject + body. */

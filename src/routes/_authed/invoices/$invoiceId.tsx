@@ -32,6 +32,7 @@ import { confirm } from '@/lib/confirm'
 import { toast } from '@/lib/toast'
 import { formatCents, localToday, parseDollarsToCents } from '@/lib/format'
 import { formatShortDate } from '@/lib/dates'
+import { telHref } from '@/lib/outreach'
 
 export const Route = createFileRoute('/_authed/invoices/$invoiceId')({
   component: InvoiceDetailScreen,
@@ -219,7 +220,7 @@ function InvoiceDetailScreen() {
             )}
             {client.phone && (
               <a
-                href={`tel:${client.phone}`}
+                href={telHref(client.phone)}
                 className="heading-stencil inline-flex items-center justify-center gap-2 rounded-lg border border-edge bg-panel px-4 py-3 text-sand"
               >
                 <Phone size={18} aria-hidden /> Call
