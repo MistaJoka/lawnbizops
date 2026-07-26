@@ -1,4 +1,5 @@
 import { useServices } from './hooks'
+import { serviceLinePrefill } from './lineDraft'
 import { formatCentsShort } from '@/lib/format'
 
 /**
@@ -23,12 +24,7 @@ export function ServiceQuickAdd({
           <button
             key={s.id}
             type="button"
-            onClick={() =>
-              onPick({
-                description: s.name,
-                dollars: (s.default_price_cents / 100).toFixed(2),
-              })
-            }
+            onClick={() => onPick(serviceLinePrefill(s))}
             className="tap-active flex min-h-touch items-center gap-2 rounded-lg border border-edge bg-panel px-3 text-sm text-sand"
           >
             <span className="max-w-40 truncate">{s.name}</span>

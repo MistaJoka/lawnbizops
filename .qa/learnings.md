@@ -197,6 +197,29 @@ Last external comparison: **2026-07-23** (sources at bottom).
   (op shape, ordering, refusals) even when delivery can't run.
 - **Guard adopted:** emailSend.test.ts pins the full op contract.
 
+## L-015 — A surface that names an action must offer it
+
+- **What happened (2026-07-25):** the Today follow-ups list rendered "Call
+  Margaret — invoice 90+ days overdue" with nothing but a checkbox. The
+  client's phone number was in the database and every other surface in the
+  app offered one-tap Call/Text, but this row handed over a chore and made
+  the operator go find the client themselves. The checkbox recorded the
+  action; it never helped perform it.
+- **Structural lesson:** naming an action creates an expectation the UI must
+  honor. When a row's text is an imperative the app is capable of executing,
+  the affordance belongs on that row — the completion checkbox is the
+  _receipt_, not the action. Bookkeeping-only lists train users to work
+  around the app.
+- **Guard adopted:** follow-up rows carry Call/Text + tap-through to the
+  client when one is attached. **Swept the whole app for repeats (schedule,
+  clients, board, money, inventory, expense form) — the follow-ups list was
+  the only instance**; everything else already routed to an action or a
+  detail screen, so this is a pinned lesson, not an open class of bug.
+- **Related:** the same review question caught the invoice/estimate line
+  editors making operators _type_ what the service catalog could offer as
+  one tap. Generalized rule for this codebase: **if the app already holds
+  the data, don't ask the operator to retype it or go fetch it.**
+
 ---
 
 ## External comparison — 2026-07-23
