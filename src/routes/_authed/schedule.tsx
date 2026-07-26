@@ -183,10 +183,14 @@ function ScheduleScreen() {
                   </span>
                   <span className="flex shrink-0 items-center gap-2">
                     <StatusChip status={job.status} />
-                    {job.price_cents > 0 && (
+                    {/* $0 rendered as an empty slot next to priced siblings —
+                        an unbillable job hiding in plain sight. */}
+                    {job.price_cents > 0 ? (
                       <span className="heading-stencil text-sand tabular-nums">
                         {formatCents(job.price_cents)}
                       </span>
+                    ) : (
+                      <span className="heading-stencil text-alert">No price</span>
                     )}
                   </span>
                 </Link>
@@ -284,10 +288,12 @@ function MissedJobsSection({ today }: { today: string }) {
                   {job.title && ` — ${job.title}`}
                 </span>
               </span>
-              {job.price_cents > 0 && (
+              {job.price_cents > 0 ? (
                 <span className="heading-stencil shrink-0 text-sand tabular-nums">
                   {formatCents(job.price_cents)}
                 </span>
+              ) : (
+                <span className="heading-stencil shrink-0 text-alert">No price</span>
               )}
             </Link>
           </li>

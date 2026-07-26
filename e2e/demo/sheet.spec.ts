@@ -42,6 +42,25 @@ async function isReachable(page: Page, selector: string, nth: number) {
 }
 
 test.describe('bottom sheet', () => {
+  // Same two neutralizers the a11y scan uses, and for the same reasons:
+  // (1) the panel's 200ms slide-up means a naive measurement catches it
+  // mid-flight, still translated off the bottom — a false positive that says
+  // nothing about the settled layout; (2) the dev-only DevPanel floats over
+  // the bottom-right and would itself win the hit test, which would be a
+  // finding about a thing that never ships.
+  // addInitScript (not addStyleTag) so it survives the navigation.
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      document.addEventListener('DOMContentLoaded', () => {
+        const style = document.createElement('style')
+        style.textContent =
+          '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;transition-delay:0s!important}' +
+          '[data-dev-panel]{display:none!important}'
+        document.head.append(style)
+      })
+    })
+  })
+
   test('every nudge row stays reachable above the tab bar', async ({ page }) => {
     await page.goto('/money')
 

@@ -732,18 +732,32 @@ export function isOpen(
   )
 }
 
+/**
+ * Whole days an invoice is past its due date, or null when it isn't late (no
+ * due date, or due today/later). The exact count — not just the bucket — is
+ * what the invoice list shows: "38d overdue" moves an operator to call in a way
+ * that an unchanged grey "Sent" chip never did.
+ */
+export function daysOverdue(
+  invoice: Pick<InvoiceBalance, 'due_at'>,
+  today: string,
+): number | null {
+  if (!invoice.due_at) return null
+  const msPerDay = 24 * 60 * 60 * 1000
+  const days = Math.round(
+    (parseLocalDate(today).getTime() - parseLocalDate(invoice.due_at).getTime()) /
+      msPerDay,
+  )
+  return days > 0 ? days : null
+}
+
 /** Bucket an open invoice by days overdue relative to its due date. */
 export function agingBucket(
   invoice: Pick<InvoiceBalance, 'due_at'>,
   today: string,
 ): AgingBucket {
-  if (!invoice.due_at) return 'current'
-  const msPerDay = 24 * 60 * 60 * 1000
-  const overdueDays = Math.round(
-    (parseLocalDate(today).getTime() - parseLocalDate(invoice.due_at).getTime()) /
-      msPerDay,
-  )
-  if (overdueDays <= 0) return 'current'
+  const overdueDays = daysOverdue(invoice, today)
+  if (overdueDays === null) return 'current'
   if (overdueDays <= 30) return '1-30'
   if (overdueDays <= 60) return '31-60'
   if (overdueDays <= 90) return '61-90'

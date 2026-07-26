@@ -11,6 +11,7 @@ import {
   AGING_COLOR,
   agingBucket,
   batchInvoiceUnbilled,
+  daysOverdue,
   invoiceBalancesQueryOptions,
   isOpen,
   recordReminder,
@@ -682,11 +683,18 @@ function EstimateRow({ estimate }: { estimate: EstimateListRow }) {
 }
 
 function InvoiceRow({ invoice }: { invoice: InvoiceBalance }) {
+  // Lateness only means something on an invoice still chasing money — a paid or
+  // voided one is settled whatever its due date says.
+  const late = isOpen(invoice) ? daysOverdue(invoice, localToday()) : null
   return (
     <Link
       to="/invoices/$invoiceId"
       params={{ invoiceId: invoice.invoice_id }}
-      className="block rounded-lg border border-edge bg-panel px-4 py-4"
+      // A late invoice earns an alert-toned edge so the row reads as "chase me"
+      // from across the list, not only once you parse its dates.
+      className={`block rounded-lg border bg-panel px-4 py-4 ${
+        late ? 'border-alert/60' : 'border-edge'
+      }`}
     >
       <span className="flex items-center justify-between gap-2">
         <span className="heading-stencil min-w-0 truncate text-sand">
@@ -703,9 +711,14 @@ function InvoiceRow({ invoice }: { invoice: InvoiceBalance }) {
         </span>
       </span>
       <span className="mt-1 flex items-center justify-between gap-2 text-sm text-faded">
-        <span>{formatShortDate(invoice.issued_at)}</span>
+        <span className="min-w-0 truncate">
+          {formatShortDate(invoice.issued_at)}
+          {late !== null && (
+            <span className="text-alert tabular-nums"> · {late}d overdue</span>
+          )}
+        </span>
         {invoice.balance_cents !== invoice.total_cents && invoice.balance_cents > 0 && (
-          <span className="text-blaze tabular-nums">
+          <span className="shrink-0 text-blaze tabular-nums">
             {formatCents(invoice.balance_cents)} due
           </span>
         )}

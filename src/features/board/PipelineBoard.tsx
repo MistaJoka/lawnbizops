@@ -26,6 +26,7 @@ import {
   AGING_COLOR,
   agingBucket,
   createInvoiceFromJobs,
+  daysOverdue,
   useBusinessSettings,
   type InvoiceBalance,
 } from '@/features/invoices/hooks'
@@ -299,8 +300,13 @@ function CardShell({
           {formatShortDate(job.scheduled_date)}
           {job.start_time && ` · ${formatClockTime(job.start_time)}`}
         </p>
-        {job.price_cents > 0 && (
+        {/* A $0 job used to render nothing here — a blank gap where every
+            sibling card showed money, and silently missing from the lane
+            total. That job gets worked and never billed, so say so. */}
+        {job.price_cents > 0 ? (
           <p className="mt-1 text-sm text-faded">{formatCents(job.price_cents)}</p>
+        ) : (
+          <p className="mt-1 text-sm text-alert">No price set</p>
         )}
       </Link>
       {children}
@@ -418,7 +424,12 @@ function QuoteCard({ estimate }: { estimate: EstimateListRow }) {
 }
 
 function ArCard({ invoice }: { invoice: InvoiceBalance }) {
-  const tint = AGING_COLOR[agingBucket(invoice, localToday())] ?? 'text-sand'
+  const today = localToday()
+  const tint = AGING_COLOR[agingBucket(invoice, today)] ?? 'text-sand'
+  // The tint alone can't carry this: AGING_COLOR maps both 'current' and '1-30'
+  // to text-sand, so an invoice a week late looked exactly like one not yet due.
+  // Say the number of days instead of the due date once it's passed.
+  const late = daysOverdue(invoice, today)
   return (
     <div className="card-surface p-3">
       <Link
@@ -434,9 +445,11 @@ function ArCard({ invoice }: { invoice: InvoiceBalance }) {
             {invoice.number ?? 'pending'}
           </span>
         </div>
-        <p className={`mt-1 text-sm ${tint}`}>
+        <p className={`mt-1 text-sm ${late !== null ? 'text-alert' : tint}`}>
           {formatCents(invoice.balance_cents)} due
-          {invoice.due_at && ` · due ${formatShortDate(invoice.due_at)}`}
+          {late !== null
+            ? ` · ${late}d overdue`
+            : invoice.due_at && ` · due ${formatShortDate(invoice.due_at)}`}
         </p>
       </Link>
       <Link
