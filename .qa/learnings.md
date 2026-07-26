@@ -246,6 +246,26 @@ Last external comparison: **2026-07-23** (sources at bottom).
   alarming false positives. **Confirm the instrument before believing the
   finding** — and report the correction, not just the conclusion.
 
+## L-017 — Shipping a capability is not the same as seeing it render
+
+- **What happened (2026-07-25, three times in one session):** each fix looked
+  complete and was half-done until a screen was actually opened. (1) Implemented
+  the report RPCs — Reports rendered, but categories printed raw db tokens.
+  (2) Implemented `job_profitability` — the section still read "No billed jobs",
+  because every demo invoice line hardcoded `job_id: null`; the mechanism had
+  no data to compute from. (3) Shipped the quick-add chips against demo data —
+  the per-unit pricing bug was invisible until they were checked against the
+  _real_ catalog.
+- **Structural lesson:** "the code path exists" and "the operator sees the right
+  thing" are different claims with different evidence. A green test proves the
+  first. Only opening the screen with representative data proves the second —
+  and the gap between them is where these three bugs lived.
+- **Guard adopted:** for any change touching a rendered surface, the definition
+  of done includes a screenshot/text read of that surface with data that has
+  the shape of production, not just the shape the fixture happens to hold.
+- **Corollary (L-016's twin):** widen the fake when you fix the mechanism, in
+  the same commit — otherwise the next person believes the section is covered.
+
 ---
 
 ## External comparison — 2026-07-23
