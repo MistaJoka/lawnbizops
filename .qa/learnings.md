@@ -220,6 +220,32 @@ Last external comparison: **2026-07-23** (sources at bottom).
   one tap. Generalized rule for this codebase: **if the app already holds
   the data, don't ask the operator to retype it or go fetch it.**
 
+## L-016 — A stub that returns empty makes its screen untestable
+
+- **What happened (2026-07-25):** the demo backend fell through to `[]` for
+  the report RPCs, so Reports and the Tax center always rendered empty
+  states. The e2e "every authed screen renders" smoke passed on them
+  **without ever drawing a row** — a crash on real report data would have
+  shipped. The demo also contradicted itself on screen ("$1,420 collected"
+  vs "Nothing in this period"), which is how it was finally noticed.
+- **Structural lesson:** a fake that returns _nothing_ doesn't just weaken a
+  test — it silently converts a render test into a no-op while keeping the
+  green check. Fakes must produce the _shape and volume_ of real data, or the
+  suite is measuring the fake, not the screen. Same family as L-001: the
+  shape you test has to be the shape that ships.
+- **Guard adopted:** demo computes pnl/income-by-method/expenses-by-category
+  from the seed on the SQL's own cash basis; the render smoke now exercises
+  real rows.
+- **Immediate payoff (why this matters):** the moment real rows rendered,
+  a live defect appeared that had been invisible — raw db tokens
+  ("materials", "parts") printed beside proper labels. Fixing the fake found
+  a real bug in the first minute.
+- **Related:** verification instruments lie too. Three times this session a
+  measurement (programmatic `.focus()`, contrast vs page background instead
+  of painted background, 64-char strings stuffed into status chips) produced
+  alarming false positives. **Confirm the instrument before believing the
+  finding** — and report the correction, not just the conclusion.
+
 ---
 
 ## External comparison — 2026-07-23
