@@ -22,7 +22,7 @@ function PreferencesScreen() {
 
   return (
     <div className="px-edge pt-6 pb-24">
-      <BackLink fallback="/settings" label="Settings" />
+      <BackLink fallback="/settings" label="More" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">App preferences</h1>
 
       <section className="mt-6">

@@ -24,7 +24,7 @@ function ToolsScreen() {
   return (
     <div>
       <header className="sticky top-0 z-40 border-b-2 border-edge bg-canvas px-edge py-4">
-        <BackLink fallback="/settings" label="Settings" />
+        <BackLink fallback="/settings" label="More" />
         <div className="mt-3 border-l-4 border-blaze pl-4">
           <span className="label-caps text-blaze">Utility suite</span>
           <h1 className="heading-stencil text-2xl text-sand">Field tools</h1>

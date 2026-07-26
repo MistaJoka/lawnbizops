@@ -12,6 +12,10 @@ vi.mock('@tanstack/react-router', () => ({
     children: React.ReactNode
     [key: string]: unknown
   }) => <a {...(props as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>{children}</a>,
+  // The header's BackLink needs these two. canGoBack=false exercises the cold
+  // deep-link branch, which is the one that renders a real destination.
+  useRouter: () => ({ history: { back: () => {} } }),
+  useCanGoBack: () => false,
 }))
 
 vi.mock('@/components/RouteMap', () => ({

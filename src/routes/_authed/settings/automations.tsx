@@ -52,7 +52,7 @@ function AutomationsForm({ settings }: { settings: BusinessSettings }) {
 
   return (
     <div className="px-edge pt-6 pb-24">
-      <BackLink fallback="/settings" label="Settings" />
+      <BackLink fallback="/settings" label="More" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Automations</h1>
       <p className="mt-1 text-sm text-muted">
         Let the app handle the busywork. These add tasks to your Follow-ups.

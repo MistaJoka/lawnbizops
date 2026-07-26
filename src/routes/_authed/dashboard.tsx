@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useDashboard } from '@/features/dashboard/hooks'
+import { BackLink } from '@/components/BackLink'
 import { SkeletonList } from '@/components/Skeleton'
 import { formatCents } from '@/lib/format'
 
@@ -12,7 +13,10 @@ function DashboardScreen() {
 
   return (
     <div>
+      {/* Reached from the More hub and from Money's header, but owns no tab —
+          without a back affordance the only way out was to guess at a tab. */}
       <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center border-b-2 border-edge bg-canvas px-edge">
+        <BackLink fallback="/settings" label="More" />
         <h1 className="heading-stencil text-2xl text-sand">Dashboard</h1>
       </header>
 

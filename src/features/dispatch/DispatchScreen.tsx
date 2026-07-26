@@ -4,6 +4,7 @@ import { Link } from '@tanstack/react-router'
 import { setJobStatus, useJobsForDate, type JobWithContext } from '@/features/jobs/hooks'
 import { StatusChip } from '@/features/jobs/JobActions'
 import { RouteMap, type RouteStop } from '@/components/RouteMap'
+import { BackLink } from '@/components/BackLink'
 import { EmptyState } from '@/components/EmptyState'
 import { QueryError } from '@/components/QueryError'
 import { SkeletonList } from '@/components/Skeleton'
@@ -108,11 +109,13 @@ export function DispatchScreen() {
 
   return (
     <div className="pb-24">
-      <header className="mx-edge mt-4 flex items-center justify-between">
+      {/* Was a faded right-aligned "Today" that read as a label, not a control,
+          and always teleported to Today even when you arrived from the More
+          hub. BackLink goes where you actually came from and matches every
+          other secondary screen; the fallback keeps the old cold-start target. */}
+      <header className="mx-edge mt-4 flex items-center">
+        <BackLink fallback="/" label="Today" />
         <h1 className="heading-stencil text-lg text-sand">Dispatch</h1>
-        <Link to="/" className="tap-active text-sm text-faded">
-          Today
-        </Link>
       </header>
 
       {active.length === 0 ? (

@@ -62,3 +62,67 @@ describe('createDemoClient — no-backend fake', () => {
     expect((await c.rpc('materialize_jobs')).error).toBeNull()
   })
 })
+
+// dashboard_metrics was the last RPC still returning a frozen literal while
+// every screen around it computed from the seed. The numbers had drifted apart,
+// so one demo session showed three different truths: Money said "$1,420
+// collected" and "$3,085 outstanding", Reports said "$2,380 income" for the
+// same month, and Dashboard said "$5,030 outstanding". Nothing caught it —
+// a render smoke sees a well-formatted number and calls it a pass.
+//
+// The guard is self-consistency: whatever the seed says, every RPC reading it
+// must agree. That holds no matter how the seed changes later.
+describe('demo dashboard_metrics agrees with the rest of the demo', () => {
+  const monthStart = (today: string) => `${today.slice(0, 7)}-01`
+
+  async function metrics(today: string) {
+    const c = createDemoClient()
+    const { data } = await c.rpc('dashboard_metrics', {
+      p_today: today,
+      p_month_start: monthStart(today),
+      p_week_start: today,
+      p_week_end: today,
+    })
+    return (Array.isArray(data) ? data[0] : data) as Record<string, number>
+  }
+
+  it('collected matches the P&L income for the same month', async () => {
+    const c = createDemoClient()
+    const today = new Date().toISOString().slice(0, 10)
+    const { data } = await c.rpc('pnl_summary', {
+      p_start: monthStart(today),
+      p_end: today,
+    })
+    const pnl = (Array.isArray(data) ? data[0] : data) as { income_cents: number }
+    expect((await metrics(today)).collected_cents).toBe(pnl.income_cents)
+  })
+
+  it('outstanding matches the open invoice balances Money adds up', async () => {
+    const c = createDemoClient()
+    const today = new Date().toISOString().slice(0, 10)
+    const { data } = await c.from('invoice_balances').select('*')
+    const rows = (data ?? []) as unknown as { status: string; balance_cents: number }[]
+    const open = rows
+      .filter(
+        (r) =>
+          r.balance_cents > 0 && ['draft', 'sent', 'partially_paid'].includes(r.status),
+      )
+      .reduce((s, r) => s + r.balance_cents, 0)
+    expect((await metrics(today)).outstanding_cents).toBe(open)
+  })
+
+  it('client stage counts match the seeded clients', async () => {
+    const c = createDemoClient()
+    const { data } = await c.from('clients').select('*')
+    const rows = (data ?? []) as unknown as {
+      stage: string
+      archived_at: string | null
+    }[]
+    const live = rows.filter((r) => !r.archived_at)
+    const m = await metrics(new Date().toISOString().slice(0, 10))
+    expect(m.leads).toBe(live.filter((r) => r.stage === 'lead').length)
+    expect(m.quoted).toBe(live.filter((r) => r.stage === 'quoted').length)
+    expect(m.active).toBe(live.filter((r) => r.stage === 'active').length)
+    expect(m.dormant).toBe(live.filter((r) => r.stage === 'dormant').length)
+  })
+})

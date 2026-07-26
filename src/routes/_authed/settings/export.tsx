@@ -96,7 +96,7 @@ function ExportScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <BackLink fallback="/settings" label="Settings" />
+      <BackLink fallback="/settings" label="More" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Export data</h1>
       <p className="mt-2 text-faded">
         Download your records as CSV files — open them in Sheets or Excel.

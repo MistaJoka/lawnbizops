@@ -30,7 +30,7 @@ function ProfileScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <BackLink fallback="/settings" label="Settings" />
+      <BackLink fallback="/settings" label="More" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Business profile</h1>
 
       {isLoading ? (

@@ -245,8 +245,11 @@ function KanbanColumn({
         <div className="flex shrink-0 items-center gap-2">
           {/* Lane money total — the dense, at-a-glance "how much $ is in this
               stage" a contractor actually wants. */}
+          {/* No heading-stencil here: it text-transforms uppercase, which
+              turned formatCentsShort's "$13k" into "$13K" — the same total
+              rendered two ways inches apart from the summary chip above. */}
           {summary.valueCents > 0 && (
-            <span className="heading-stencil text-xs text-faded tabular-nums">
+            <span className="font-display text-xs font-bold text-faded tabular-nums">
               {formatCentsShort(summary.valueCents)}
             </span>
           )}

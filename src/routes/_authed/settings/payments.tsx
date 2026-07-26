@@ -44,7 +44,7 @@ function PaymentsScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <BackLink fallback="/settings" label="Settings" />
+      <BackLink fallback="/settings" label="More" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Payments</h1>
       <p className="mt-2 text-faded">
         Online card collection isn&apos;t built yet — today you record payments on each

@@ -37,7 +37,7 @@ function ServicesScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <BackLink fallback="/settings" label="Settings" />
+      <BackLink fallback="/settings" label="More" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Service catalog</h1>
 
       {!isLoading && list.length === 0 && !adding && (

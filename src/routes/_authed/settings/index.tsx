@@ -2,10 +2,13 @@ import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   BarChart3,
   Calculator,
-  ChartColumn,
   CloudAlert,
   Download,
   FileSpreadsheet,
+  // Dashboard used to be ChartColumn, which reads as the same glyph as
+  // Reports' BarChart3 two rows below it — a hub you scan by icon needs them
+  // to differ. A gauge is what a dashboard is, anyway.
+  Gauge,
   Kanban,
   Landmark,
   ListChecks,
@@ -82,7 +85,7 @@ function MoreScreen() {
       <h1 className="heading-stencil text-2xl text-sand">More</h1>
 
       <HubSection title="Work">
-        <HubRow to="/dashboard" icon={ChartColumn} label="Dashboard" />
+        <HubRow to="/dashboard" icon={Gauge} label="Dashboard" />
         <HubRow to="/pipeline" icon={Kanban} label="Pipeline" />
         <HubRow to="/dispatch" icon={Map} label="Dispatch map" />
         <HubRow to="/inventory" icon={Package} label="Inventory" />

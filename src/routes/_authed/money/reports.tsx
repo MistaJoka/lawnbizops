@@ -17,6 +17,7 @@ import { categoryLabel } from '@/features/expenses/categories'
 import {
   AGING_BUCKETS,
   AGING_COLOR,
+  BUCKET_LABEL,
   PAYMENT_METHODS,
   agingBucket,
   isOpen,
@@ -33,14 +34,6 @@ import { toast } from '@/lib/toast'
 export const Route = createFileRoute('/_authed/money/reports')({
   component: ReportsScreen,
 })
-
-const BUCKET_LABEL: Record<AgingBucket, string> = {
-  current: 'Current',
-  '1-30': '1–30 days',
-  '31-60': '31–60 days',
-  '61-90': '61–90 days',
-  '90+': '90+ days',
-}
 
 const METHOD_LABEL = new Map<string, string>(
   PAYMENT_METHODS.map((m) => [m.value, m.label]),

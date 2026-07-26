@@ -8,6 +8,7 @@ import {
   type Client,
   type ClientStage,
 } from '@/features/clients/hooks'
+import { BackLink } from '@/components/BackLink'
 import { stageAdvanceWarning } from '@/features/clients/stageGate'
 import { isOpen, useInvoiceBalances } from '@/features/invoices/hooks'
 import { EmptyState } from '@/components/EmptyState'
@@ -61,11 +62,16 @@ function PipelineScreen() {
 
   return (
     <div>
+      {/* "Clients" is a lateral jump, not a way back — a tabless screen still
+          needs one, or the More hub is a one-way door. */}
       <header className="sticky top-0 z-40 flex h-touch min-h-touch items-center justify-between border-b-2 border-edge bg-canvas px-edge">
-        <h1 className="heading-stencil text-2xl text-sand">Pipeline</h1>
+        <span className="flex min-w-0 items-center">
+          <BackLink fallback="/settings" label="More" />
+          <h1 className="heading-stencil truncate text-2xl text-sand">Pipeline</h1>
+        </span>
         <Link
           to="/clients"
-          className="inline-flex min-h-11 items-center label-caps text-blaze"
+          className="inline-flex min-h-11 shrink-0 items-center label-caps text-blaze"
         >
           Clients
         </Link>

@@ -28,7 +28,7 @@ const ORG = 'a0000000-0000-4000-a000-000000000001'
 const USER = 'b0000000-0000-4000-a000-000000000002'
 
 type Row = Record<string, unknown>
-type DemoData = { tables: Record<string, Row[]>; dashboard: Row; session: Row }
+type DemoData = { tables: Record<string, Row[]>; session: Row }
 
 // Built lazily + memoized — NO module-level side effects, so when demo mode is
 // statically off (prod), this whole module tree-shakes away.
@@ -1022,19 +1022,6 @@ function buildData(): DemoData {
       photos: [],
       mileage_logs: [],
     },
-    dashboard: {
-      collected_cents: 142000,
-      outstanding_cents: 503000,
-      pipeline_cents: 690000,
-      jobs_week: 9,
-      jobs_done_week: 4,
-      open_tasks: 4,
-      overdue_tasks: 2,
-      leads: 1,
-      quoted: 1,
-      active: 6,
-      dormant: 1,
-    },
     session: {
       access_token: 'demo',
       refresh_token: 'demo',
@@ -1167,8 +1154,13 @@ async function rpc(name: string, params?: Record<string, unknown>) {
       }
     case 'current_org':
       return { data: ORG, error: null }
+    // Was a frozen literal while every neighbouring RPC computed from the seed,
+    // so the demo contradicted itself in three places at once — Money "$1,420
+    // collected / $3,085 outstanding", Reports "$2,380 income" for that same
+    // month, Dashboard "$5,030 outstanding". A render smoke can't catch that:
+    // every one of those is a correctly formatted number. Mirrors 0018.
     case 'dashboard_metrics':
-      return { data: d.dashboard, error: null }
+      return { data: dashboardMetrics(d, params), error: null }
 
     // ── Reporting RPCs ───────────────────────────────────────────────────────
     // These used to fall through to `[]`, which made Reports and the Tax center
@@ -1298,6 +1290,79 @@ async function rpc(name: string, params?: Record<string, unknown>) {
 }
 
 type RpcParams = Record<string, unknown> | undefined
+
+/**
+ * The business pulse, computed from the same seed every other screen reads —
+ * a line-for-line mirror of `dashboard_metrics` in 0018_dashboard.sql. Date
+ * bounds come from the caller (the app passes device-local dates) and every
+ * comparison is inclusive at both ends, exactly like the SQL.
+ */
+function dashboardMetrics(d: DemoData, params: RpcParams): Row {
+  const t = d.tables
+  const today = params?.p_today as string | undefined
+  const monthStart = params?.p_month_start as string | undefined
+  const weekStart = params?.p_week_start as string | undefined
+  const weekEnd = params?.p_week_end as string | undefined
+
+  const between = (on: unknown, from?: string, to?: string) =>
+    typeof on === 'string' && (!from || on >= from) && (!to || on <= to)
+
+  const jobsThisWeek = (t.jobs ?? []).filter((j) =>
+    between(j.scheduled_date, weekStart, weekEnd),
+  )
+  const liveClients = (t.clients ?? []).filter((c) => !c.archived_at)
+  const countStage = (stage: string) =>
+    liveClients.filter((c) => c.stage === stage).length
+
+  return {
+    collected_cents: (t.payments ?? [])
+      .filter((p) => between(p.paid_at, monthStart, today))
+      .reduce((s, p) => s + ((p.amount_cents as number) ?? 0), 0),
+
+    // Same open-invoice definition as isOpen() in features/invoices/hooks.ts —
+    // draft counts, because unsent work is still money owed to the operator.
+    outstanding_cents: (t.invoice_balances ?? [])
+      .filter(
+        (i) =>
+          ((i.balance_cents as number) ?? 0) > 0 &&
+          ['sent', 'partially_paid', 'draft'].includes(i.status as string),
+      )
+      .reduce((s, i) => s + ((i.balance_cents as number) ?? 0), 0),
+
+    pipeline_cents: (t.estimate_items ?? [])
+      .filter((item) => {
+        const est = (t.estimates ?? []).find((e) => e.id === item.estimate_id)
+        return est && ['draft', 'sent'].includes(est.status as string)
+      })
+      .reduce(
+        (s, item) =>
+          s +
+          Math.round(
+            ((item.quantity as number) ?? 0) * ((item.unit_price_cents as number) ?? 0),
+          ),
+        0,
+      ),
+
+    jobs_week: jobsThisWeek.filter((j) => j.status !== 'canceled').length,
+    jobs_done_week: jobsThisWeek.filter((j) =>
+      ['done', 'invoiced'].includes(j.status as string),
+    ).length,
+
+    open_tasks: (t.tasks ?? []).filter((task) => !task.done).length,
+    overdue_tasks: (t.tasks ?? []).filter(
+      (task) =>
+        !task.done &&
+        typeof task.due_date === 'string' &&
+        !!today &&
+        task.due_date < today,
+    ).length,
+
+    leads: countStage('lead'),
+    quoted: countStage('quoted'),
+    active: countStage('active'),
+    dormant: countStage('dormant'),
+  }
+}
 
 function inRange(row: Row, dateCol: string, params: RpcParams): boolean {
   const on = row[dateCol] as string | null

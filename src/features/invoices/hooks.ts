@@ -711,6 +711,20 @@ export type AgingBucket = 'current' | '1-30' | '31-60' | '61-90' | '90+'
 
 export const AGING_BUCKETS: AgingBucket[] = ['current', '1-30', '31-60', '61-90', '90+']
 
+/**
+ * The one label per aging bucket. Money and Reports each used to keep a private
+ * copy of this map, and they had drifted — the same $240 read "1–30" on one
+ * screen and "1–30 days" on the other. Money's terser copy also leaked into a
+ * sentence, rendering the nonsense "$240.00 · 1–30 overdue".
+ */
+export const BUCKET_LABEL: Record<AgingBucket, string> = {
+  current: 'Current',
+  '1-30': '1–30 days',
+  '31-60': '31–60 days',
+  '61-90': '61–90 days',
+  '90+': '90+ days',
+}
+
 /** Theme text-color tint per aging bucket — shared by the board and Money. */
 export const AGING_COLOR: Record<AgingBucket, string> = {
   current: 'text-sand',

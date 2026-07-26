@@ -9,6 +9,7 @@ import { QueryError } from '@/components/QueryError'
 import {
   AGING_BUCKETS,
   AGING_COLOR,
+  BUCKET_LABEL,
   agingBucket,
   batchInvoiceUnbilled,
   daysOverdue,
@@ -57,14 +58,6 @@ export const Route = createFileRoute('/_authed/money/')({
   },
   component: MoneyScreen,
 })
-
-const BUCKET_LABEL: Record<AgingBucket, string> = {
-  current: 'Current',
-  '1-30': '1–30',
-  '31-60': '31–60',
-  '61-90': '61–90',
-  '90+': '90+',
-}
 
 function daysAgo(timestamp: string): string {
   const days = Math.floor((Date.now() - new Date(timestamp).getTime()) / 86_400_000)
@@ -501,9 +494,10 @@ function NudgeSheet({
             <li key={inv.invoice_id} className="flex items-center justify-between gap-3">
               <span className="min-w-0">
                 <span className="block truncate text-base text-sand">{name}</span>
+                {/* The exact count, matching the invoice list and the board —
+                    a bucket name in a sentence read as "1–30 overdue". */}
                 <span className={`text-sm ${AGING_COLOR[agingBucket(inv, today)]}`}>
-                  {formatCents(inv.balance_cents)} ·{' '}
-                  {BUCKET_LABEL[agingBucket(inv, today)]} overdue
+                  {formatCents(inv.balance_cents)} · {daysOverdue(inv, today)}d overdue
                 </span>
               </span>
               <a

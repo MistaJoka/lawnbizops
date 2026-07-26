@@ -49,7 +49,7 @@ function TaxScreen() {
 
   return (
     <div className="px-edge pt-6 pb-12">
-      <BackLink fallback="/settings" label="Settings" />
+      <BackLink fallback="/settings" label="More" />
       <div className="mt-2 flex items-center justify-between gap-3">
         <h1 className="heading-stencil text-2xl text-sand">Taxes · {yearPrefix}</h1>
         <Link

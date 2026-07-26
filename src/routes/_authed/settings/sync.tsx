@@ -58,7 +58,7 @@ function SyncScreen() {
 
   return (
     <div className="px-edge pt-6">
-      <BackLink fallback="/settings" label="Settings" />
+      <BackLink fallback="/settings" label="More" />
       <h1 className="heading-stencil mt-2 text-2xl text-sand">Sync issues</h1>
 
       <div className="mt-4 rounded-lg border border-edge bg-panel px-4 py-4">

@@ -55,7 +55,7 @@ function InventoryScreen() {
   return (
     <div>
       <header className="sticky top-0 z-40 border-b-2 border-edge bg-canvas px-edge py-4">
-        <BackLink fallback="/settings" label="Settings" />
+        <BackLink fallback="/settings" label="More" />
         <h1 className="heading-stencil mt-2 text-2xl text-sand">Inventory</h1>
         <p className="mt-1 text-sm text-muted">
           Truck stock, warehouse supplies, seasonal materials.
