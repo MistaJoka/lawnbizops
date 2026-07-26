@@ -56,7 +56,19 @@ export const DETAIL_ROUTES: DetailRoute[] = [
     path: '/properties/bbbbbbbb-0000-4000-a000-000000000001/edit',
     label: 'property edit',
   },
-  { path: '/jobs/dddddddd-0000-4000-a000-000000000001', label: 'job detail' },
+  { path: '/jobs/dddddddd-0000-4000-a000-000000000001', label: 'job detail (done)' },
+  // The done job above renders NO on-site checklist — it's gated to
+  // scheduled/in_progress — so these guards never saw the checklist's add-task
+  // composer, which overflowed 320px for months. Cover both live states, and
+  // pick a scheduled job priced at $0 so the unpriced case renders too.
+  {
+    path: '/jobs/dddddddd-0000-4000-a000-000000000003',
+    label: 'job detail (in progress)',
+  },
+  {
+    path: '/jobs/dddddddd-0000-4000-a000-000000000005',
+    label: 'job detail (scheduled, unpriced)',
+  },
   { path: '/invoices/ffffffff-0000-4000-a000-000000000001', label: 'invoice detail' },
   { path: '/estimates/eeeeeeee-0000-4000-a000-000000000001', label: 'estimate detail' },
   { path: '/expenses/a1100000-0000-4000-a000-000000000000', label: 'expense detail' },

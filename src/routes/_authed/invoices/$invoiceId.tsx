@@ -52,6 +52,10 @@ function InvoiceDetailScreen() {
   const { data: settings } = useBusinessSettings()
   const [paying, setPaying] = useState(false)
   const [sharing, setSharing] = useState(false)
+  // Which payment is mid-reversal. A second tap would append a SECOND
+  // offsetting line and over-credit the invoice — the confirm dialog
+  // serializes the first tap, not the async write that follows it.
+  const [reversing, setReversing] = useState<string | null>(null)
   const [emailing, setEmailing] = useState(false)
 
   if (!detail) {
@@ -91,6 +95,7 @@ function InvoiceDetailScreen() {
   )
 
   async function handleReverse(payment: Payment) {
+    if (reversing) return
     if (
       !(await confirm({
         title: `Reverse this ${formatCents(payment.amount_cents)} payment?`,
@@ -100,7 +105,12 @@ function InvoiceDetailScreen() {
       }))
     )
       return
-    await reversePayment(payment)
+    setReversing(payment.id)
+    try {
+      await reversePayment(payment)
+    } finally {
+      setReversing(null)
+    }
   }
 
   async function handleSharePdf() {
@@ -328,9 +338,10 @@ function InvoiceDetailScreen() {
                     <button
                       type="button"
                       onClick={() => void handleReverse(payment)}
-                      className="tap-active min-h-12 rounded-lg border-2 border-edge px-3 text-xs text-alert"
+                      disabled={reversing !== null}
+                      className="tap-active min-h-12 rounded-lg border-2 border-edge px-3 text-xs text-alert disabled:opacity-50"
                     >
-                      Reverse
+                      {reversing === payment.id ? 'Reversing…' : 'Reverse'}
                     </button>
                   )}
                 </span>

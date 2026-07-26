@@ -70,11 +70,14 @@ export function JobChecklist({ job }: { job: Job & { checklist?: unknown } }) {
         ))}
       </ul>
       <div className="mt-3 flex gap-2">
+        {/* min-w-0 is load-bearing: a flex item defaults to min-width:auto and
+            an <input>'s intrinsic size (~20 chars) then refuses to shrink, so
+            input + Add overflowed the card and scrolled the page at 320px. */}
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder="Add task…"
-          className="min-h-12 flex-1 rounded-lg border-2 border-edge bg-canvas px-4 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
+          className="min-h-12 min-w-0 flex-1 rounded-lg border-2 border-edge bg-canvas px-4 text-lg text-sand placeholder:text-faded focus:border-blaze focus:outline-none"
           onKeyDown={(e) => {
             if (e.key === 'Enter') void addItem()
           }}

@@ -51,7 +51,11 @@ export function Sheet({
 
   return (
     <div
-      className="anim-fade-in fixed inset-0 z-50 flex flex-col justify-end bg-scrim"
+      // z-[60] clears the fixed TabBar (z-50). At the same layer the TabBar won
+      // on DOM order and painted over the panel — on /money that buried the
+      // second overdue row, and its Nudge button, underneath the tab bar. A
+      // modal should cover the tabs anyway: they aren't usable while it's open.
+      className="anim-fade-in fixed inset-0 z-[60] flex flex-col justify-end bg-scrim"
       role="dialog"
       aria-modal="true"
       aria-label={labelledBy ? undefined : title}
@@ -66,7 +70,11 @@ export function Sheet({
       <div
         ref={panelRef}
         tabIndex={-1}
-        className="anim-slide-up overscroll-contain rounded-t-2xl border-t-2 border-edge bg-canvas px-edge pt-4 pb-safe outline-none"
+        // Cap + scroll: without a max height the panel just grew past the
+        // bottom of the screen (a long overdue list ran to 2584px), and the
+        // backdrop above it collapsed to nothing. Rows below the fold are now
+        // reachable by scrolling the panel, not lost.
+        className="anim-slide-up max-h-[85dvh] overflow-y-auto overscroll-contain rounded-t-2xl border-t-2 border-edge bg-canvas px-edge pt-4 pb-safe outline-none"
       >
         {title && (
           <div className="mb-3 flex items-center justify-between">

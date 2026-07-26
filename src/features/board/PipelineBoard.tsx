@@ -339,6 +339,10 @@ function DoneCard({ job, allDone }: { job: JobWithContext; allDone: JobWithConte
   const navigate = useNavigate()
   const { data: settings } = useBusinessSettings()
   const client = job.property?.client
+  // In-flight guard. Unlike estimate→invoice (backstopped by the unique index
+  // on invoices.estimate_id, CC-004), a job-built invoice has NO db constraint
+  // stopping a second one — a double-tap here double-bills the customer.
+  const [invoicing, setInvoicing] = useState(false)
 
   // Other Done jobs for the same client — offer to batch them.
   const siblings = client
@@ -346,38 +350,45 @@ function DoneCard({ job, allDone }: { job: JobWithContext; allDone: JobWithConte
     : []
 
   async function invoice() {
-    if (!client) return
+    if (!client || invoicing) return
+    setInvoicing(true)
+    try {
+      let jobsToInvoice = [job]
+      if (siblings.length > 0) {
+        const extraTotal = siblings.reduce((s, j) => s + j.price_cents, 0)
+        const batch = await confirm({
+          title: 'Combine done jobs?',
+          body: `${client.name} has ${siblings.length} other done job${siblings.length > 1 ? 's' : ''} (+${formatCents(extraTotal)}). Put them all on one invoice?`,
+          confirmLabel: 'Include all',
+          cancelLabel: 'Just this one',
+        })
+        if (batch) jobsToInvoice = [job, ...siblings]
+      }
 
-    let jobsToInvoice = [job]
-    if (siblings.length > 0) {
-      const extraTotal = siblings.reduce((s, j) => s + j.price_cents, 0)
-      const batch = await confirm({
-        title: 'Combine done jobs?',
-        body: `${client.name} has ${siblings.length} other done job${siblings.length > 1 ? 's' : ''} (+${formatCents(extraTotal)}). Put them all on one invoice?`,
-        confirmLabel: 'Include all',
-        cancelLabel: 'Just this one',
+      const id = await createInvoiceFromJobs({
+        clientId: client.id,
+        client: { name: client.name, phone: client.phone },
+        jobs: jobsToInvoice.map((j) => toInvoiceJob(j, client.id)),
+        extraItems: [],
+        defaultDueDays: settings?.default_due_days ?? 15,
+        taxBps: settings?.sales_tax_bps ?? 0,
       })
-      if (batch) jobsToInvoice = [job, ...siblings]
+      void navigate({ to: '/invoices/$invoiceId', params: { invoiceId: id } })
+    } finally {
+      setInvoicing(false)
     }
-
-    const id = await createInvoiceFromJobs({
-      clientId: client.id,
-      client: { name: client.name, phone: client.phone },
-      jobs: jobsToInvoice.map((j) => toInvoiceJob(j, client.id)),
-      extraItems: [],
-      defaultDueDays: settings?.default_due_days ?? 15,
-      taxBps: settings?.sales_tax_bps ?? 0,
-    })
-    void navigate({ to: '/invoices/$invoiceId', params: { invoiceId: id } })
   }
 
   return (
     <CardShell job={job}>
       <button
         onClick={() => void invoice()}
-        className="heading-stencil tap-active mt-3 min-h-12 w-full rounded-lg bg-blaze px-2 py-3 text-base text-on-cta"
+        disabled={invoicing}
+        className="heading-stencil tap-active mt-3 min-h-12 w-full rounded-lg bg-blaze px-2 py-3 text-base text-on-cta disabled:opacity-50"
       >
-        Invoice →{siblings.length > 0 ? ` (+${siblings.length})` : ''}
+        {invoicing
+          ? 'Creating…'
+          : `Invoice →${siblings.length > 0 ? ` (+${siblings.length})` : ''}`}
       </button>
     </CardShell>
   )
