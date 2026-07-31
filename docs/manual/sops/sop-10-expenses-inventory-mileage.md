@@ -26,7 +26,7 @@ Every dollar that leaves needs a photo and a label, filed the second it leaves �
 
 4. As you consume or restock: **Use 1** / **+ Add** on each item's card; tap a card to edit name, unit, location, on-hand, and the low-stock threshold.
 5. With inventory alerts on (More → App preferences), low stock shows as a banner on Today's Route view — restock before the day it bites.
-   > **Gap [G-14]:** emptying inventory entirely makes the starter list re-seed itself, and unused starter items can't be deleted from the hooks — zero their low-stock threshold so they never nag. → [findings](../../ops-manual-findings-2026-07-31.md#g-14)
+   > An emptied inventory now stays empty — the starter list seeds exactly once per device _(was gap [G-14]; fixed 2026-07-31)_. Unused starter rows: **Remove item** in the edit sheet.
 
 ### Mileage (More → Tax center)
 
@@ -36,7 +36,7 @@ Every dollar that leaves needs a photo and a label, filed the second it leaves �
 
 7. **Mulch & stone**: bed square-feet + depth → cubic yards and bag count. Quote from math, not squint.
 8. **Grade estimator**: tilts the phone to read slope % and a drainage verdict.
-   > **Gap [G-10]:** on iPhone it's currently dead — iOS never gets asked for motion permission, so it reads nothing. Android works. → [findings](../../ops-manual-findings-2026-07-31.md#g-10)
+   > On iPhone, tap **Enable tilt sensor** first — iOS requires a one-time motion permission _(was gap [G-10]; fixed 2026-07-31)_. Android needs no prompt.
 
 ## Done when
 
@@ -45,12 +45,12 @@ Every dollar that leaves needs a photo and a label, filed the second it leaves �
 
 ## What can go wrong
 
-| Symptom                           | Cause                                                                                    | Fix                                                   |
-| --------------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| Job profit looks too good         | Materials never logged to the job ([G-04](../../ops-manual-findings-2026-07-31.md#g-04)) | Make step 3 a load-the-truck habit                    |
-| Deleted items came back           | Empty inventory re-seeds ([G-14](../../ops-manual-findings-2026-07-31.md#g-14))          | Keep one real item; zero thresholds on the noise      |
-| Grade tool shows nothing (iPhone) | [G-10](../../ops-manual-findings-2026-07-31.md#g-10)                                     | No workaround on iOS today; use a level app meanwhile |
-| Expense saved, receipt missing    | Upload failed silently-politely                                                          | Open the expense → add the receipt photo now          |
+| Symptom                           | Cause                                                                                    | Fix                                                                                              |
+| --------------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Job profit looks too good         | Materials never logged to the job ([G-04](../../ops-manual-findings-2026-07-31.md#g-04)) | Make step 3 a load-the-truck habit                                                               |
+| Deleted items came back           | Pre-fix behavior (seed-once shipped 2026-07-31)                                          | Remove them once more — they'll stay gone now                                                    |
+| Grade tool shows nothing (iPhone) | Motion permission not granted                                                            | Tap **Enable tilt sensor**; if denied, allow Motion & Orientation in browser settings and reload |
+| Expense saved, receipt missing    | Upload failed silently-politely                                                          | Open the expense → add the receipt photo now                                                     |
 
 ## Related
 

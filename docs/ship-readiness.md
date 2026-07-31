@@ -99,13 +99,14 @@ used, no hardcoded colors. Add the missing state or fix the token; write a note.
 
 ## P2 — DB hygiene (defer index pruning until prod has data)
 
-- [ ] Add primary key to `business_settings` (perf advisor 0004)
+- [x] Add primary key to `business_settings` (perf advisor 0004) — `0048_business_settings_pk.sql`, applied to prod 2026-07-31 (org_id promoted to PK, redundant unique dropped; upsert `onConflict: 'org_id'` unaffected)
 - [ ] 🔒 Review unused indexes — **do NOT drop pre-launch**; revisit after real traffic
 
 ## P2 — Config / security (independent of cutover)
 
-- [ ] Enable leaked-password protection in Supabase Auth (config; matters once auth is on)
-- [ ] Decide server-side schedule sweep (Edge Function vs client `materialize_jobs`) — write a short ADR note, don't build yet
+- [ ] Enable leaked-password protection in Supabase Auth (config; matters once auth is on) — **dashboard toggle, human step** (Auth → Providers → Passwords)
+- [ ] Disable anonymous sign-ins in Supabase Auth — guest mode was removed from the app 2026-07-21 but the auth setting is still on; it accounts for 27 of the 33 remaining advisor warnings (lint 0012) — **dashboard toggle, human step**
+- [x] Decide server-side schedule sweep (Edge Function vs client `materialize_jobs`) — ADR written 2026-07-31: keep the hybrid as built (`docs/adr-schedule-sweep.md`)
 
 ## ⏸ Needs local Supabase stack (SQL fixture tests — out of the client loop)
 
@@ -123,7 +124,15 @@ Batch these into one supervised local-stack session rather than the client loop.
 Listed here for completeness so the loop knows the destination and skips it.
 These are irreversible / require human judgment — surface, don't execute.
 
-- [ ] 🔒 Turn auth ON (signup/login), per `docs/crm-roadmap.md` Phase E
-- [ ] 🔒 Remove temp `anon` RLS policies on all tables (resolves the bulk of security advisors)
-- [ ] 🔒 Flip prod to multi-tenant `current_org()` stamping
-- [ ] 🔒 Final `get_advisors` security pass — expect the warn count to collapse
+> **Verified done 2026-07-31** (via `list_migrations` + `get_advisors` against prod):
+> the cutover happened around 2026-07-21 — real login is live, `auth_on` /
+> `revoke_anon_select` / `current_org_deterministic` are applied, and the
+> security advisor shows **zero errors**. Remaining warns are all config-level:
+> 27× anonymous-sign-ins (toggle above), 1× leaked-password protection (toggle
+> above), 4× intentionally-anon public-token RPCs (by design), plus GraphQL
+> schema visibility and `pg_net` in public (optional hardening, post-launch).
+
+- [x] 🔒 Turn auth ON (signup/login), per `docs/crm-roadmap.md` Phase E — live since 2026-07-21 (deploy removed guest/autologin; login/onboarding/billing gates active)
+- [x] 🔒 Remove temp `anon` RLS policies on all tables — `revoke_anon_select` applied; advisor shows no anon-policy errors
+- [x] 🔒 Flip prod to multi-tenant `current_org()` stamping — `org_tenancy` + `current_org_deterministic` applied; every table carries the single org policy
+- [x] 🔒 Final `get_advisors` security pass — run 2026-07-31: 0 errors / 33 warns, all accounted for above

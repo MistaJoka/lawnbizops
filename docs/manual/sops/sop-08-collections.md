@@ -36,7 +36,7 @@ You're the bank teller for your own business. Money shows up in different pocket
 6. **Money → Invoices**: read the aging chips (Current / 1–30 / 31–60 / 61–90 / 90+). Everything right of Current is your call list.
 7. Tap **Nudge overdue (N)**.
    > **You should see:** a sheet with one row per overdue invoice and a **Nudge** button that opens a prefilled, friendly text — and stamps the reminder date and logs an activity, so rows show "nudged N days ago."
-   > **Gap [G-18]:** the look-alike **Friendly reminder** on board cards does NOT log the touch. For collections, nudge from here or the invoice's **Send reminder** — places that leave a paper trail. → [findings](../../ops-manual-findings-2026-07-31.md#g-18)
+   > The board's **Friendly reminder** quick action logs the touch too _(was gap [G-18]; fixed 2026-07-31)_ — nudge from wherever you are; every path leaves the paper trail now.
 8. Know what the robot already did: the nightly sweep (7:15 AM) creates a follow-up task per newly-overdue invoice and — if enabled — emails the customer a reminder (re-nudges capped at weekly).
    > **Gap [G-03]:** payments themselves notify nobody, and no automation can see your Zelle. Recording (steps 1–2) is forever manual. → [findings](../../ops-manual-findings-2026-07-31.md#g-03)
 9. Escalation past 60 days: call, don't text. Log the call as a note on the client so the timeline holds your history ([G-24](../../ops-manual-findings-2026-07-31.md#g-24)).

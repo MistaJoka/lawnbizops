@@ -56,4 +56,4 @@ The kitchen table where the whole business sits every morning: the mail pile (at
 
 ## Known gaps on this screen
 
-[G-03](../../ops-manual-findings-2026-07-31.md#g-03) (this card is the only notification surface) · [G-08](../../ops-manual-findings-2026-07-31.md#g-08) (follow-up due dates fire nothing) · [G-15](../../ops-manual-findings-2026-07-31.md#g-15) (route order auto-only) · [G-18](../../ops-manual-findings-2026-07-31.md#g-18) (board quick-SMS skips the activity log) · [G-22](../../ops-manual-findings-2026-07-31.md#g-22) (no crew)
+[G-03](../../ops-manual-findings-2026-07-31.md#g-03) (this card is the only notification surface) · [G-08](../../ops-manual-findings-2026-07-31.md#g-08) (follow-up due dates fire nothing) · [G-15](../../ops-manual-findings-2026-07-31.md#g-15) (route order auto-only) · [G-22](../../ops-manual-findings-2026-07-31.md#g-22) (no crew) · _G-18 (board quick-SMS now logs the touch) fixed 2026-07-31_

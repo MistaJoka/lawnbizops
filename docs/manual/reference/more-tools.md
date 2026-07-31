@@ -33,12 +33,12 @@ Ordering is nearest-neighbor from your GPS position (or first pinned job when GP
 
 ### Inventory (`/inventory`)
 
-**Low stock** count + **Total SKUs** cards · search · **+ Item** · per-card **+ Add** / **Use 1** · tap a card → edit sheet (name, unit, location, on-hand, low-stock-at, **Remove item**). Low stock banners onto Today's Route view when the preference is on. Auto-seeds a starter list when loaded empty ([G-14](../../ops-manual-findings-2026-07-31.md#g-14)). Used in: [SOP-10](../sops/sop-10-expenses-inventory-mileage.md).
+**Low stock** count + **Total SKUs** cards · search · **+ Item** · per-card **+ Add** / **Use 1** · tap a card → edit sheet (name, unit, location, on-hand, low-stock-at, **Remove item**). Low stock banners onto Today's Route view when the preference is on. Seeds a starter list once per device on first empty load (seed-once since 2026-07-31 — an emptied inventory stays empty). Used in: [SOP-10](../sops/sop-10-expenses-inventory-mileage.md).
 
 ### Field tools (`/tools`)
 
 - **Mulch & stone** (`/tools/mulch`) — bed area (sq ft) + depth (in) → cubic yards + bag count. `(no SOP — utility feature)` beyond its mention in SOP-10.
-- **Grade estimator** (`/tools/grade`) — live phone-tilt slope % + drainage verdict ("Too flat" / "Good drainage range" / "Steep — check runoff"); sensor-unavailable fallback message. Dead on iOS today ([G-10](../../ops-manual-findings-2026-07-31.md#g-10)).
+- **Grade estimator** (`/tools/grade`) — live phone-tilt slope % + drainage verdict ("Too flat" / "Good drainage range" / "Steep — check runoff"); sensor-unavailable fallback message. On iOS, **Enable tilt sensor** requests the required motion permission (fixed 2026-07-31).
 
 ### Tax center (`/tax`)
 
@@ -52,4 +52,4 @@ Used in: [SOP-10](../sops/sop-10-expenses-inventory-mileage.md), [SOP-12](../sop
 
 ## Known gaps in this group
 
-[G-10](../../ops-manual-findings-2026-07-31.md#g-10) · [G-14](../../ops-manual-findings-2026-07-31.md#g-14) · [G-15](../../ops-manual-findings-2026-07-31.md#g-15) · [G-21](../../ops-manual-findings-2026-07-31.md#g-21)
+[G-15](../../ops-manual-findings-2026-07-31.md#g-15) · [G-21](../../ops-manual-findings-2026-07-31.md#g-21) · _G-10 and G-14 fixed 2026-07-31_

@@ -62,4 +62,4 @@ Cadence (Every week / Every 2 weeks / Every 4 weeks / Monthly on a set day) · f
 
 ## Known gaps on these screens
 
-[G-07](../../ops-manual-findings-2026-07-31.md#g-07) (winning work doesn't advance stage) · [G-11](../../ops-manual-findings-2026-07-31.md#g-11) (dormancy manual) · [G-13](../../ops-manual-findings-2026-07-31.md#g-13) (property page: no job history/CTAs/delete; override not clearable) · [G-17](../../ops-manual-findings-2026-07-31.md#g-17) (no global search) · [G-24](../../ops-manual-findings-2026-07-31.md#g-24) (notes only here) · [G-25](../../ops-manual-findings-2026-07-31.md#g-25) (no skip-next-visit)
+[G-11](../../ops-manual-findings-2026-07-31.md#g-11) (dormancy manual) · [G-13](../../ops-manual-findings-2026-07-31.md#g-13) (property page: no job history/CTAs/delete; override not clearable) · [G-17](../../ops-manual-findings-2026-07-31.md#g-17) (no global search) · [G-24](../../ops-manual-findings-2026-07-31.md#g-24) (notes only here) · [G-25](../../ops-manual-findings-2026-07-31.md#g-25) (no skip-next-visit) · _G-07 (stage auto-advance on booked work) fixed 2026-07-31_

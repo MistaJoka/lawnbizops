@@ -34,7 +34,7 @@ Today is a to-do list that sorts itself by driving distance. Each lawn has two b
 ### At every stop
 
 6. Send **Text "on my way"** from the job screen before rolling — it logs the touch automatically.
-   > **Gap [G-23]:** there's no "running late" template — that one you type yourself. → [findings](../../ops-manual-findings-2026-07-31.md#g-23)
+   > Running behind instead? **Text "running late"** sits right below it — same one-tap-and-logged contract. _(Was gap [G-23]; fixed 2026-07-31.)_
 7. On arrival, tap **Start**. This stamps your real start time — it feeds the labor cost on every profit number (set your $/hr in More → Business profile).
 8. Work the job's checklist, snap photos, use the gate code shown on the job card.
 9. On completion, tap **Done**. If a confirm appears — "never started", "no price — it will invoice at $0", "no service set" — **stop and fix the data, don't tap past it.** That confirm is the last quality gate before billing.

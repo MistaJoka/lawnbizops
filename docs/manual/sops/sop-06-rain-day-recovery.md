@@ -25,7 +25,7 @@ Rain check, literally. Sweep every sticky note from today onto a drier day in on
    > **You should see:** Schedule lands on the new date with the moved jobs listed.
 3. Only one or two jobs affected? Skip the bulk button: open the job → **⋯ → Move to another day** (or **Skip (rain / no-show)** if it simply won't happen).
 4. **Tell the clients.** For each moved job: open it → **Call** or text from the client card. Write the message once ("Rain today — moved you to Thu ~10am, reply if that's a problem") and paste it per client.
-   > **Gap [G-02]/[G-23]:** no automated "your visit moved" message exists, and no template for it — this step is manual, and it's the difference between professional and flaky. → [findings](../../ops-manual-findings-2026-07-31.md#g-02)
+   > **Gap [G-02]:** no automated "your visit moved" message exists — this step is manual, and it's the difference between professional and flaky. (The "running late" template covers same-day slips; a full reschedule still deserves your own words.) → [findings](../../ops-manual-findings-2026-07-31.md#g-02)
 5. Already-missed days (it rained yesterday and you never moved anything): Schedule shows a **Missed — needs a new day** section for still-Scheduled jobs whose date passed. Move or skip each — never leave that section populated.
 6. Recurring visits you move this way are marked customized — the schedule's resync won't snap them back to the old cadence slot.
 

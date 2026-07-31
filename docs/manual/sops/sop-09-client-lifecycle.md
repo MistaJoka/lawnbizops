@@ -14,7 +14,7 @@ Four buckets: "might hire me", "saw my price", "pays me", "used to pay me". Fish
 
 ## Before you start
 
-- [ ] Understand the only two auto-moves: estimate sent → **Quoted**; payment recorded → **Active**. Everything else — including winning the work — is your finger ([G-07](../../ops-manual-findings-2026-07-31.md#g-07), [G-11](../../ops-manual-findings-2026-07-31.md#g-11)).
+- [ ] Understand the three auto-moves: estimate sent → **Quoted**; work booked (job or new schedule) → **Active**; payment recorded → **Active**. Demoting — Dormant, or any backward move — is always your finger ([G-11](../../ops-manual-findings-2026-07-31.md#g-11)).
 
 ## Steps
 
@@ -25,7 +25,7 @@ Four buckets: "might hire me", "saw my price", "pays me", "used to pay me". Fish
 4. **Active column:** anyone with **no future work booked and no recent activity** gets moved to **Dormant** — tap the stage on their page or **Advance →** (a soft "Move anyway" confirm may appear; that's fine, you know why). As you demote, add a **follow-up task** on their page ("Win-back text — spring cleanup offer") with a due date.
    > **Gap [G-11]:** nothing detects lapse for you; this walk IS the detection. → [findings](../../ops-manual-findings-2026-07-31.md#g-11)
    > **Gap [G-08]:** the task's due date only surfaces in Today's Follow-ups list — set due dates for weekdays you'll actually see them. → [findings](../../ops-manual-findings-2026-07-31.md#g-08)
-5. **Dormant column:** work the win-back tasks — a personal text beats a blast ([G-02](../../ops-manual-findings-2026-07-31.md#g-02): there is no blast). When one bites, schedule the work (SOP-04) and move them back to **Active** yourself ([G-07](../../ops-manual-findings-2026-07-31.md#g-07)).
+5. **Dormant column:** work the win-back tasks — a personal text beats a blast ([G-02](../../ops-manual-findings-2026-07-31.md#g-02): there is no blast). When one bites, schedule the work (SOP-04) and move them back to **Active** yourself — auto-advance deliberately never pulls a client out of Dormant.
 6. **Merge duplicates** as you spot them: on the duplicate's page → **Merge duplicate…** → pick the keeper → confirm. Properties, quotes, invoices, and history all move; the duplicate is archived. This is destructive-confirm territory — read the sheet before tapping.
 7. **Archive the truly dead:** client page → **Archive client**. **First pause or delete their recurring schedules** — don't leave a stamp printing sticky notes for someone you archived (SOP-04 steps 9–10).
 8. **Notes discipline:** every meaningful call or agreement becomes a note on the client's timeline — it's the only place history lives.

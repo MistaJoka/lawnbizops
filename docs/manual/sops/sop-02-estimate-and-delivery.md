@@ -15,7 +15,7 @@ An estimate is a price tag you hand over before doing the work. This SOP is: wri
 ## Before you start
 
 - [ ] The client exists with at least one contact channel (SOP-01).
-- [ ] If a "yes" should turn into recurring visits, the property is on file **before** you send — an accepted estimate with no property hides the recurring option ([G-06](../../ops-manual-findings-2026-07-31.md#g-06)).
+- [ ] If a "yes" should turn into scheduled work, the property is on file **before** you send — a property-less accepted estimate makes you add it mid-win (the schedule/job buttons sit disabled with "+ Add property" until you do).
 - [ ] Your **Service catalog** (More → Service catalog) has your common services priced, so lines are one tap.
 
 ## Steps

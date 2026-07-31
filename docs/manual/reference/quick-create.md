@@ -22,7 +22,7 @@ Name (required) · Phone · Email · Notes · **"This is a lead / prospect"** sw
 
 ### New estimate (`/estimates/new`)
 
-Client (required) → Property (optional — but see [G-06](../../ops-manual-findings-2026-07-31.md#g-06)) → line items: one-tap **service chips** from the catalog or **+ Add line** (Description / Qty / Price, X removes) → Valid until (~30 days default) → Notes → live total → **Create estimate**. Creates a Draft and opens it.
+Client (required) → Property (optional — a property-less estimate shows its schedule/job buttons disabled until one is added) → line items: one-tap **service chips** from the catalog or **+ Add line** (Description / Qty / Price, X removes) → Valid until (~30 days default) → Notes → live total → **Create estimate**. Creates a Draft and opens it.
 
 ### New invoice (`/invoices/new`)
 
@@ -45,4 +45,4 @@ The 10-second flow: Amount → Category chips (12) → **Add receipt** (camera) 
 
 ## Known gaps on these flows
 
-[G-06](../../ops-manual-findings-2026-07-31.md#g-06) (property-optional estimates bite later) · [G-16](../../ops-manual-findings-2026-07-31.md#g-16) (no capacity warning when picking a date)
+[G-16](../../ops-manual-findings-2026-07-31.md#g-16) (no capacity warning when picking a date) · _G-06 (hidden schedule path on property-less estimates) fixed 2026-07-31_

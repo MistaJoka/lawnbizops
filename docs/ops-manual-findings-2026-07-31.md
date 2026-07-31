@@ -6,33 +6,33 @@ Each gap has a stable ID (`G-nn`) referenced inline from SOP steps as `> **Gap [
 
 ## Summary
 
-| ID            | Severity | Area        | One-liner                                                                              | SOPs affected      |
-| ------------- | -------- | ----------- | -------------------------------------------------------------------------------------- | ------------------ |
-| [G-01](#g-01) | Critical | Money       | Customers cannot pay online — every payment is collected out-of-band and keyed by hand | 07, 08             |
-| [G-02](#g-02) | Critical | Comms       | Strictly one-way communications: no inbound, hardcoded templates, no reply-to          | 01, 02, 06, 08, 09 |
-| [G-03](#g-03) | Critical | Comms       | Owner notifications are one in-app card on one screen; payments notify nothing         | 01, 05, 08, 11     |
-| [G-04](#g-04) | High     | Money       | Job costing omits materials — inventory is not linked to jobs                          | 05, 07, 10, 11     |
-| [G-05](#g-05) | High     | Pipeline    | Estimate→job conversion drops the service, breaking revenue-by-service                 | 03                 |
-| [G-06](#g-06) | High     | Pipeline    | Accepted estimate with no property silently hides the recurring-schedule path          | 03                 |
-| [G-07](#g-07) | High     | Pipeline    | Winning work does not advance the client's stage — only a payment does                 | 03, 09             |
-| [G-08](#g-08) | High     | Tasks       | Follow-up due dates fire nothing — no reminder, no sweep rule                          | 05, 09             |
-| [G-09](#g-09) | High     | Offline     | PDF sharing is blocked until the server assigns a document number                      | 02, 07, 13         |
-| [G-10](#g-10) | High     | Tools       | Grade estimator never requests motion permission — dead on iOS                         | 10                 |
-| [G-11](#g-11) | Medium   | Pipeline    | Dormant is a fully manual label; nothing detects lapsed clients                        | 09, 11             |
-| [G-12](#g-12) | Medium   | Money       | No discounts, late fees, statements, or credit notes                                   | 07, 08             |
-| [G-13](#g-13) | Medium   | Clients     | Property detail is a dead end: no job list, no CTAs, no delete, override not clearable | 04, 09             |
-| [G-14](#g-14) | Medium   | Inventory   | Inventory has no delete and silently re-seeds starter items when emptied               | 10                 |
-| [G-15](#g-15) | Medium   | Dispatch    | Route order is automatic-only — no manual reorder or pinned stop                       | 05                 |
-| [G-16](#g-16) | Medium   | Schedule    | No month view, no drag-to-reschedule, no conflict/capacity detection                   | 04, 06             |
-| [G-17](#g-17) | Medium   | Findability | No global search — only per-screen search boxes                                        | 09                 |
-| [G-18](#g-18) | Medium   | Comms       | Board quick-action SMS skips the activity log                                          | 05, 08             |
-| [G-19](#g-19) | Medium   | Offline     | Schedule deletes and all settings saves require connectivity                           | 04, 13             |
-| [G-20](#g-20) | Low      | Estimates   | Approval is token-possession only — no typed name or signature                         | 02                 |
-| [G-21](#g-21) | Low      | Reports     | No revenue-by-month trend or revenue-by-service; client profitability not in Reports   | 11                 |
-| [G-22](#g-22) | Low      | Scaling     | No crew/assignment seam anywhere in schema or UI                                       | 05                 |
-| [G-23](#g-23) | Low      | Comms       | No "running late" outreach template                                                    | 05, 06             |
-| [G-24](#g-24) | Medium   | Clients     | Notes can only be logged against clients — nothing from job/estimate/invoice screens   | 05, 09             |
-| [G-25](#g-25) | Medium   | Schedule    | No "skip next visit" on a recurring schedule — pause is all-or-nothing                 | 04                 |
+| ID            | Severity | Area        | One-liner                                                                                                                | SOPs affected      |
+| ------------- | -------- | ----------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------ |
+| [G-01](#g-01) | Critical | Money       | Customers cannot pay online — every payment is collected out-of-band and keyed by hand                                   | 07, 08             |
+| [G-02](#g-02) | Critical | Comms       | Strictly one-way communications: no inbound, hardcoded templates, no reply-to                                            | 01, 02, 06, 08, 09 |
+| [G-03](#g-03) | Critical | Comms       | Owner notifications are one in-app card on one screen (partial fix 2026-07-31: payments now land on the client timeline) | 01, 05, 08, 11     |
+| [G-04](#g-04) | High     | Money       | Job costing omits materials — inventory is not linked to jobs                                                            | 05, 07, 10, 11     |
+| [G-05](#g-05) | ✅ Fixed | Pipeline    | FIXED 2026-07-31 — estimate→job recovers the service by catalog-name match                                               | 03                 |
+| [G-06](#g-06) | ✅ Fixed | Pipeline    | FIXED 2026-07-31 — property-less estimates show the schedule CTA disabled with "+ Add property"                          | 03                 |
+| [G-07](#g-07) | ✅ Fixed | Pipeline    | FIXED 2026-07-31 — booking work (job or new schedule) advances the client to Active                                      | 03, 09             |
+| [G-08](#g-08) | High     | Tasks       | Follow-up due dates fire nothing — no reminder, no sweep rule                                                            | 05, 09             |
+| [G-09](#g-09) | High     | Offline     | PDF sharing is blocked until the server assigns a document number                                                        | 02, 07, 13         |
+| [G-10](#g-10) | ✅ Fixed | Tools       | FIXED 2026-07-31 — "Enable tilt sensor" button requests iOS motion permission                                            | 10                 |
+| [G-11](#g-11) | Medium   | Pipeline    | Dormant is a fully manual label; nothing detects lapsed clients                                                          | 09, 11             |
+| [G-12](#g-12) | Medium   | Money       | No discounts, late fees, statements, or credit notes                                                                     | 07, 08             |
+| [G-13](#g-13) | Medium   | Clients     | Property detail is a dead end: no job list, no CTAs, no delete, override not clearable                                   | 04, 09             |
+| [G-14](#g-14) | ✅ Fixed | Inventory   | FIXED 2026-07-31 — starter list seeds once per device; an emptied inventory stays empty                                  | 10                 |
+| [G-15](#g-15) | Medium   | Dispatch    | Route order is automatic-only — no manual reorder or pinned stop                                                         | 05                 |
+| [G-16](#g-16) | Medium   | Schedule    | No month view, no drag-to-reschedule, no conflict/capacity detection                                                     | 04, 06             |
+| [G-17](#g-17) | Medium   | Findability | No global search — only per-screen search boxes                                                                          | 09                 |
+| [G-18](#g-18) | ✅ Fixed | Comms       | FIXED 2026-07-31 — board texts/nudges log the touch and use RFC-clean sms: links                                         | 05, 08             |
+| [G-19](#g-19) | Medium   | Offline     | Schedule deletes and all settings saves require connectivity                                                             | 04, 13             |
+| [G-20](#g-20) | Low      | Estimates   | Approval is token-possession only — no typed name or signature                                                           | 02                 |
+| [G-21](#g-21) | Low      | Reports     | No revenue-by-month trend or revenue-by-service; client profitability not in Reports                                     | 11                 |
+| [G-22](#g-22) | Low      | Scaling     | No crew/assignment seam anywhere in schema or UI                                                                         | 05                 |
+| [G-23](#g-23) | ✅ Fixed | Comms       | FIXED 2026-07-31 — "running late" template + button beside "on my way"                                                   | 05, 06             |
+| [G-24](#g-24) | Medium   | Clients     | Notes can only be logged against clients — nothing from job/estimate/invoice screens                                     | 05, 09             |
+| [G-25](#g-25) | Medium   | Schedule    | No "skip next visit" on a recurring schedule — pause is all-or-nothing                                                   | 04                 |
 
 ---
 
@@ -68,6 +68,7 @@ Each gap has a stable ID (`G-nn`) referenced inline from SOP steps as `> **Gap [
 - **Affected SOPs:** SOP-01, SOP-05, SOP-08, SOP-11
 - **Current workaround:** The morning ritual in SOP-05 step 1 is mandatory — open Today and clear **Needs attention** before anything else. A lead you don't see is a lead you lose.
 - **Proposed improvement:** (S) log an activity on `apply_payment` so payments at least reach the card; (M) daily owner email digest via the existing Resend outbox; (M) Web Push for lead/approval events.
+- **Partial fix (2026-07-31):** `recordPayment` now logs "Payment received — $X on INV-n" to the client timeline. The card/push/digest half stays open.
 
 <a id="g-04"></a>
 
@@ -90,6 +91,7 @@ Each gap has a stable ID (`G-nn`) referenced inline from SOP steps as `> **Gap [
 - **Affected SOPs:** SOP-03
 - **Current workaround:** Immediately after creating the job from an estimate, open it → **Edit** → set the Service (SOP-03 step 4 makes this mandatory).
 - **Proposed improvement (S):** When the estimate's first line came from a catalog service (ServiceQuickAdd already knows), carry that `service_id` onto the job.
+- **✅ Fixed (2026-07-31):** `createJobFromEstimate` matches the first line's description against the service catalog (exact name, case-insensitive) and carries the `service_id`; custom lines still land null. Pinned by `hooks.test.ts`.
 
 <a id="g-06"></a>
 
@@ -101,6 +103,7 @@ Each gap has a stable ID (`G-nn`) referenced inline from SOP steps as `> **Gap [
 - **Affected SOPs:** SOP-03
 - **Current workaround:** Add the property first (client → **Add property**), then reopen the estimate — the schedule button appears.
 - **Proposed improvement (S):** Render the schedule CTA disabled with the same inline "+ Add property" affordance the job path has.
+- **✅ Fixed (2026-07-31):** exactly that — the accepted-estimate screen now shows a disabled "Create recurring schedule" with "Needs a property — estimate has none." and "+ Add property".
 
 <a id="g-07"></a>
 
@@ -112,6 +115,7 @@ Each gap has a stable ID (`G-nn`) referenced inline from SOP steps as `> **Gap [
 - **Affected SOPs:** SOP-03, SOP-09
 - **Current workaround:** SOP-03 ends with a mandatory manual step: advance the client to **Active** the moment you schedule their first work.
 - **Proposed improvement (S):** Call `maybeAdvanceStage(clientId, 'active')` from `createJobFromEstimate`, `saveSchedule`, and estimate acceptance.
+- **✅ Fixed (2026-07-31):** `createOneOffJob` (every job-creation path, including from estimates) and new-`saveSchedule` now advance the client to Active. Acceptance deliberately does not — per the stage spec, Active means _work booked_, which is also what the soft gate checks. Pinned by `jobWrites.test.ts` + `scheduleWrites.test.ts`.
 
 <a id="g-08"></a>
 
@@ -145,6 +149,7 @@ Each gap has a stable ID (`G-nn`) referenced inline from SOP steps as `> **Gap [
 - **Affected SOPs:** SOP-10
 - **Current workaround:** None on iOS. On Android it works as documented.
 - **Proposed improvement (S):** An "Enable tilt" button that requests permission on tap, with a denial fallback message.
+- **✅ Fixed (2026-07-31):** "Enable tilt sensor" button calls `DeviceOrientationEvent.requestPermission()` behind the required user gesture; denial shows a settings hint. Non-iOS behavior unchanged.
 
 <a id="g-11"></a>
 
@@ -189,6 +194,7 @@ Each gap has a stable ID (`G-nn`) referenced inline from SOP steps as `> **Gap [
 - **Affected SOPs:** SOP-10
 - **Current workaround:** Keep at least one real item so the seeder never fires; ignore unused starter rows or zero their low-stock threshold so they never alert.
 - **Proposed improvement (S):** Seed only on true first-run (flag in business settings), not on every empty load.
+- **✅ Fixed (2026-07-31):** `loadStarterInventory` stamps a device-local `inventorySeededAt` preference and never seeds again — an emptied inventory stays empty. (Device-local: a brand-new device with a genuinely empty org seeds once, same as before.) Pinned by `inventoryWrites.test.ts`.
 
 <a id="g-15"></a>
 
@@ -233,6 +239,7 @@ Each gap has a stable ID (`G-nn`) referenced inline from SOP steps as `> **Gap [
 - **Affected SOPs:** SOP-05, SOP-08
 - **Current workaround:** For touches that must be on the record (collections), nudge from **Money → Nudge overdue** or the client page, not from a board card.
 - **Proposed improvement (S):** Route board card actions through the same logging path.
+- **✅ Fixed (2026-07-31):** quote-card texts and A/R "Friendly reminder" now `logActivity` on the client timeline, and all board `tel:`/`sms:` links are built through `telHref`/`smsHref` (fixing the latent RFC 3966 blank-composer bug the raw links carried).
 
 <a id="g-19"></a>
 
@@ -294,6 +301,7 @@ Documented as they surfaced during SOP walkthroughs; numbered after the pre-veri
 - **Affected SOPs:** SOP-05, SOP-06
 - **Current workaround:** Use **Call** or type the text manually from the job's client card.
 - **Proposed improvement (S):** Fifth template with a minutes placeholder.
+- **✅ Fixed (2026-07-31):** `runningLateMessage` template + a "Text 'running late'" button beside "on my way" on the job screen, activity-logged like its sibling. (No minutes placeholder — the message promises a text when close instead, which is always true.)
 
 <a id="g-24"></a>
 
