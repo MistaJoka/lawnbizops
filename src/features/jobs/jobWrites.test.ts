@@ -7,9 +7,14 @@ vi.mock('@/lib/supabase', () => ({ supabase: {} }))
 const enqueue = vi.fn()
 vi.mock('@/lib/outbox', () => ({ enqueue: (op: unknown) => enqueue(op) }))
 vi.mock('@/lib/toast', () => ({ confirmToast: vi.fn() }))
+const maybeAdvanceStage = vi.fn()
+vi.mock('@/features/clients/hooks', () => ({
+  maybeAdvanceStage: (...args: unknown[]) => maybeAdvanceStage(...args),
+}))
 
 import { queryClient } from '@/lib/queryClient'
 import {
+  createOneOffJob,
   reopenJob,
   setJobStatus,
   rescheduleJob,
@@ -49,8 +54,49 @@ type EnqueueOp = {
 }
 const lastOp = () => enqueue.mock.calls.at(-1)![0] as EnqueueOp
 
-beforeEach(() => enqueue.mockClear())
+beforeEach(() => {
+  enqueue.mockClear()
+  maybeAdvanceStage.mockClear()
+})
 afterEach(() => queryClient.clear())
+
+describe('createOneOffJob → stage reconciliation', () => {
+  const draft = {
+    id: 'j9',
+    property_id: 'p1',
+    service_id: null,
+    scheduled_date: DAY,
+    price_cents: 6500,
+    title: 'Mow',
+    notes: '',
+  }
+
+  it('advances the client toward active using the property context', async () => {
+    await createOneOffJob(draft, {
+      id: 'p1',
+      label: 'Home',
+      address_line1: '',
+      city: '',
+      lat: null,
+      lng: null,
+      gate_code: '',
+      notes: '',
+      client: { id: 'c1', name: 'Pat', phone: '' },
+    })
+    expect(maybeAdvanceStage).toHaveBeenCalledWith('c1', 'active')
+  })
+
+  it('falls back to the property cache when the context has no client', async () => {
+    queryClient.setQueryData(['properties', 'p1'], { client_id: 'c2' })
+    await createOneOffJob({ ...draft, id: 'j10' }, null)
+    expect(maybeAdvanceStage).toHaveBeenCalledWith('c2', 'active')
+  })
+
+  it('skips silently when no client is resolvable (cold cache)', async () => {
+    await createOneOffJob({ ...draft, id: 'j11' }, null)
+    expect(maybeAdvanceStage).not.toHaveBeenCalled()
+  })
+})
 
 describe('setJobStatus', () => {
   it('marking done stamps completed_at and keeps the card on the board', async () => {

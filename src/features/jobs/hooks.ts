@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
 import { confirmToast } from '@/lib/toast'
+import { maybeAdvanceStage } from '@/features/clients/hooks'
 import type { Json, Tables } from '@/lib/database.types'
 
 export type Job = Tables<'jobs'>
@@ -299,6 +300,13 @@ export async function createOneOffJob(
     old ? [...old.filter((j) => j.id !== draft.id), cached] : old,
   )
   await enqueue({ table: 'jobs', kind: 'upsert', payload: { ...row } })
+  // Booked work is the stage spec's entry criterion for Active — reconcile the
+  // stage so a won client doesn't sit at Quoted until first payment.
+  const clientId =
+    property?.client?.id ??
+    queryClient.getQueryData<{ client_id: string }>(['properties', draft.property_id])
+      ?.client_id
+  if (clientId) await maybeAdvanceStage(clientId, 'active')
   confirmToast('Job added')
 }
 

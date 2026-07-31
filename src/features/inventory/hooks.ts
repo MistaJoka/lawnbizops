@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
+import { loadPreferences, savePreferences } from '@/lib/preferences'
 import type { Tables } from '@/lib/database.types'
 
 export type InventoryItem = Tables<'inventory_items'>
@@ -114,10 +115,16 @@ export async function archiveInventoryItem(item: InventoryItem): Promise<void> {
   })
 }
 
-/** Landscaping starter SKUs from the stitch inventory mock. */
+/**
+ * Landscaping starter SKUs from the stitch inventory mock. Seeds once per
+ * device (preference-stamped): an inventory the operator deliberately emptied
+ * must stay empty, not silently repopulate on the next load.
+ */
 export async function loadStarterInventory(): Promise<void> {
   const existing = queryClient.getQueryData<InventoryItem[]>(['inventory_items']) ?? []
   if (existing.length > 0) return
+  if (loadPreferences().inventorySeededAt) return
+  savePreferences({ inventorySeededAt: new Date().toISOString() })
 
   const starters: InventoryDraft[] = [
     {

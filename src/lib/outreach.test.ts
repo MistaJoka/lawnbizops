@@ -4,6 +4,7 @@ import {
   mailtoHref,
   onMyWayMessage,
   reviewRequestMessage,
+  runningLateMessage,
   smsHref,
   telHref,
 } from './outreach'
@@ -77,6 +78,20 @@ describe('appointmentReminderMessage', () => {
   it('omits the business clause when blank', () => {
     expect(appointmentReminderMessage('', 'Sam', 'on Jul 20')).toBe(
       "Hi Sam — Friendly reminder: we're scheduled to be out on Jul 20. Reply here if anything changed!",
+    )
+  })
+})
+
+describe('runningLateMessage', () => {
+  it('includes the business and the still-coming reassurance', () => {
+    expect(runningLateMessage('Pierce Lawn', 'Sam')).toBe(
+      "Hi Sam — This is Pierce Lawn. Running a bit behind today — still coming, and I'll text when I'm close. Sorry for the wait!",
+    )
+  })
+
+  it('omits the business clause when blank', () => {
+    expect(runningLateMessage('', 'Sam')).toBe(
+      "Hi Sam — Running a bit behind today — still coming, and I'll text when I'm close. Sorry for the wait!",
     )
   })
 })

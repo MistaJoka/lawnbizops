@@ -7,7 +7,13 @@ import { setJobStatus, useJob } from '@/features/jobs/hooks'
 import { logActivity } from '@/features/activities/hooks'
 import { useBusinessSettings } from '@/features/invoices/hooks'
 import { useExpensesForJob } from '@/features/expenses/hooks'
-import { onMyWayMessage, reviewRequestMessage, smsHref, telHref } from '@/lib/outreach'
+import {
+  onMyWayMessage,
+  reviewRequestMessage,
+  runningLateMessage,
+  smsHref,
+  telHref,
+} from '@/lib/outreach'
 import { JobActions, StatusChip } from '@/features/jobs/JobActions'
 import { JobStepper } from '@/components/JobStepper'
 import { SkeletonDetail } from '@/components/Skeleton'
@@ -155,23 +161,39 @@ function JobDetailScreen() {
             )}
           </div>
           {client.phone && enRoute && (
-            <a
-              href={smsHref(
-                client.phone,
-                onMyWayMessage(business, client.name, p?.label || p?.city || ''),
-              )}
-              onClick={() =>
-                void logActivity({
-                  clientId: client.id,
-                  jobId,
-                  kind: 'note',
-                  body: 'Texted “on my way”.',
-                })
-              }
-              className="heading-stencil tap-active mt-3 block rounded-lg border-2 border-edge py-3 text-center text-sm text-sand"
-            >
-              Text “on my way”
-            </a>
+            <>
+              <a
+                href={smsHref(
+                  client.phone,
+                  onMyWayMessage(business, client.name, p?.label || p?.city || ''),
+                )}
+                onClick={() =>
+                  void logActivity({
+                    clientId: client.id,
+                    jobId,
+                    kind: 'note',
+                    body: 'Texted “on my way”.',
+                  })
+                }
+                className="heading-stencil tap-active mt-3 block rounded-lg border-2 border-edge py-3 text-center text-sm text-sand"
+              >
+                Text “on my way”
+              </a>
+              <a
+                href={smsHref(client.phone, runningLateMessage(business, client.name))}
+                onClick={() =>
+                  void logActivity({
+                    clientId: client.id,
+                    jobId,
+                    kind: 'note',
+                    body: 'Texted “running late”.',
+                  })
+                }
+                className="heading-stencil tap-active mt-2 block rounded-lg border-2 border-edge py-3 text-center text-sm text-sand"
+              >
+                Text “running late”
+              </a>
+            </>
           )}
         </div>
       )}

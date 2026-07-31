@@ -10,11 +10,24 @@ export const Route = createFileRoute('/_authed/tools/grade')({
 const orientationSupported =
   typeof window !== 'undefined' && 'DeviceOrientationEvent' in window
 
+// iOS 13+ gates motion sensors behind an explicit permission request that must
+// come from a user gesture — without it the listener attaches but never fires.
+const requestOrientationPermission = orientationSupported
+  ? (
+      DeviceOrientationEvent as unknown as {
+        requestPermission?: () => Promise<'granted' | 'denied'>
+      }
+    ).requestPermission
+  : undefined
+
 function GradeEstimatorScreen() {
   const [slope, setSlope] = useState<number | null>(null)
+  const [permission, setPermission] = useState<'needed' | 'granted' | 'denied'>(
+    requestOrientationPermission ? 'needed' : 'granted',
+  )
 
   useEffect(() => {
-    if (!orientationSupported) return
+    if (!orientationSupported || permission !== 'granted') return
 
     function onOrient(e: DeviceOrientationEvent) {
       const beta = e.beta
@@ -25,7 +38,18 @@ function GradeEstimatorScreen() {
 
     window.addEventListener('deviceorientation', onOrient)
     return () => window.removeEventListener('deviceorientation', onOrient)
-  }, [])
+  }, [permission])
+
+  async function enableTilt() {
+    if (!requestOrientationPermission) return
+    try {
+      setPermission(
+        (await requestOrientationPermission()) === 'granted' ? 'granted' : 'denied',
+      )
+    } catch {
+      setPermission('denied')
+    }
+  }
 
   const abs = slope !== null ? Math.abs(slope) : null
   const drainage =
@@ -48,6 +72,22 @@ function GradeEstimatorScreen() {
       {!orientationSupported && (
         <p className="mt-6 text-alert">
           Tilt sensors are not available in this browser. Try on your phone in the field.
+        </p>
+      )}
+
+      {orientationSupported && permission === 'needed' && (
+        <button
+          type="button"
+          onClick={() => void enableTilt()}
+          className="heading-stencil tap-active mt-6 w-full rounded-lg bg-blaze px-4 py-4 text-lg text-on-cta"
+        >
+          Enable tilt sensor
+        </button>
+      )}
+      {permission === 'denied' && (
+        <p className="mt-6 text-alert">
+          Motion access was denied. Allow Motion &amp; Orientation for this site in your
+          browser settings, then reload.
         </p>
       )}
 

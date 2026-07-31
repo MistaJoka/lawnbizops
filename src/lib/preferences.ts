@@ -12,6 +12,9 @@ export interface AppPreferences {
   /** ISO timestamp of the last "Needs attention" mark-seen — items newer than
    *  this count as unseen. Empty = never marked. */
   attentionSeenAt: string
+  /** ISO timestamp of the one-time starter-inventory seed — a deliberately
+   *  emptied inventory must stay empty. Empty = never seeded. */
+  inventorySeededAt: string
 }
 
 const KEY = 'lawnbizops:prefs'
@@ -24,6 +27,7 @@ const DEFAULTS: AppPreferences = {
   todayView: 'board',
   activationDismissed: false,
   attentionSeenAt: '',
+  inventorySeededAt: '',
 }
 
 export function loadPreferences(): AppPreferences {

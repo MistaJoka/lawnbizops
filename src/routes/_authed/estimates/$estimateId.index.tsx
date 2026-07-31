@@ -371,7 +371,7 @@ function EstimateDetailScreen() {
         {estimate.status === 'accepted' && (
           <>
             <CreateJobCard detail={detail} />
-            {property && (
+            {property ? (
               <Link
                 to="/schedules/new"
                 search={{ propertyId: property.id, priceCents: total }}
@@ -379,6 +379,27 @@ function EstimateDetailScreen() {
               >
                 Create recurring schedule
               </Link>
+            ) : (
+              // Property-less estimates must still show the recurring option —
+              // hiding it entirely left no hint the path exists (same
+              // affordance as CreateJobCard's disabled state).
+              <div className="rounded-lg border border-edge bg-panel px-4 py-4 text-center">
+                <p className="heading-stencil text-lg text-sand opacity-50">
+                  Create recurring schedule
+                </p>
+                <p className="mt-1 text-xs text-faded">
+                  Needs a property — estimate has none.
+                </p>
+                {detail.client && (
+                  <Link
+                    to="/properties/new"
+                    search={{ clientId: detail.client.id }}
+                    className="heading-stencil mt-1 inline-block text-xs text-blaze"
+                  >
+                    + Add property
+                  </Link>
+                )}
+              </div>
             )}
             {detail.linkedInvoices.length === 0 && (
               <DepositCard detail={detail} totalCents={total} />

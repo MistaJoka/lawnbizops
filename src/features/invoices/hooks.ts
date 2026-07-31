@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
 import { confirmToast } from '@/lib/toast'
-import { localToday } from '@/lib/format'
+import { formatCents, localToday } from '@/lib/format'
 import { addDaysISO, parseLocalDate } from '@/lib/dates'
 import {
   markJobsInvoicedInCaches,
@@ -11,6 +11,7 @@ import {
 } from '@/features/jobs/hooks'
 import type { UnbilledJobRow } from '@/features/jobs/attention'
 import { maybeAdvanceStage } from '@/features/clients/hooks'
+import { logActivity } from '@/features/activities/hooks'
 import type { Tables } from '@/lib/database.types'
 
 export type Invoice = Tables<'invoices'>
@@ -505,10 +506,19 @@ export async function recordPayment(input: RecordPaymentInput): Promise<void> {
       },
     },
   })
-  // Money in the door means this is an active customer — reconcile the stage.
-  const clientId = queryClient.getQueryData<InvoiceDetail>(['invoices', input.invoiceId])
-    ?.invoice.client_id
-  if (clientId) await maybeAdvanceStage(clientId, 'active')
+  // Money in the door means this is an active customer — reconcile the stage,
+  // and put the payment on the client timeline so money history isn't only
+  // visible from inside the invoice ledger.
+  const detail = queryClient.getQueryData<InvoiceDetail>(['invoices', input.invoiceId])
+  const clientId = detail?.invoice.client_id
+  if (clientId) {
+    await maybeAdvanceStage(clientId, 'active')
+    await logActivity({
+      clientId,
+      kind: 'note',
+      body: `Payment received — ${formatCents(input.amountCents)} on ${detail?.invoice.number ?? 'an invoice'}.`,
+    })
+  }
   confirmToast('Payment recorded')
 }
 

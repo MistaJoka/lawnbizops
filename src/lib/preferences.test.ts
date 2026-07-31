@@ -33,6 +33,7 @@ const DEFAULTS = {
   todayView: 'board',
   activationDismissed: false,
   attentionSeenAt: '',
+  inventorySeededAt: '',
 } as const
 
 beforeEach(() => vi.stubGlobal('localStorage', memStorage()))

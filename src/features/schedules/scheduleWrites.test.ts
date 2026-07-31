@@ -20,6 +20,10 @@ vi.mock('@/lib/supabase', () => ({
 }))
 const enqueue = vi.fn()
 vi.mock('@/lib/outbox', () => ({ enqueue: (op: unknown) => enqueue(op) }))
+const maybeAdvanceStage = vi.fn()
+vi.mock('@/features/clients/hooks', () => ({
+  maybeAdvanceStage: (...args: unknown[]) => maybeAdvanceStage(...args),
+}))
 
 import { queryClient } from '@/lib/queryClient'
 import {
@@ -71,8 +75,30 @@ const propList = (pid: string) =>
     { propertyId: pid },
   ]) ?? []
 
-beforeEach(() => enqueue.mockClear())
+beforeEach(() => {
+  enqueue.mockClear()
+  maybeAdvanceStage.mockClear()
+})
 afterEach(() => queryClient.clear())
+
+describe('saveSchedule → stage reconciliation', () => {
+  it('new schedule advances the client toward active via the property cache', async () => {
+    queryClient.setQueryData(['properties', 'p1'], { client_id: 'c1' })
+    await saveSchedule(draft(), { isNew: true })
+    expect(maybeAdvanceStage).toHaveBeenCalledWith('c1', 'active')
+  })
+
+  it('editing an existing schedule does not touch the stage', async () => {
+    queryClient.setQueryData(['properties', 'p1'], { client_id: 'c1' })
+    await saveSchedule(draft(), { isNew: false })
+    expect(maybeAdvanceStage).not.toHaveBeenCalled()
+  })
+
+  it('skips silently on a cold property cache', async () => {
+    await saveSchedule(draft(), { isNew: true })
+    expect(maybeAdvanceStage).not.toHaveBeenCalled()
+  })
+})
 
 describe('saveSchedule', () => {
   it('new: caches the row then materializes jobs (upsert before RPC)', async () => {

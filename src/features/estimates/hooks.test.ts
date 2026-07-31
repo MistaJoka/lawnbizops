@@ -508,4 +508,46 @@ describe('createJobFromEstimate', () => {
     expect(arg.property_id).toBe('p1')
     expect(arg.title).toContain('EST-1')
   })
+
+  it('recovers the catalog service by matching the first line description', async () => {
+    queryClient.setQueryData(
+      ['services'],
+      [
+        { id: 's-archived', name: 'Mow', archived_at: '2026-01-01T00:00:00Z' },
+        { id: 's-mow', name: 'Mow', archived_at: null },
+        { id: 's-edge', name: 'Edge', archived_at: null },
+      ],
+    )
+    const detail = {
+      estimate: { id: 'e1', number: 'EST-1', notes: '' },
+      items: [{ description: '  mow ', quantity: 1, unit_price_cents: 5000 }],
+      client: { id: 'c1', name: 'Pat', phone: '555' },
+      property: { id: 'p1' },
+      linkedInvoiceId: null,
+    } as unknown as EstimateDetail
+
+    await createJobFromEstimate(detail, '2026-06-20')
+
+    const arg = createOneOffJob.mock.calls[0][0] as { service_id: string | null }
+    expect(arg.service_id).toBe('s-mow')
+  })
+
+  it('leaves the service null when no catalog name matches the first line', async () => {
+    queryClient.setQueryData(
+      ['services'],
+      [{ id: 's-mow', name: 'Mow', archived_at: null }],
+    )
+    const detail = {
+      estimate: { id: 'e1', number: 'EST-1', notes: '' },
+      items: [{ description: 'Custom haul-away', quantity: 1, unit_price_cents: 5000 }],
+      client: { id: 'c1', name: 'Pat', phone: '555' },
+      property: { id: 'p1' },
+      linkedInvoiceId: null,
+    } as unknown as EstimateDetail
+
+    await createJobFromEstimate(detail, '2026-06-20')
+
+    const arg = createOneOffJob.mock.calls[0][0] as { service_id: string | null }
+    expect(arg.service_id).toBeNull()
+  })
 })

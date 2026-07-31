@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { queryClient } from '@/lib/queryClient'
 import { enqueue } from '@/lib/outbox'
+import { maybeAdvanceStage } from '@/features/clients/hooks'
 import { localToday } from '@/lib/format'
 import { materializeHorizon } from '@/lib/dates'
 import type { Cadence } from '@/lib/recurrence'
@@ -104,6 +105,13 @@ export async function saveSchedule(
       kind: 'rpc',
       payload: { fn: 'materialize_jobs', args: { through_date: materializeHorizon() } },
     })
+    // A standing schedule is booked work — the stage spec's entry criterion
+    // for Active. Best-effort: skip silently on a cold property cache.
+    const clientId = queryClient.getQueryData<{ client_id: string }>([
+      'properties',
+      draft.property_id,
+    ])?.client_id
+    if (clientId) await maybeAdvanceStage(clientId, 'active')
   } else {
     await enqueue({
       table: 'jobs',

@@ -11,6 +11,7 @@ import {
   saveInventoryItem,
   adjustInventoryQuantity,
   archiveInventoryItem,
+  loadStarterInventory,
   type InventoryItem,
   type InventoryDraft,
 } from './hooks'
@@ -47,6 +48,53 @@ const list = () => queryClient.getQueryData<InventoryItem[]>(['inventory_items']
 
 beforeEach(() => enqueue.mockClear())
 afterEach(() => queryClient.clear())
+
+describe('loadStarterInventory', () => {
+  // The harness's node localStorage stub is non-functional (see
+  // preferences.test.ts) — give the seed-once stamp a working in-memory one.
+  beforeEach(() => {
+    let store: Record<string, string> = {}
+    vi.stubGlobal('localStorage', {
+      getItem: (k: string) => (k in store ? store[k] : null),
+      setItem: (k: string, v: string) => {
+        store[k] = String(v)
+      },
+      removeItem: (k: string) => {
+        delete store[k]
+      },
+      clear: () => {
+        store = {}
+      },
+    })
+  })
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('seeds a starter list on true first run', async () => {
+    queryClient.setQueryData<InventoryItem[]>(['inventory_items'], [])
+    await loadStarterInventory()
+    expect(enqueue.mock.calls.length).toBeGreaterThan(0)
+  })
+
+  it('never re-seeds after the operator empties inventory (seed-once stamp)', async () => {
+    queryClient.setQueryData<InventoryItem[]>(['inventory_items'], [])
+    await loadStarterInventory()
+    enqueue.mockClear()
+
+    // Operator deletes everything — the list loads empty again.
+    queryClient.setQueryData<InventoryItem[]>(['inventory_items'], [])
+    await loadStarterInventory()
+    expect(enqueue).not.toHaveBeenCalled()
+  })
+
+  it('does not seed over existing items', async () => {
+    queryClient.setQueryData<InventoryItem[]>(
+      ['inventory_items'],
+      [item({ id: 'real', name: 'Real item' })],
+    )
+    await loadStarterInventory()
+    expect(enqueue).not.toHaveBeenCalled()
+  })
+})
 
 describe('stockLevel thresholds', () => {
   it('is critical at or below half the reorder level', () => {

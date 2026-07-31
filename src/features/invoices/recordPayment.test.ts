@@ -97,6 +97,32 @@ describe('recordPayment optimistic caches', () => {
     expect(detail().invoice.status).toBe('partially_paid')
   })
 
+  it('logs the payment on the client timeline when the client is known', async () => {
+    seed({ total: 10000 })
+    queryClient.setQueryData<InvoiceDetail>(['invoices', ID], (old) => ({
+      ...old!,
+      invoice: {
+        ...old!.invoice,
+        client_id: 'c1',
+        number: 'INV-9',
+      } as InvoiceDetail['invoice'],
+    }))
+
+    await recordPayment({
+      invoiceId: ID,
+      amountCents: 2500,
+      method: 'zelle',
+      paidAt: '2026-06-23',
+      note: '',
+    })
+
+    const activity = enqueue.mock.calls
+      .map((c) => c[0] as { table: string; payload: { body?: string } })
+      .find((op) => op.table === 'activities')
+    expect(activity).toBeTruthy()
+    expect(activity!.payload.body).toBe('Payment received — $25.00 on INV-9.')
+  })
+
   it('a payment that completes a partially-paid invoice flips it to paid', async () => {
     seed({
       total: 10000,

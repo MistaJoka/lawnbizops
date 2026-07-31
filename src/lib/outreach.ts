@@ -45,6 +45,12 @@ export function onMyWayMessage(
   return `Hi ${clientName} —${who} On my way${dest} now. See you soon!`
 }
 
+/** "Running late" text — the day slipped; keep the customer warm anyway. */
+export function runningLateMessage(business: string, clientName: string): string {
+  const who = business.trim() ? ` This is ${business.trim()}.` : ''
+  return `Hi ${clientName} —${who} Running a bit behind today — still coming, and I'll text when I'm close. Sorry for the wait!`
+}
+
 /** Appointment-reminder text — sent the day before so tomorrow isn't a surprise. */
 export function appointmentReminderMessage(
   business: string,

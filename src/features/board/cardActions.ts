@@ -14,7 +14,9 @@ import {
   type InvoiceBalance,
 } from '@/features/invoices/hooks'
 import { type JobWithContext } from '@/features/jobs/hooks'
+import { logActivity } from '@/features/activities/hooks'
 import { googleMapsRouteUrl } from '@/lib/route'
+import { telHref, smsHref } from '@/lib/outreach'
 import { formatCents, localToday } from '@/lib/format'
 import { confirm } from '@/lib/confirm'
 
@@ -34,17 +36,7 @@ export interface QuickAction {
 }
 
 const call = (phone?: string): QuickAction | null =>
-  phone ? { key: 'call', label: 'Call', icon: Phone, href: `tel:${phone}` } : null
-
-const text = (phone?: string, body?: string): QuickAction | null =>
-  phone
-    ? {
-        key: 'text',
-        label: 'Text',
-        icon: MessageCircle,
-        href: `sms:${phone}${body ? `?&body=${encodeURIComponent(body)}` : ''}`,
-      }
-    : null
+  phone ? { key: 'call', label: 'Call', icon: Phone, href: telHref(phone) } : null
 
 const compact = (a: (QuickAction | null)[]): QuickAction[] =>
   a.filter((x): x is QuickAction => x !== null)
@@ -74,7 +66,25 @@ export function quoteQuickActions(est: EstimateListRow): QuickAction[] {
   const phone = est.client?.phone
   return compact([
     call(phone),
-    text(phone),
+    phone
+      ? {
+          key: 'text',
+          label: 'Text',
+          icon: MessageCircle,
+          // Log before opening the composer so the touch lands on the client
+          // timeline — the same contract as every other outreach affordance.
+          onClick: () => {
+            void logActivity({
+              clientId: est.client_id,
+              kind: 'note',
+              body: est.number
+                ? `Texted about estimate ${est.number}.`
+                : 'Texted about the estimate.',
+            })
+            window.location.href = smsHref(phone)
+          },
+        }
+      : null,
     {
       key: 'accept',
       label: 'Accept estimate',
@@ -102,7 +112,12 @@ export function arQuickActions(inv: InvoiceBalance): QuickAction[] {
           tone: 'blaze',
           onClick: () => {
             void recordReminder(inv.invoice_id)
-            window.location.href = `sms:${phone}?&body=${encodeURIComponent(nudge)}`
+            void logActivity({
+              clientId: inv.client_id,
+              kind: 'note',
+              body: `Texted a payment reminder for ${inv.number ?? 'an invoice'}.`,
+            })
+            window.location.href = smsHref(phone, nudge)
           },
         }
       : null,

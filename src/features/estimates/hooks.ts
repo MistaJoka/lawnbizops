@@ -654,6 +654,17 @@ export async function createJobFromEstimate(
 
   const id = crypto.randomUUID()
   const firstLine = detail.items[0]?.description ?? 'Estimate work'
+  // Estimate items carry no service_id, so recover the catalog link by name:
+  // ServiceQuickAdd writes the service name verbatim as the line description.
+  // No match (custom line, cold cache) → null, as before.
+  const service = queryClient
+    .getQueryData<
+      { id: string; name: string; archived_at: string | null }[]
+    >(['services'])
+    ?.find(
+      (s) =>
+        !s.archived_at && s.name.trim().toLowerCase() === firstLine.trim().toLowerCase(),
+    )
   const propertyContext: JobPropertyContext = {
     ...property,
     client: detail.client,
@@ -662,7 +673,7 @@ export async function createJobFromEstimate(
     {
       id,
       property_id: property.id,
-      service_id: null,
+      service_id: service?.id ?? null,
       scheduled_date: scheduledDate,
       price_cents: invoiceTotalCents(detail.items),
       title: `${detail.estimate.number ?? 'Estimate'} — ${firstLine}`,
